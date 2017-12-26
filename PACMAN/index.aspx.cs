@@ -19,8 +19,8 @@ public partial class index : System.Web.UI.Page
         {
             ViewState["PreviousPageUrl"] = Request.UrlReferrer.ToString();
         }
-        myID = PageExtensionMethods.getMyWindowsID().ToString();
-        //myID = "Cpere059";
+        //myID = PageExtensionMethods.getMyWindowsID().ToString();
+        myID = "vchoh001";
         if (myID != "IDNotFound")
         {
 
@@ -33,7 +33,7 @@ public partial class index : System.Web.UI.Page
                 {
 
                     Session["dtEmp"] = dt;
-                    Response.Redirect("EscalationsInitiatives.aspx", false);
+                    Response.Redirect("pacman.aspx", false);
                 }
                 else
                 {

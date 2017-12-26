@@ -39,32 +39,30 @@
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
     <!-- Pending Transfers List -->
     <div class="box box-primary">
-<%--        <div class="box-header with-border">
+        <%--        <div class="box-header with-border">
             <h3 class="box-title">Apply Leave</h3>
         </div>--%>
         <div class="box-body">
             <div class="row">
                 <div class="col-md-2">
                     <div class="form-group">
-                        <label>Pacman cycle:</label>
+                        <label for="ddlSelectEmployee">Select Employee</label>
                         <div class="input-group">
-                            <div class="input-group-addon">
-                                <i class="fa fa-calendar"></i>
-                            </div>
-                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="DropDownList2" runat="server">
+                            <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                            <asp:DropDownList ID="ddlSelectEmployee" ItemType="text" CssClass="form-control select" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlSelectEmployee_SelectedIndexChanged">
+                                <asp:ListItem Selected="True" Text="None" Value="0"></asp:ListItem>
                             </asp:DropDownList>
                         </div>
                         <!-- /.input group -->
-                    </div>
+                    </div>    
                 </div>
                 <div class="col-md-3">
                     <div class="form-group">
-                        <label>Select Employee:</label>
+                        <label for="ddlPacmanCycle">select Pacman Cycle</label>
                         <div class="input-group">
-                            <div class="input-group-addon">
-                                <i class="fa fa-user"></i>
-                            </div>
-                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="DropDownList1" runat="server">
+                            <span class="input-group-addon"><i class="fa fa-calendar-check-o"></i></span>
+                            <asp:DropDownList ID="ddlPacmanCycle" ItemType="text" CssClass="form-control select" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlPacmanCycle_SelectedIndexChanged">
+                                <asp:ListItem Selected="True" Text="None" Value="0"></asp:ListItem>
                             </asp:DropDownList>
                         </div>
                         <!-- /.input group -->
@@ -72,21 +70,23 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Feedback</label>
+                        <label for="txt_leave_reason" class="col-lg-2 control-label">Feedback</label>
+                            <%--<asp:TextBox ID="txtEscalation" TextMode="multiline" Columns="74" Rows="4" runat="server" CssClass="form-control" placeholder="Enter Escalation..."></asp:TextBox>--%>
+
                         <asp:TextBox ID="txt_leave_reason" CssClass="form-control" runat="server" placeholder="Enter Feedback....."></asp:TextBox>
                         <%--<textarea id="txt_leave_reason" placeholder="Enter Reason....." class="form-control" runat="server"></textarea>--%>
                         <%--<asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" Display="Dynamic" ErrorMessage="Leave Reason required" ForeColor="Red" ControlToValidate="txt_leave_reason" ValidationGroup="Proceed"></asp:RequiredFieldValidator>--%>
                         <%--<asp:RegularExpressionValidator ID="RegularExpressionValidator4" runat="server" Display="Dynamic" ControlToValidate="txt_leave_reason" ErrorMessage="enter valid reason" ForeColor="Red" ValidationExpression="^[a-zA-Z ]+$" ValidationGroup="Proceed"></asp:RegularExpressionValidator>--%>
                     </div>
                 </div>
-                <div class="col-md-1" style="padding-top:2%">
-                     <asp:Button ID="Button2" CssClass="btn btn-primary pull-right" runat="server" Text="Proceed" />
+                <div class="col-md-1" style="padding-top: 2%">
+                    <asp:Button ID="btn_proceed" CssClass="btn btn-primary pull-right" runat="server" Text="Proceed" />
                 </div>
             </div>
         </div>
 
     </div>
-     <!-- Pending Transfers List -->
+    <!-- Pending Transfers List -->
     <div class="box box-solid  box-warning">
         <div class="box-header">
             <i class="fa fa-flag"></i>
@@ -96,62 +96,78 @@
         </div>
         <!-- /.box-header -->
         <div class="box-body">
-                        <div class="box-body table-responsive no-padding">
-                            <table class="table table-hover">
-                                <tr>
-                                    <th>Pacman Cycle</th>
-                                    <th>Feedback</th>
-                                    <th>In Progress</th>
-                                    <th>Expectations Not Met</th>
-                                    <th>Met Expectations</th>
-                                    <th>Exceeded Expectations</th>
-                                    <th>Penalty</th>
-                                </tr>
-                                <tr>
-                                    <td> Dec 2017</td>
-                                    <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. </td>
-                                    <td><input type="radio" name="optionsRadios8" id="Radio1" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios8" id="Radio2" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios8" id="Radio3" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios8" id="Radio4" value="option1" ></td>
-                                    <td>-1</td>
-                                </tr>
-                                <tr>
-                                    <td> Dec 2017</td>
-                                    <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
-                                    <td><input type="radio" name="optionsRadios7" id="Radio5" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios7" id="Radio6" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios7" id="Radio7" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios7" id="Radio8" value="option1" ></td>
-                                    <td>-1</td>
-                                </tr>
-                                <tr>
-                                    <td> Dec 2017</td>
-                                    <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
-                                    <td><input type="radio" name="optionsRadios6" id="Radio9" value="option1" checked></td>
-                                    <td><input type="radio" name="optionsRadios6" id="Radio10" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios6" id="Radio11" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios6" id="Radio12" value="option1" ></td>
-                                    <td>-1</td>
-                                </tr>
-                                <tr>
-                                    <td> Dec 2017</td>
-                                    <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
-                                    <td><input type="radio" name="optionsRadios5" id="Radio13" value="option1" checked></td>
-                                    <td><input type="radio" name="optionsRadios5" id="Radio14" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios5" id="Radio15" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios5" id="Radio16" value="option1" ></td>
-                                    <td>-1</td>
-                                </tr>
-                            </table>
-                        </div>
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tr>
+                        <th>Pacman Cycle</th>
+                        <th>Feedback</th>
+                        <th>In Progress</th>
+                        <th>Expectations Not Met</th>
+                        <th>Met Expectations</th>
+                        <th>Exceeded Expectations</th>
+                        <th>Penalty</th>
+                    </tr>
+                    <tr>
+                        <td>Dec 2017</td>
+                        <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. </td>
+                        <td>
+                            <input type="radio" name="optionsRadios8" id="Radio1" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios8" id="Radio2" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios8" id="Radio3" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios8" id="Radio4" value="option1"></td>
+                        <td>-1</td>
+                    </tr>
+                    <tr>
+                        <td>Dec 2017</td>
+                        <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
+                        <td>
+                            <input type="radio" name="optionsRadios7" id="Radio5" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios7" id="Radio6" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios7" id="Radio7" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios7" id="Radio8" value="option1"></td>
+                        <td>-1</td>
+                    </tr>
+                    <tr>
+                        <td>Dec 2017</td>
+                        <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
+                        <td>
+                            <input type="radio" name="optionsRadios6" id="Radio9" value="option1" checked></td>
+                        <td>
+                            <input type="radio" name="optionsRadios6" id="Radio10" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios6" id="Radio11" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios6" id="Radio12" value="option1"></td>
+                        <td>-1</td>
+                    </tr>
+                    <tr>
+                        <td>Dec 2017</td>
+                        <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
+                        <td>
+                            <input type="radio" name="optionsRadios5" id="Radio13" value="option1" checked></td>
+                        <td>
+                            <input type="radio" name="optionsRadios5" id="Radio14" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios5" id="Radio15" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios5" id="Radio16" value="option1"></td>
+                        <td>-1</td>
+                    </tr>
+                </table>
+            </div>
         </div>
-        </div>
+    </div>
 
-        <!-- /.box-body -->
+    <!-- /.box-body -->
 
 
-      <div class="box box-solid  box-success">
+    <div class="box box-solid  box-success">
         <div class="box-header">
             <i class="fa fa-flag"></i>
             <h3 class="box-title">Completed Tasks</h3>
@@ -160,64 +176,80 @@
         </div>
         <!-- /.box-header -->
         <div class="box-body">
-                        <div class="box-body table-responsive no-padding">
-                            <table class="table table-hover">
-                                <tr>
-                                    <th>Pacman Cycle</th>
-                                    <th>Feedback</th>
-                                    <th>In Progress</th>
-                                    <th>Expectations Not Met</th>
-                                    <th>Met Expectations</th>
-                                    <th>Exceeded Expectations</th>
-                                    <th>Points</th>
-                                    <%--<th>Completed Date</th>--%>
-                                </tr>
-                                <tr>
-                                    <td> Dec 2017</td>
-                                    <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. </td>
-                                    <td><input type="radio" name="optionsRadios0" id="Radio17" value="option1"  ></td>
-                                    <td><input type="radio" name="optionsRadios0" id="Radio18" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios0" id="Radio19" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios0" id="Radio20" value="option1" checked></td>
-                                    <td>1</td>
-                                    <%--<td>10 Dec 2017</td>--%>
-                                </tr>
-                                <tr>
-                                    <td> Dec 2017</td>
-                                    <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
-                                    <td><input type="radio" name="optionsRadios1" id="Radio21" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios1" id="Radio22" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios1" id="Radio23" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios1" id="Radio24" value="option1" checked></td>
-                                    <td>1</td>
-                                    <%--<td>10 Dec 2017</td>--%>
-                                </tr>
-                                <tr>
-                                    <td> Dec 2017</td>
-                                    <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
-                                    <td><input type="radio" name="optionsRadios2" id="Radio25" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios2" id="Radio26" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios2" id="Radio27" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios2" id="Radio28" value="option1" checked></td>
-                                    <td>1</td>
-                                    <%--<td>10 Dec 2017</td>--%>
-                                </tr>
-                                <tr>
-                                    <td> Dec 2017</td>
-                                    <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
-                                    <td><input type="radio" name="optionsRadios3" id="Radio29" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios3" id="Radio30" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios3" id="Radio31" value="option1" ></td>
-                                    <td><input type="radio" name="optionsRadios3" id="Radio32" value="option1" checked></td>
-                                    <td>1</td>
-                                    <%--<td>10 Dec 2017</td>--%>
-                                </tr>
-                            </table>
-                        </div>
+            <div class="box-body table-responsive no-padding">
+                <table class="table table-hover">
+                    <tr>
+                        <th>Pacman Cycle</th>
+                        <th>Feedback</th>
+                        <th>In Progress</th>
+                        <th>Expectations Not Met</th>
+                        <th>Met Expectations</th>
+                        <th>Exceeded Expectations</th>
+                        <th>Points</th>
+                        <%--<th>Completed Date</th>--%>
+                    </tr>
+                    <tr>
+                        <td>Dec 2017</td>
+                        <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit. </td>
+                        <td>
+                            <input type="radio" name="optionsRadios0" id="Radio17" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios0" id="Radio18" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios0" id="Radio19" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios0" id="Radio20" value="option1" checked></td>
+                        <td>1</td>
+                        <%--<td>10 Dec 2017</td>--%>
+                    </tr>
+                    <tr>
+                        <td>Dec 2017</td>
+                        <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
+                        <td>
+                            <input type="radio" name="optionsRadios1" id="Radio21" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios1" id="Radio22" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios1" id="Radio23" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios1" id="Radio24" value="option1" checked></td>
+                        <td>1</td>
+                        <%--<td>10 Dec 2017</td>--%>
+                    </tr>
+                    <tr>
+                        <td>Dec 2017</td>
+                        <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
+                        <td>
+                            <input type="radio" name="optionsRadios2" id="Radio25" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios2" id="Radio26" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios2" id="Radio27" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios2" id="Radio28" value="option1" checked></td>
+                        <td>1</td>
+                        <%--<td>10 Dec 2017</td>--%>
+                    </tr>
+                    <tr>
+                        <td>Dec 2017</td>
+                        <td>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</td>
+                        <td>
+                            <input type="radio" name="optionsRadios3" id="Radio29" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios3" id="Radio30" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios3" id="Radio31" value="option1"></td>
+                        <td>
+                            <input type="radio" name="optionsRadios3" id="Radio32" value="option1" checked></td>
+                        <td>1</td>
+                        <%--<td>10 Dec 2017</td>--%>
+                    </tr>
+                </table>
+            </div>
         </div>
 
     </div>
-          
+
     <!-- /.box -->
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">

@@ -64,7 +64,7 @@
                 <!-- /.box-header -->
                 <div class="box-body">
                     <div class="form-group">
-                        <label for="inputSkills" class="col-lg-2 control-label">Select Employee</label>
+                        <label for="ddlSelectEmployee" class="col-lg-2 control-label">Select Employee</label>
                         <div class="col-lg-4">
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="fa fa-user"></i></span>
@@ -75,7 +75,7 @@
 
                         </div>
 
-                        <label for="ddlPacmanCycle" class="col-lg-2 control-label">select Review Period</label>
+                        <label for="ddlPacmanCycle" class="col-lg-2 control-label">select Pacman Cycle</label>
                         <div class="col-lg-4">
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="fa fa-calendar-check-o"></i></span>
@@ -119,10 +119,13 @@
                                             <asp:ListItem Text="Operations" Value="Operations"></asp:ListItem>
                                             <asp:ListItem Text="Client" Value="Client"></asp:ListItem>
                                         </asp:RadioButtonList>
+                                         <asp:RequiredFieldValidator ID="RequiredFieldValidator2" runat="server" Display="Dynamic" ErrorMessage="Select a category" ForeColor="Red" ControlToValidate="rbEscalation"  ValidationGroup="Escalation"></asp:RequiredFieldValidator>
                                     </div>
                                 </div>
                             </div>
                             <asp:TextBox ID="txtEscalation" TextMode="multiline" Columns="74" Rows="4" runat="server" CssClass="form-control" placeholder="Enter Escalation..."></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" Display="Dynamic" ErrorMessage="Escalation Description required" ForeColor="Red" ControlToValidate="txtEscalation" ValidationGroup="Escalation" ></asp:RequiredFieldValidator>
+                        <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" Display="Dynamic" ControlToValidate="txtEscalation" ErrorMessage="enter valid reason" ForeColor="Red" ValidationExpression="^[a-zA-Z ]+$" ValidationGroup="Escalation"></asp:RegularExpressionValidator>
                             <br />
                             <div class="pull-left" style="margin-top: 1%">
                                 <asp:FileUpload ID="FileUpload1" runat="server" />
@@ -130,9 +133,9 @@
 
                             <div class="pull-right">
                                 <%--<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>--%>
-                                <asp:Button ID="btnDiscardEsc" runat="server" Text="Discard" CssClass="btn btn-default" OnClick="btnDiscardEsc_Click" />
+                                <asp:Button ID="btnDiscardEsc" runat="server" Text="Discard" CssClass="btn btn-default" OnClick="btnDiscardEsc_Click"/>
                                 &nbsp
-                        <asp:Button ID="btnSaveEsc" runat="server" Text="Save" CssClass="btn btn-primary" OnClick="btnSaveEsc_Click" />
+                        <asp:Button ID="btnSaveEsc" runat="server" Text="Save" CssClass="btn btn-primary" OnClick="btnSaveEsc_Click"  ValidationGroup="Escalation"/>
                             </div>
 
                             <br>
@@ -184,10 +187,14 @@
                                             <asp:ListItem Text="Operations" Value="Operations"></asp:ListItem>
                                             <asp:ListItem Text="Client" Value="Client"></asp:ListItem>
                                         </asp:RadioButtonList>
+                                         <asp:RequiredFieldValidator ID="RequiredFieldValidator4" runat="server" Display="Dynamic" ErrorMessage="Select a category" ForeColor="Red" ControlToValidate="rbInitiative"  ValidationGroup="Initiative"></asp:RequiredFieldValidator>
+
                                     </div>
                                 </div>
                             </div>
                             <asp:TextBox ID="txtInitiative" TextMode="multiline" Columns="74" Rows="4" runat="server" CssClass="form-control" placeholder="Enter Initiative..."></asp:TextBox>
+                            <asp:RequiredFieldValidator ID="RequiredFieldValidator3" runat="server" Display="Dynamic" ErrorMessage="Initiative Description required" ForeColor="Red" ControlToValidate="txtInitiative" ValidationGroup="Initiative" ></asp:RequiredFieldValidator>
+                        <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" Display="Dynamic" ControlToValidate="txtEscalation" ErrorMessage="enter valid reason" ForeColor="Red" ValidationExpression="^[a-zA-Z ]+$" ValidationGroup="txtInitiative"></asp:RegularExpressionValidator>
                             <br />
                             <div class="pull-left" style="margin-top: 1%">
                                 <asp:FileUpload ID="FileUpload2" runat="server" />

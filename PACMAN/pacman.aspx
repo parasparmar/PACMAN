@@ -143,9 +143,7 @@
                 <div class="col-lg-4">
                     <div class="input-group">
                         <span class="input-group-addon"><i class="fa fa-calendar-check-o"></i></span>
-                        <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlReviewPeriod" runat="server">
-                            <asp:ListItem Enabled="true" Selected="True" Text="December 2017 - Final Rating : 4.447" Value="01-12-2017"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Text="January 2018 - Final Rating : NA" Value="01-12-2017"></asp:ListItem>
+                        <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlReviewPeriod" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlReviewPeriod_SelectedIndexChanged">
                         </asp:DropDownList>
                     </div>
                 </div>
@@ -163,88 +161,113 @@
                 <ul class="nav nav-tabs pull-right">
                     <li><a href="#itemized-details" data-toggle="tab">Itemized Details</a></li>
                     <li class="active"><a href="#monthly-scorecard" data-toggle="tab">Overall Scorecard</a></li>
-
-                    <li class="pull-left header"><i class="fa fa-inbox"></i>My Performance Management Cycle : December 2017 - Final Rating : 4.447</li>
+                    <li class="pull-left header"><i class="fa fa-inbox"></i>My Performance Management Cycle</li>
                 </ul>
                 <div class="tab-content no-padding">
                     <!-- Morris chart - Sales -->
                     <div class="box-body tab-pane active" id="monthly-scorecard" style="position: relative; height: 300px;">
-                        <table class="table table-responsive">
-                            <thead>
-                                <tr>
-                                    <th>Metrics</th>
-                                    <th>Weightage</th>
-                                    <th>Fair Weightage</th>
-                                    <th>Difference</th>
-                                    <th>Applied Score</th>
-                                    <th>Weighted % Score</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Service Levels</td>
-                                    <td>20</td>
-                                    <td>16.67</td>
-                                    <td>3.33</td>
-                                    <td>3.59</td>
-                                    <td>3.710</td>
-                                </tr>
-                                <tr>
-                                    <td>Bill To Pay</td>
-                                    <td>20</td>
-                                    <td>16.67</td>
-                                    <td>3.33</td>
-                                    <td>2.48</td>
-                                    <td>2.563</td>
-                                </tr>
-                                <tr>
-                                    <td>Coaching & Feedback</td>
-                                    <td>5</td>
-                                    <td>16.67</td>
-                                    <td>-11.67</td>
-                                    <td>3.60</td>
-                                    <td>3.180</td>
-                                </tr>
-                                <tr>
-                                    <td>Escalations</td>
-                                    <td>5</td>
-                                    <td>16.67</td>
-                                    <td>-11.67</td>
-                                    <td>5.00</td>
-                                    <td>4.417</td>
-                                </tr>
-                                <tr>
-                                    <td>Attendance</td>
-                                    <td>10</td>
-                                    <td>16.67</td>
-                                    <td>-6.67</td>
-                                    <td>5.00</td>
-                                    <td>4.667</td>
-                                </tr>
-                                <tr>
-                                    <td>Real-Time Optimizations</td>
-                                    <td>40</td>
-                                    <td>16.67</td>
-                                    <td>23.33</td>
-                                    <td>3.00</td>
-                                    <td>3.700</td>
-                                </tr>
-                                <tr>
-                                    <td>Totals</td>
-                                    <td>100</td>
-                                    <td>100</td>
-                                    <td>0.00</td>
-                                    <td>&nbsp;</td>
-                                    <td><strong>4.447</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <asp:GridView ID="gvScoreCard" runat="server" CssClass="table table-condensed table-bordered table-responsive"
+                            AutoGenerateColumns="true">
+                        </asp:GridView>
 
+
+
+                        <!-- START ACCORDION & CAROUSEL-->
+                        <%--<h2 class="page-header"></h2>--%>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="box box-solid">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">Score Card</h3>
+                                    </div>
+                                    <!-- /.box-header -->
+                                    <div class="box-body">
+                                        <div class="box-group" id="accordion">
+                                            <!-- we are adding the .panel class so bootstrap.js collapse plugin detects it -->
+                                            <div class="panel box box-success">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne"><asp:Literal ID="ltlPrimaryKPI" runat="server" Text="Primary KPI : Service Level"></asp:Literal></a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseOne" class="panel-collapse collapse in">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlKPI" runat="server">
+                                                            
+                                                        </asp:Panel>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="panel box box-success">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">BTP : Billed To Pay Ratio</a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseTwo" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                        
+                   
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="panel box box-warning">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">Escalations & Initiatives</a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseThree" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                        
+                   
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="panel box box-warning">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">Self-Attendance</a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseFour" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                        
+                   
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="panel box box-warning">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive"><asp:Literal ID="ltlOptimizationKPI" runat="server" Text="Real Time Optimization KPI"></asp:Literal></a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseFive" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlOptimization" runat="server">
+                                                                                                                        
+                                                        </asp:Panel>
+                   
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- /.box-body -->
+                                </div>
+                                <!-- /.box -->
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                        <!-- /.row -->
+                        <!-- END ACCORDION & CAROUSEL-->
 
                     </div>
                     <div class="chart tab-pane" id="itemized-details" style="position: relative">
-                        <asp:GridView ID="tblKPI" runat="server" CssClass="table table-condensed table-bordered table-responsive" 
-                             AutoGenerateColumns="true"></asp:GridView>
+                        <asp:GridView ID="tblKPI" runat="server" CssClass="table table-condensed table-bordered table-responsive"
+                            AutoGenerateColumns="true">
+                        </asp:GridView>
 
                     </div>
                 </div>
