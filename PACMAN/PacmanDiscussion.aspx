@@ -141,54 +141,63 @@
             <div class="form-group">
 
                 <div class="col-lg-3">
-                    <label for="ddlReviewPeriod" class="col-lg-2 control-label">select Review Period</label>
-                    <div class="input-group">
-                        <span class="input-group-addon"><i class="fa fa-calendar-check-o"></i></span>
-                        <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlReviewPeriod" runat="server">
-                            <asp:ListItem Enabled="true" Selected="True" Text="December 2017" Value="01-12-2017"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Text="January 2018" Value="01-01-2018"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Text="February 2018" Value="01-02-2018"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Text="March 2018" Value="01-03-2018"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Text="April 2018" Value="01-04-2018"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Text="May 2018" Value="01-05-2018"></asp:ListItem>
-                        </asp:DropDownList>
+                    <div class="form-group">
+                        <label>Select Pacman Cycle</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar-check-o"></i>
+                            </div>
+                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlReviewPeriod" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlReviewPeriod_SelectedIndexChanged">
+                            </asp:DropDownList>
+                        </div>
+                        <!-- /.input group -->
+                    </div>
+
+                </div>
+
+
+                <div class="col-lg-3">
+                    <div class="form-group">
+                        <label>Select Review Stage</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlStage" OnDataBound="ddlStage_DataBound" runat="server" OnSelectedIndexChanged="ddlStage_SelectedIndexChanged" AutoPostBack="true">
+                            </asp:DropDownList>
+                        </div>
+                        <!-- /.input group -->
                     </div>
                 </div>
 
 
                 <div class="col-lg-3">
-                    <label for="ddlReviewStage" class="col-lg-2 control-label">Review Stage</label>
-                    <div class="input-group">
-                        <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
-                        <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlReviewStage" runat="server">
-                            <asp:ListItem Enabled="true" Text="For Entire Team" Value="0"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Selected="True" Text="Discussion Pending - 5" Value="1"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Text="Acknowledgement Pending - 2" Value="2"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Text="Completed - 1" Value="3"></asp:ListItem>
-                        </asp:DropDownList>
-                    </div>
-                </div>
-
-
-                <div class="col-lg-3">
-                    <label for="inputSkills" class="col-lg-2 control-label">Reportee</label>
-                    <div class="input-group">
-                        <span class="input-group-addon"><i class="fa fa-user"></i></span>
-                        <asp:DropDownList ItemType="text" CssClass="form-control select" ID="DropDownList1" runat="server">
-                            <asp:ListItem Enabled="true" Selected="True" Text="Paras Chandrakant Parmar" Value="931040"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Text="Komal Trivedi" Value="931041"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Text="Gurdeep Singh" Value="931042"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Text="Vishal Shirsat" Value="931043"></asp:ListItem>
-                            <asp:ListItem Enabled="true" Text="Ashok Vishwakarma" Value="931044"></asp:ListItem>
-                        </asp:DropDownList>
+                    <div class="form-group">
+                        <label>Select Reportee</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlReportee" runat="server">
+                            </asp:DropDownList>
+                        </div>
+                        <!-- /.input group -->
                     </div>
                 </div>
                 <div class="col-lg-3">
-                    <label for="inputSkills" class="col-lg-2 control-label">Is SPI</label>
-                    <div class="input-group">
-                        <span class="input-group-addon"><i class="fa fa-user"></i></span>
-                        <asp:TextBox ItemType="text" CssClass="form-control select" ID="tbIsSPI" Text="TRUE" runat="server">                            
-                        </asp:TextBox>
+                    <div class="form-group">
+                        <label>Is SPI</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="DropDownList3" runat="server">
+                                <asp:ListItem Enabled="true" Selected="True" Text="Select SPI Status" Value="2"></asp:ListItem>
+                                <asp:ListItem Enabled="true" Text="False" Value="0"></asp:ListItem>
+                                <asp:ListItem Enabled="true" Text="True" Value="1"></asp:ListItem>
+                            </asp:DropDownList>
+                        </div>
+                        <!-- /.input group -->
                     </div>
                 </div>
             </div>
@@ -206,85 +215,339 @@
                     <li><a href="#itemized-details" data-toggle="tab">Itemized Details</a></li>
                     <li class="active"><a href="#monthly-scorecard" data-toggle="tab">Overall Scorecard</a></li>
 
-                    <li class="pull-left header"><i class="fa fa-inbox"></i>Paras Chandrakant Parmar's Performance Management Cycle : December 2017 - Final Rating : 4.447</li>
+                    <li class="pull-left header"><i class="fa fa-inbox"></i>
+                        <asp:Literal ID="ltlEmloyeeBanner" runat="server"></asp:Literal>
+                    </li>
                 </ul>
                 <div class="tab-content no-padding">
                     <!-- Morris chart - Sales -->
                     <div class="box-body tab-pane active" id="monthly-scorecard" style="position: relative; height: 300px;">
-                        <table class="table table-responsive">
-                            <thead>
-                                <tr>
-                                    <th>Metrics</th>
-                                    <th>Weightage</th>
-                                    <th>Fair Weightage</th>
-                                    <th>Difference</th>
-                                    <th>Applied Score</th>
-                                    <th>Weighted % Score</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Service Levels</td>
-                                    <td>20</td>
-                                    <td>16.67</td>
-                                    <td>3.33</td>
-                                    <td>3.59</td>
-                                    <td>3.710</td>
-                                </tr>
-                                <tr>
-                                    <td>Bill To Pay</td>
-                                    <td>20</td>
-                                    <td>16.67</td>
-                                    <td>3.33</td>
-                                    <td>2.48</td>
-                                    <td>2.563</td>
-                                </tr>
-                                <tr>
-                                    <td>Coaching & Feedback</td>
-                                    <td>5</td>
-                                    <td>16.67</td>
-                                    <td>-11.67</td>
-                                    <td>3.60</td>
-                                    <td>3.180</td>
-                                </tr>
-                                <tr>
-                                    <td>Escalations</td>
-                                    <td>5</td>
-                                    <td>16.67</td>
-                                    <td>-11.67</td>
-                                    <td>5.00</td>
-                                    <td>4.417</td>
-                                </tr>
-                                <tr>
-                                    <td>Attendance</td>
-                                    <td>10</td>
-                                    <td>16.67</td>
-                                    <td>-6.67</td>
-                                    <td>5.00</td>
-                                    <td>4.667</td>
-                                </tr>
-                                <tr>
-                                    <td>Real-Time Optimizations</td>
-                                    <td>40</td>
-                                    <td>16.67</td>
-                                    <td>23.33</td>
-                                    <td>3.00</td>
-                                    <td>3.700</td>
-                                </tr>
-                                <tr>
-                                    <td>Totals</td>
-                                    <td>100</td>
-                                    <td>100</td>
-                                    <td>0.00</td>
-                                    <td>&nbsp;</td>
-                                    <td><strong>4.447</strong></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <!-- START ACCORDION & CAROUSEL-->
+                        <%--<h2 class="page-header"></h2>--%>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="box box-solid">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">Score Card
+                                            <asp:Literal ID="ltlfinalScore" runat="server"></asp:Literal>
+                                        </h3>
+                                    </div>
+                                    <!-- /.box-header -->
+                                    <div class="box-body">
 
+                                        <div class="box-group" id="accordion">
+                                            <!-- we are adding the .panel class so bootstrap.js collapse plugin detects it -->
+
+                                            <!--Common KPI for RTA, Scheduler, Planner-->
+                                            <asp:Panel ID="pnl_KPI" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                                                            <asp:Literal ID="ltlPrimaryKPI" runat="server" Text="Primary KPI : Service Level"></asp:Literal></a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseOne" class="panel-collapse collapse in">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlKPI" runat="server">
+                                                        </asp:Panel>
+                                                    </div>
+                                                </div>
+                                            </asp:Panel>
+                                            <!--Primary KPI-->
+                                            <asp:Panel ID="pnl_BTP" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
+                                                            <asp:Literal ID="ltlBTP" runat="server" Text="BTP : Billed To Pay Ratio"></asp:Literal>
+                                                        <asp:Literal ID="ltl_BTP" Text="0" runat="server"></asp:Literal>
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseTwo" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlBTP" runat="server">
+                                                        </asp:Panel>
+                                                    </div>
+                                                </div>
+                                            </asp:Panel>
+                                            <!--BTP-->
+                                            <asp:Panel ID="pnl_Escalations" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
+                                                            <asp:Literal ID="ltlEI" runat="server" Text="Escalations & Initiatives : "></asp:Literal>
+                                                            <asp:Literal ID="ltl_Escalations" Text="0" runat="server"></asp:Literal>
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                                <%--<div id="collapseThree" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                        
+                   
+                                                    </div>
+                                                </div>--%>
+                                            </asp:Panel>
+                                            <!--Escalations & Initiatives-->
+
+                                            <!--Commom KPI for all(RTA, Scheduler, Planner, Analytics)-->
+                                            <asp:Panel ID="pnl_Absenteeism" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
+                                                            <asp:Literal ID="ltlAbsenteeism" runat="server" Text="Absenteeism : "></asp:Literal>
+                                                            <asp:Literal ID="ltl_Absenteeism" Text="0" runat="server"></asp:Literal>
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                                <%--<div id="collapseFour" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                    </div>
+                                                </div>--%>
+                                            </asp:Panel>
+                                            <!--Self-Attendance-->
+
+                                            <!--RTA KPI's-->
+                                            <asp:Panel ID="pnl_Real_Time_Optimization" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive">
+                                                            <asp:Literal ID="ltlOptimization" runat="server" Text="Real Time Optimization KPI"></asp:Literal>
+                                                            <asp:Literal ID="ltl_Real_Time_Optimization" Text="0" runat="server"></asp:Literal>
+                                                        </a>
+
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseFive" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlOptimization" runat="server">
+                                                        </asp:Panel>
+
+                                                    </div>
+                                                </div>
+                                            </asp:Panel>
+                                            <!--Real Time Optimization KPI-->
+
+                                            <!-- Planner KPI's -->
+                                            <asp:Panel ID="pnl_Forecasting_Accuracy" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseSix">
+                                                            <asp:Literal ID="ltlForecasting_Accuracy" runat="server" Text="Forecast Accuracy : "></asp:Literal>
+                                                            <asp:Literal ID="ltl_Forecasting_Accuracy" Text="0" runat="server"></asp:Literal>
+
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseSix" class="panel-collapse collapse in">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlForecasting_Accuracy" runat="server">
+                                                        </asp:Panel>
+                                                    </div>
+                                                </div>
+                                            </asp:Panel>
+                                            <!--Forecast Accuracy-->
+                                            <asp:Panel ID="pnl_Headcount_Accuracy" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseSeven">
+                                                            <asp:Literal ID="ltlHeadcount_Accuracy" runat="server" Text="Headcount Accuracy"></asp:Literal>
+                                                            <asp:Literal ID="ltl_Headcount_Accuracy" Text="0" runat="server"></asp:Literal>
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseSeven" class="panel-collapse collapse in">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlHeadcount_Accuracy" runat="server">
+                                                        </asp:Panel>
+                                                    </div>
+                                                </div>
+                                            </asp:Panel>
+                                            <!--Headcount Accuracy-->
+
+                                            <!--Scheduler KPI's-->
+                                            <asp:Panel ID="pnl_Scheduling_Accuracy" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseNine">
+                                                            <asp:Literal ID="ltlSchedulingAccuracy" runat="server" Text="Scheduling Accuracy"></asp:Literal>
+                                                            <asp:Literal ID="ltl_Scheduling_Accuracy" Text="0" runat="server"></asp:Literal></a>
+                                                    </h4>
+                                                </div>
+                                                <div id="Div1" class="panel-collapse collapse in">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlScheduling_Accuracy" runat="server">
+                                                        </asp:Panel>
+                                                    </div>
+                                                </div>
+                                            </asp:Panel>
+                                            <!--Scheduling Accuracy-->
+
+                                            <asp:Panel ID="pnl_IEX_Management" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseEight">
+                                                            <asp:Literal ID="ltlIEX_Management" runat="server" Text="IEX Management"></asp:Literal>
+                                                            <asp:Literal ID="ltl_IEX_Management" Text="0" runat="server"></asp:Literal>
+
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseEight" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlIEX_Management" runat="server">
+                                                            <div class="row">
+                                                                <div class="col-md-4">
+                                                                    <asp:Literal ID="Literal5" runat="server" Text="Select rating"></asp:Literal>
+                                                                    <asp:DropDownList ID="ddlIEXMgmtScore" runat="server" CssClass="form-control select">
+                                                                        <asp:ListItem Value="5" Text="5" runat="server"></asp:ListItem>
+                                                                        <asp:ListItem Value="4" Text="4" runat="server"></asp:ListItem>
+                                                                        <asp:ListItem Value="3" Text="3" runat="server"></asp:ListItem>
+                                                                        <asp:ListItem Value="2" Text="2" runat="server"></asp:ListItem>
+                                                                        <asp:ListItem Value="1" Text="1" runat="server"></asp:ListItem>
+                                                                        <asp:ListItem Value="0" Text="0" runat="server"></asp:ListItem>
+                                                                    </asp:DropDownList>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <asp:Label ID="label1" runat="server">Please enter comments</asp:Label>
+                                                                    <asp:TextBox ID="txtIEXMgmtComments" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2"></asp:TextBox>
+                                                                </div>
+                                                                <div class="col-md-2">
+                                                                    <asp:Button ID="btnIEXMgmtScoreSubmit" runat="server" Text="submit" CssClass="btn btn-primary" OnClick="btnIEXMgmtScoreSubmit_Click" />
+                                                                </div>
+                                                            </div>
+                                                        </asp:Panel>
+                                                    </div>
+                                                </div>
+                                            </asp:Panel>
+                                            <!--IEX Management-->
+
+                                            <!--Analytics KPI-->
+                                            <asp:Panel ID="pnl_Analytics" runat="server" Visible="false">
+
+                                                <div class="panel box box-warning">
+                                                    <div class="box-header with-border">
+                                                        <h4 class="box-title">
+                                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTen">
+                                                                <asp:Literal ID="ltlCoachingFeedback" runat="server" Text="Coaching  & Feedback"></asp:Literal></a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="collapseTen" class="panel-collapse collapse">
+                                                        <div class="box-body">
+                                                            <asp:Panel ID="Panel5" runat="server">
+                                                                <div class="row">
+                                                                    <div class="col-md-4">
+                                                                        <asp:Literal ID="ltlCoaching" runat="server" Text="Select rating"></asp:Literal>
+                                                                        <asp:DropDownList ID="ddlCoaching" runat="server" CssClass="form-control select">
+                                                                            <asp:ListItem Value="5" Text="5" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="4" Text="4" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="3" Text="3" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="2" Text="2" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="1" Text="1" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="0" Text="0" runat="server"></asp:ListItem>
+                                                                        </asp:DropDownList>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <asp:Label ID="label3" runat="server">Please enter comments</asp:Label>
+                                                                        <asp:TextBox ID="txtCoachingComments" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2"></asp:TextBox>
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        <asp:Button ID="btnCoachingScoreSubmit" runat="server" Text="submit" CssClass="btn btn-primary" OnClick="btnCoachingScoreSubmit_Click" />
+                                                                    </div>
+                                                                </div>
+                                                            </asp:Panel>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="panel box box-warning">
+                                                    <div class="box-header with-border">
+                                                        <h4 class="box-title">
+                                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseEleven">
+                                                                <asp:Literal ID="ltlOntimeDelivery" runat="server" Text="On-Time Delivery"></asp:Literal>
+                                                            </a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="collapseEleven" class="panel-collapse collapse">
+                                                        <div class="box-body">
+                                                            <asp:Panel ID="Panel6" runat="server">
+                                                            </asp:Panel>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="panel box box-warning">
+                                                    <div class="box-header with-border">
+                                                        <h4 class="box-title">
+                                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwelve">
+                                                                <asp:Literal ID="ltlAccuracy" runat="server" Text="Accuracy"></asp:Literal></a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="collapseTwelve" class="panel-collapse collapse">
+                                                        <div class="box-body">
+                                                            <asp:Panel ID="Panel7" runat="server">
+                                                            </asp:Panel>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="panel box box-warning">
+                                                    <div class="box-header with-border">
+                                                        <h4 class="box-title">
+                                                            <a data-toggle="collapse" data-parent="#accordion" href="#collapseProject">
+                                                                <asp:Literal ID="ltlProject" runat="server" Text="Projects"></asp:Literal>
+                                                            </a>
+                                                        </h4>
+                                                    </div>
+                                                    <div id="collapseProject" class="panel-collapse collapse">
+                                                        <div class="box-body">
+                                                            <asp:Panel ID="Panel8" runat="server">
+                                                                <div class="row">
+                                                                    <div class="col-md-4">
+                                                                        <asp:Literal ID="ltlAnalyticsproject" runat="server" Text="Select rating"></asp:Literal>
+                                                                        <asp:DropDownList ID="ddlAnalyticProject" runat="server" CssClass="form-control select">
+                                                                            <asp:ListItem Value="5" Text="5" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="4" Text="4" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="3" Text="3" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="2" Text="2" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="1" Text="1" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="0" Text="0" runat="server"></asp:ListItem>
+                                                                        </asp:DropDownList>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <asp:Label ID="label2" runat="server">Please enter comments</asp:Label>
+                                                                        <asp:TextBox ID="txtAnalyticProject" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2"></asp:TextBox>
+                                                                    </div>
+                                                                    <div class="col-md-2">
+                                                                        <asp:Button ID="btnAnalyticProjectScoreSubmit" runat="server" Text="submit" CssClass="btn btn-primary" OnClick="btnAnalyticProjectScoreSubmit_Click" />
+                                                                    </div>
+                                                                </div>
+                                                            </asp:Panel>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </asp:Panel>
+                                        </div>
+                                    </div>
+                                    <!-- /.box-body -->
+                                </div>
+                                <!-- /.box -->
+                            </div>
+                            <!-- /.col -->
+                        </div>
+                        <!-- /.row -->
+                        <!-- END ACCORDION & CAROUSEL-->
 
                     </div>
-                    <div class="chart tab-pane" id="itemized-details" style="position: relative; height: 300px;"></div>
+                    <%--<div class="chart tab-pane" id="itemized-details" style="position: relative">
+                        <asp:GridView ID="tblKPI" runat="server" CssClass="table table-condensed table-bordered table-responsive"
+                            AutoGenerateColumns="true">
+                        </asp:GridView>
+
+                    </div>--%>
+                    <%--<div class="chart tab-pane" id="itemized-details2" style="position: relative; height: 300px;"></div>--%>
                 </div>
                 <div class="box-footer"></div>
             </div>
@@ -299,7 +562,7 @@
                         <h4>Has the above Reportee's PACMAN been discussed?
                  <span class="btn-group pull-right">
                      <asp:Button ID="btnNotDiscussed" runat="server" Text="Not Discussed" CssClass="btn btn-default" />
-                     <asp:Button ID="btnYesDiscussed" runat="server" Text="Discussed" CssClass="btn btn-primary" />
+                     <asp:Button ID="btnYesDiscussed" runat="server" Text="Discussed" CssClass="btn btn-primary" OnClick="btnYesDiscussed_Click" />
                  </span>
                         </h4>
                     </div>
@@ -313,7 +576,7 @@
                         <h4>Submit PACMAN for Employee's Acknowledgement
                  <span class="btn-group pull-right">
                      <%--<asp:Button ID="btnDoNotAgree" runat="server" Text="I Do Not Agree" CssClass="btn btn-warning" />--%>
-                     <asp:Button ID="btnSubmit" runat="server" Text="Submit" CssClass="btn btn-success" />
+                     <asp:Button ID="btnSubmitPacman" runat="server" Text="Submit" CssClass="btn btn-success" OnClick="btnSubmitPacman_Click" />
                  </span>
                         </h4>
                     </div>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.UI;
@@ -22,6 +23,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
 
     protected void Page_Load(object sender, EventArgs e)
     {
+        //Page.Form.Attributes.Add("enctype", "multipart/form-data");
         my = new Helper();
         try
         {
@@ -77,8 +79,6 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
     }
 
   
-
-
     private void fillddlPacmanCycle()
     {
         string emp; 
@@ -199,6 +199,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         fillgvInitiativelog();
         getTotalScore();
     }
+    
     protected void btnSaveEsc_Click(object sender, EventArgs e)
     {
         SqlConnection con = new SqlConnection(my.getConnectionString());
@@ -208,10 +209,37 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         SqlCommand cmd = new SqlCommand(strSQL, con);
         cmd.CommandType = CommandType.StoredProcedure;
 
+        string folderPath = Server.MapPath("~/Sitel/mails/");
+
+        //string fileName1 = FileUploadAttachMailEsc.FileName;
+        string fileName = Path.GetFileName(FileUploadAttachMailEsc.FileName);
+
+        FileUploadAttachMailEsc.SaveAs(folderPath + Path.GetFileName(FileUploadAttachMailEsc.FileName));
+
+        string Attachment = Server.MapPath("~/Sitel/mails/") + fileName;
+
+        //if (FileUploadAttachMailEsc.HasFile)
+        //{
+        //    try
+        //    {
+        //        //string path="Sitel / mails /";
+        //        string filename = Path.GetFileName(FileUploadAttachMailEsc.FileName);
+        //        FileUploadAttachMailEsc.SaveAs(Server.MapPath("~/Sitel/mails/") + filename);
+        //        //StatusLabel.Text = "Upload status: File uploaded!";
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        //StatusLabel.Text = "Upload status: The file could not be uploaded. The following error occured: " + ex.Message;
+        //        Response.Write(ex.Message);
+        //    }
+        //}
+
+
         MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
         reportee = ddlSelectEmployee.SelectedItem.Value.ToString();
         string type="Escalation";
         string description = txtEscalation.Text.ToString();
+        //string attachment = 
         pacmancycle = ddlPacmanCycle.SelectedItem.Value.ToString();
         string category = rbEscalation.Text.ToString();
 
@@ -219,6 +247,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@Type", type);
         cmd.Parameters.AddWithValue("@Category", category);
         cmd.Parameters.AddWithValue("@Description", description);
+        cmd.Parameters.AddWithValue("@Attachment", Attachment);
         cmd.Parameters.AddWithValue("@ActionBy", MyEmpID);
         cmd.Parameters.AddWithValue("@PacmanCycle", Convert.ToInt32(pacmancycle));
         cmd.Connection = con;
@@ -246,10 +275,16 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         pacmancycle = ddlPacmanCycle.SelectedItem.Value.ToString();
         string category = rbInitiative.Text.ToString();
 
+        string folderPath = Server.MapPath("~/Sitel/mails/");
+        string fileName = Path.GetFileName(FileUploadAttachMailIni.FileName);
+        FileUploadAttachMailIni.SaveAs(folderPath + Path.GetFileName(FileUploadAttachMailIni.FileName));
+        string Attachment = Server.MapPath("~/Sitel/mails/") + fileName;
+
         cmd.Parameters.AddWithValue("@EmpCode", Convert.ToInt32(reportee));
         cmd.Parameters.AddWithValue("@Type", type);
         cmd.Parameters.AddWithValue("@Category", category);
         cmd.Parameters.AddWithValue("@Description", description);
+        cmd.Parameters.AddWithValue("@Attachment", Attachment);
         cmd.Parameters.AddWithValue("@ActionBy", MyEmpID);
         cmd.Parameters.AddWithValue("@PacmanCycle", Convert.ToInt32(pacmancycle));
         cmd.Connection = con;

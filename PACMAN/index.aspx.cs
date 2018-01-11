@@ -20,7 +20,10 @@ public partial class index : System.Web.UI.Page
             ViewState["PreviousPageUrl"] = Request.UrlReferrer.ToString();
         }
         //myID = PageExtensionMethods.getMyWindowsID().ToString();
-        myID = "vchoh001";
+        //myID = "pbhat004"; //Planner Puja Bhatia
+        myID = "vchoh001"; //RTA Vinod Chauhan
+        //myID = "slall002"; //Manager Sandeep Lalla
+        //myID = "jsing050"; //Scheduler Jagdeep.Singh@sitel.com
         if (myID != "IDNotFound")
         {
 

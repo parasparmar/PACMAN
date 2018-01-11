@@ -221,7 +221,7 @@
 </head>
 <body class="hold-transition skin-blue sidebar-mini  sidebar-collapse">
     <!-- Site wrapper -->
-    <div class="wrapper" style="height: auto">
+    <div class="wrapper" style="height:auto">
         <form id="form1" runat="server">
             <asp:ScriptManager ID="scripts" runat="server"></asp:ScriptManager>
             <header class="main-header">
