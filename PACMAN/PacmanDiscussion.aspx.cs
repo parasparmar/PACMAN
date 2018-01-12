@@ -33,6 +33,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     private int AnalyticProject { get; set; }
     private int AnalyticTimeline { get; set; }
     private int Accuracy { get; set; }
+    private int AnalyticCoaching { get; set; }
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -309,19 +310,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         fillddlReportee();
     }
 
-    private void filltblKPI()
-    {
-        string strSQL = "[WFMPMS].[getSLForEmpAndAccount_511TOT1]";
-        SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.Parameters.AddWithValue("@Employee_ID", MyEmpID);
-        cmd.Parameters.AddWithValue("@StartDate", StartDate);
-        cmd.Parameters.AddWithValue("@EndDate", EndDate);
-        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        tblKPI.DataSource = dt;
-        tblKPI.DataBind();
-
-    }
-
     private void fillgvPrimaryKPI(int ForEmpID)
     {
 
@@ -555,7 +543,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
     protected void ddlReportee_SelectedIndexChanged(object sender, EventArgs e)
     {
-        ForEmpID = 
+        ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         if (ddlReviewPeriod.SelectedValue == "17")
         {
             getFinalRating();

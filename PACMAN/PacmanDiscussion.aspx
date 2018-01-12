@@ -243,7 +243,8 @@
                                                 <div class="box-header with-border">
                                                     <h4 class="box-title">
                                                         <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                                                            <asp:Literal ID="ltlPrimaryKPI" runat="server" Text="Primary KPI : Service Level"></asp:Literal></a>
+                                                            <asp:Literal ID="ltlPrimaryKPI" runat="server" Text="Primary KPI : "></asp:Literal>
+                                                        <asp:Literal ID="ltl_KPI" Text="0" runat="server"></asp:Literal></a>
                                                     </h4>
                                                 </div>
                                                 <div id="collapseOne" class="panel-collapse collapse in">
@@ -496,6 +497,7 @@
                                                         <h4 class="box-title">
                                                             <a data-toggle="collapse" data-parent="#accordion" href="#collapseProject">
                                                                 <asp:Literal ID="ltlProject" runat="server" Text="Projects"></asp:Literal>
+                                                                <asp:Literal ID="ltlAnalyticProject" runat="server" Text="Projects"></asp:Literal>
                                                             </a>
                                                         </h4>
                                                     </div>
