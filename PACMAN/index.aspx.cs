@@ -21,9 +21,11 @@ public partial class index : System.Web.UI.Page
         }
         //myID = PageExtensionMethods.getMyWindowsID().ToString();
         //myID = "pbhat004"; //Planner Puja Bhatia
-        myID = "vchoh001"; //RTA Vinod Chauhan
+        //myID = "vchoh001"; //RTA Vinod Chauhan
         //myID = "slall002"; //Manager Sandeep Lalla
         //myID = "jsing050"; //Scheduler Jagdeep.Singh@sitel.com
+
+        myID = "akamb002"; //Planner Anil Kamble
         if (myID != "IDNotFound")
         {
 

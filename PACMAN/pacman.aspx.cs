@@ -7,6 +7,8 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data.SqlClient;
 using System.Data.Sql;
+using System.Reflection;
+using System.Linq.Expressions;
 
 public partial class pacman : System.Web.UI.Page
 {
@@ -63,13 +65,8 @@ public partial class pacman : System.Web.UI.Page
             enableDisableButtons();
             getNamePacmanCycle();
             DtOfAccountsIHandle = getDtOfAccountsIHandle();
-            showRelevantMetrics();
-            fillltlAccuracy(MyEmpID);
-            fillltlAnalyticTimeline(MyEmpID);
-            fillltlAnalyticCoaching(MyEmpID);
-            fillltlAnalyticProject(MyEmpID);
-            fillltlIEXMgmt(MyEmpID);
-            fillltlfinalScore(MyEmpID);
+            showRelevantMetricPanels(MyEmpID);
+
 
         }
         else
@@ -103,7 +100,7 @@ public partial class pacman : System.Web.UI.Page
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.Parameters.AddWithValue("@Employee_ID", MyEmpID);
         StartDate = DateTime.Today.Date;
-        cmd.Parameters.AddWithValue("@StartDate", StartDate);
+        //cmd.Parameters.AddWithValue("@StartDate", StartDate);
 
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         //dt.DefaultView.RowFilter = "InBO=1";
@@ -115,7 +112,7 @@ public partial class pacman : System.Web.UI.Page
 
     }
 
-    private void fillgvPrimaryKPI(int ForEmpID)
+    public void fillpnl_KPI(int ForEmpID)
     {
 
         string strSQL = "WFMPMS.getSLSummaryForPACMAN";
@@ -189,11 +186,11 @@ public partial class pacman : System.Web.UI.Page
 
     }
 
-    private void showRelevantMetrics()
+    private void showRelevantMetricPanels(int ForEmpID)
     {
         string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
         strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
-        strSQL += " where EmpCode =  " + MyEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
+        strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
         strSQL += " order by B.id, B.Metrics ";
 
         DataTable dt = my.GetData(strSQL);
@@ -207,6 +204,48 @@ public partial class pacman : System.Web.UI.Page
             {
                 Panel thePanel = c as Panel;
                 thePanel.Visible = true;
+            }
+        }
+    }
+
+    private void fillRelevantMetricsInPanels(int ForEmpID)
+    {
+        string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
+        strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
+        strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
+        strSQL += " order by B.id, B.Metrics ";
+
+        DataTable dt = my.GetData(strSQL);
+        string myPanelName = string.Empty;
+
+        foreach (DataRow d in dt.Rows)
+        {
+            myPanelName = "pnl_" + d["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
+            Control c = Page.FindControlRecursive(myPanelName);
+            if (c != null)
+            {
+                Panel thePanel = c as Panel;
+                thePanel.Visible = true;
+                Type thisType = this.GetType();
+                MethodInfo theMethod = thisType.GetMethod("fill" + myPanelName);
+                theMethod.Invoke(this, new object[] { MyEmpID });
+
+
+                //fillpnl_Absenteeism --Done
+                //fillpnl_KPI --Done
+                //fillpnl_BTP --Done
+                //fillpnl_Accuracy  --Done -- Analytics KPI
+                //fillpnl_Attrition --NA -- Manager KPI
+                //fillpnl_Coaching_Feedback-- Analytics KPI
+                //fillpnl_Escalations --Done
+                //fillpnl_Forecasting_Accuracy --Empty Method
+                //fillpnl_Headcount_Accuracy --Empty Method
+                //fillpnl_IEX_Management --Done
+                //fillpnl_On_Time_Delivery -- Analytics KPI
+                //fillpnl_Projects --Done
+                //fillpnl_Real_Time_Optimization --Done
+                //fillpnl_Revenue_Cost_optimization -- Manager KPI
+                //fillpnl_Scheduling_Accuracy
             }
         }
     }
@@ -279,7 +318,8 @@ public partial class pacman : System.Web.UI.Page
         ddlReviewPeriod.DataBind();
     }
 
-    private void fillgvRealTimeOptimization(int ForEmpID)
+    public void fillpnl_Forecasting_Accuracy(int ForEmpID) { }
+    public void fillpnl_Real_Time_Optimization(int ForEmpID)
     {
 
         string strSQL = "WFMPMS.getSLOptimizationSummaryForPACMAN";
@@ -311,7 +351,7 @@ public partial class pacman : System.Web.UI.Page
 
     }
 
-    private void fillLtlEI(int ForEmpID)
+    public void fillpnl_Escalations(int ForEmpID)
     {
         EIRating = 0;
         strSQL = "[WFMPMS].[GetEscalationInitiativeScore]";
@@ -334,7 +374,7 @@ public partial class pacman : System.Web.UI.Page
         }
     }
 
-    private void fillltlAbsenteeism(int ForEmpID)
+    public void fillpnl_Absenteeism(int ForEmpID)
     {
 
 
@@ -363,19 +403,28 @@ public partial class pacman : System.Web.UI.Page
         }
     }
 
-    private void fillpnlBTP(string ForAccountId)
+    public void fillpnl_BTP(int ForEmpID)
     {
-
-        string strSQL = "WFMPMS.getBTPForAccount";
-
-        SqlCommand cmd = new SqlCommand(strSQL);
-
-        cmd.CommandType = CommandType.StoredProcedure;
-        cmd.Parameters.AddWithValue("@AccountId", ForAccountId);
-        cmd.Parameters.AddWithValue("@Month", StartDate);
-
-        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-
+        List<string> myAccounts = new List<string>();
+        if (DtOfAccountsIHandle == null)
+        {
+            DtOfAccountsIHandle = getDtOfAccountsIHandle();
+        }
+        DataTable dt = new DataTable();
+        DataTable scratchTable = new DataTable();
+        foreach (DataRow d in DtOfAccountsIHandle.Rows)
+        {
+            strSQL = "WFMPMS.getBTPForAccount";
+            SqlCommand cmd = new SqlCommand(strSQL);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@AccountId", d["PrimaryClientID"].ToString());
+            cmd.Parameters.AddWithValue("@Month", StartDate);
+            scratchTable = my.GetDataTableViaProcedure(ref cmd);
+            if (scratchTable != null && scratchTable.Rows.Count > 0)
+            {
+                dt.Merge(scratchTable);
+            }
+        }
         GridView gvBTP = new GridView();
         gvBTP.ID = "gvBTP";
         gvBTP.AutoGenerateColumns = true;
@@ -384,16 +433,35 @@ public partial class pacman : System.Web.UI.Page
         gvBTP.CssClass = "table DataTable table-condensed table-bordered table-responsive";
 
         gvBTP.DataBind();
-        gvBTP.Rows[gvBTP.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-        gvBTP.Rows[gvBTP.Rows.Count - 1].Font.Bold = true;
-        gvBTP.PreRender += gv_PreRender;
+        if (dt != null && dt.Rows.Count > 0)
+        {
+            gvBTP.Rows[gvBTP.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+            gvBTP.Rows[gvBTP.Rows.Count - 1].Font.Bold = true;
+            gvBTP.PreRender += gv_PreRender;
+            BTPRating = Convert.ToDecimal(dt.Rows[0]["Rating"].ToString());
+        }
+        else
+        {
 
-        BTPRating = Convert.ToDecimal(dt.Rows[0]["Rating"].ToString());
+        }
+
+
+
+
         ltlBTP.Text = "Billed To Pay &nbsp= &nbsp";
         pnlBTP.Controls.Add(gvBTP);
         ltl_BTP.Text = BTPRating.ToString();
     }
 
+    public void fillpnl_Headcount_Accuracy(int ForEmpID)
+    {
+        //WFMPMS.getHeadCountAccuracyScore
+    }
+
+    public void fillpnl_Scheduling_Accuracy(int ForEmpID)
+    {
+        //WFMPMS.getSchedulingAccuracyScore
+    }
     protected void ddlReviewPeriod_SelectedIndexChanged(object sender, EventArgs e)
     {
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
@@ -401,12 +469,7 @@ public partial class pacman : System.Web.UI.Page
         DataTable dt = my.GetData(strSQL);
         StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
         EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
-
-        fillgvPrimaryKPI(MyEmpID);
-        fillgvRealTimeOptimization(MyEmpID);
-        fillLtlEI(MyEmpID);
-        fillltlAbsenteeism(MyEmpID);
-        fillpnlBTP("511TOT1");
+        fillRelevantMetricsInPanels(MyEmpID);
         getFinalRating(MyEmpID);
 
     }
@@ -470,7 +533,7 @@ public partial class pacman : System.Web.UI.Page
         enableDisableButtons();
     }
 
-    private void fillltlIEXMgmt(int ForEmpID)
+    public void fillpnl_IEX_Management(int ForEmpID)
     {
         IEXMgmt = 0;
         strSQL = "[WFMPMS].[GetIEXMgmtScore]";
@@ -497,7 +560,7 @@ public partial class pacman : System.Web.UI.Page
         }
     }
 
-    private void fillltlAnalyticProject(int ForEmpID)
+    public void fillpnl_Projects(int ForEmpID)
     {
         AnalyticProject = 0;
         strSQL = "[WFMPMS].[getAnalyticProjectScore]";
@@ -523,7 +586,7 @@ public partial class pacman : System.Web.UI.Page
         }
     }
 
-    private void fillltlAnalyticCoaching(int ForEmpID)
+    public void fillltlAnalyticCoaching(int ForEmpID)
     {
         AnalyticCoaching = 0;
         strSQL = "[WFMPMS].[getAnalyticCoachingScore]";
@@ -549,7 +612,7 @@ public partial class pacman : System.Web.UI.Page
         }
     }
 
-    private void fillltlAnalyticTimeline(int ForEmpID)
+    public void fillltlAnalyticTimeline(int ForEmpID)
     {
         AnalyticTimeline = 0;
         strSQL = "[WFMPMS].[GetAnalyticTimelineScore]";
@@ -588,7 +651,7 @@ public partial class pacman : System.Web.UI.Page
         }
     }
 
-    private void fillltlAccuracy(int ForEmpID)
+    public void fillpnl_Accuracy(int ForEmpID)
     {
         Accuracy = 0;
         strSQL = "[WFMPMS].[GetAnalyticAccuracyScore]";
@@ -620,7 +683,7 @@ public partial class pacman : System.Web.UI.Page
         }
     }
 
-    private void fillltlfinalScore(int ForEmpID)
+    public void fillltlfinalScore(int ForEmpID)
     {
         int FinalScore = 0;
         strSQL = "[WFMPMS].[getPacmanFinalScore]";
@@ -659,5 +722,24 @@ public partial class pacman : System.Web.UI.Page
             gv.BorderStyle = BorderStyle.None;
             gv.BorderWidth = Unit.Pixel(1);
         }
+    }
+
+    public string InvokeStringMethod(string typeName, string methodName, int stringParam)
+    {
+        // Get the Type for the class
+        Type calledType = Type.GetType(typeName);
+
+        // Invoke the method itself. The string returned by the method winds up in s.
+        // Note that stringParam is passed via the last parameter of InvokeMember,
+        // as an array of Objects.
+        String s = (String)calledType.InvokeMember(
+                        methodName,
+                        BindingFlags.InvokeMethod | BindingFlags.Public,
+                        null,
+                        null,
+                        new Object[] { stringParam });
+
+        // Return the string that was returned by the called method.
+        return s;
     }
 }

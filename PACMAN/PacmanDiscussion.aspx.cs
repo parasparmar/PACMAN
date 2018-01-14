@@ -7,6 +7,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data.SqlClient;
 using System.Data.Sql;
+using System.Reflection;
 
 public partial class PacmanDiscussion : System.Web.UI.Page
 {
@@ -93,7 +94,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             }
 
             DtOfAccountsIHandle = getDtOfAccountsIHandle();
-            showRelevantMetrics(ForEmpID);
+            fill_show_RelevantMetrics(ForEmpID);
         }
     }
 
@@ -123,7 +124,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
     }
 
-    private void showRelevantMetrics(int ForEmpID)
+    private void fill_show_RelevantMetrics(int ForEmpID)
     {
         string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
         strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
@@ -141,6 +142,28 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 Panel thePanel = c as Panel;
                 thePanel.Visible = true;
+
+                Type panelFiller = this.GetType();
+                MethodInfo fillingMethod = panelFiller.GetMethod("fill" + myPanelName.ToString());
+                // null is an array of parameters, for now it's really null.
+                object[] MyId = new object[] { MyEmpID };
+                fillingMethod.Invoke(this, MyId);
+
+                //fillpnl_Absenteeism --Done
+                //fillpnl_KPI --Done
+                //fillpnl_BTP --Done
+                //fillpnl_Accuracy  --Done
+                //fillpnl_Attrition --NA
+                //fillpnl_Coaching_Feedback
+                //fillpnl_Escalations --Done
+                //fillpnl_Forecasting_Accuracy --TBC
+                //fillpnl_Headcount_Accuracy --TBC
+                //fillpnl_IEX_Management --Done
+                //fillpnl_On_Time_Delivery
+                //fillpnl_Projects --Done
+                //fillpnl_Real_Time_Optimization --Done
+                //fillpnl_Revenue_Cost_optimization --NA
+                //fillpnl_Scheduling_Accuracy
             }
         }
     }
@@ -199,11 +222,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
         EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
 
-        fillgvPrimaryKPI(ForEmpID);
-        fillgvRealTimeOptimization(ForEmpID);
-        fillLtlEI(ForEmpID);
-        fillltlAbsenteeism(ForEmpID);
-        fillpnlBTP("511TOT1");
+        fillpnl_KPI(ForEmpID);
+        fillpnl_Real_Time_Optimization(ForEmpID);
+        fillpnl_Escalations(ForEmpID);
+        fillpnl_Absenteeism(ForEmpID);
+        fillpnl_BTP("511TOT1");
         fillddlStage();
         fillddlReportee();
         ltlEmloyeeBanner.Text = " Performance Management Cycle : " + ddlReviewPeriod.SelectedItem.Text.ToString();
@@ -310,7 +333,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         fillddlReportee();
     }
 
-    private void fillgvPrimaryKPI(int ForEmpID)
+    private void fillpnl_KPI(int ForEmpID)
     {
 
         string strSQL = "WFMPMS.getSLSummaryForPACMAN";
@@ -360,7 +383,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         }
     }
 
-    private void fillgvRealTimeOptimization(int ForEmpID)
+    private void fillpnl_Real_Time_Optimization(int ForEmpID)
     {
 
         string strSQL = "WFMPMS.getSLOptimizationSummaryForPACMAN";
@@ -392,7 +415,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
     }
 
-    private void fillLtlEI(int ForEmpID)
+    private void fillpnl_Escalations(int ForEmpID)
     {
         EIRating = 0;
         strSQL = "[WFMPMS].[GetEscalationInitiativeScore]";
@@ -415,7 +438,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         }
     }
 
-    private void fillltlAbsenteeism(int ForEmpID)
+    private void fillpnl_Absenteeism(int ForEmpID)
     {
 
 
@@ -444,7 +467,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         }
     }
 
-    private void fillpnlBTP(string ForAccountId)
+    private void fillpnl_BTP(string ForAccountId)
     {
 
         string strSQL = "WFMPMS.getBTPForAccount";
@@ -639,7 +662,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         }
     }
 
-    private void fillltlAccuracy()
+    private void fillpnl_Accuracy()
     {
         Accuracy = 0;
         strSQL = "[WFMPMS].[GetAnalyticAccuracyScore]";
@@ -665,7 +688,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         }
     }
 
-    private void fillltlIEXMgmt(int ForEmpID)
+    private void fillpnl_IEX_Management(int ForEmpID)
     {
         IEXMgmt = 0;
         strSQL = "[WFMPMS].[GetIEXMgmtScore]";
@@ -692,7 +715,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         }
     }
 
-    private void fillltlAnalyticProject(int ForEmpID)
+    private void fillpnl_Projects(int ForEmpID)
     {
         AnalyticProject = 0;
         strSQL = "[WFMPMS].[getAnalyticProjectScore]";
