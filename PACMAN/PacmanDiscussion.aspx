@@ -32,14 +32,11 @@
 <asp:Content ID="Content4" ContentPlaceHolderID="pageheader" runat="Server">
     <ol class="breadcrumb">
         <li><a href="index.aspx"><i class="iconfa-home"></i>Home</a></li>
-        <li class="active"><a href="pacman.aspx">
-            <img src="sitel/img/performance-360_bw.png" style="height: 10px" alt="" />PACMAN</a></li>
+        <li class="active"><a href="PacmanDiscussion.aspx"><i class="fa fa-file-text"></i>Pacman Discussion</a></li>
     </ol>
 
     <div class="pageheader">
-        <div class="pageicon">
-            <img src="sitel/img/performance-360_bw.png" style="height: 60px" alt="" />
-        </div>
+        <div class="pageicon"><span class="fa fa-file-text"></span></div>
         <div class="pagetitle">
             <h5>Discussion of Monthly Performance <strong>for my team</strong></h5>
             <h1>PACMAN Discussion</h1>
@@ -244,7 +241,7 @@
                                                     <h4 class="box-title">
                                                         <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
                                                             <asp:Literal ID="ltlPrimaryKPI" runat="server" Text="Primary KPI : "></asp:Literal>
-                                                        <asp:Literal ID="ltl_KPI" Text="0" runat="server"></asp:Literal></a>
+                                                            <asp:Literal ID="ltl_KPI" Text="0" runat="server"></asp:Literal></a>
                                                     </h4>
                                                 </div>
                                                 <div id="collapseOne" class="panel-collapse collapse in">
@@ -260,7 +257,7 @@
                                                     <h4 class="box-title">
                                                         <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
                                                             <asp:Literal ID="ltlBTP" runat="server" Text="BTP : Billed To Pay Ratio"></asp:Literal>
-                                                        <asp:Literal ID="ltl_BTP" Text="0" runat="server"></asp:Literal>
+                                                            <asp:Literal ID="ltl_BTP" Text="0" runat="server"></asp:Literal>
                                                         </a>
                                                     </h4>
                                                 </div>

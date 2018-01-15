@@ -17,11 +17,11 @@ public class Pivot
     private DataTable _SourceTable = new DataTable();
     private IEnumerable<DataRow> _Source = new List<DataRow>();
 
-	public Pivot(DataTable SourceTable)
-	{
+    public Pivot(DataTable SourceTable)
+    {
         _SourceTable = SourceTable;
         _Source = SourceTable.Rows.Cast<DataRow>();
-	}
+    }
 
     /// <summary>
     /// Pivots the DataTable based on provided RowField, DataField, Aggregate Function and ColumnFields.//
@@ -37,8 +37,8 @@ public class Pivot
         string Separator = ".";
         List<string> rowList = _Source.Select(x => x[rowField].ToString()).Distinct().ToList();
         // Gets the list of columns .(dot) separated.
-        var colList = _Source.Select(x =>(columnFields.Select(n => x[n]).Aggregate((a, b) => a += Separator + b.ToString())).ToString()).Distinct().OrderBy(m => m);
-        
+        var colList = _Source.Select(x => (columnFields.Select(n => x[n]).Aggregate((a, b) => a += Separator + b.ToString())).ToString()).Distinct().OrderBy(m => m);
+
         dt.Columns.Add(rowField);
         foreach (var colName in colList)
             dt.Columns.Add(colName);  // Cretes the result columns.//
@@ -133,7 +133,7 @@ public class Pivot
                 strFilter += " and " + Field + " = '" + RowName[Field].ToString() + "'";
             }
             strFilter = strFilter.Substring(5);
-            
+
             foreach (var col in ColList)
             {
                 string filter = strFilter;

@@ -320,7 +320,7 @@
                         <!-- sidebar menu: : style can be found in sidebar.less -->
                         <ul class="sidebar-menu" data-widget="tree">
                             <%--<li class="header">MAIN NAVIGATION</li>--%>
-                            <li>
+                            <%--<li>
                                 <a href="profile.aspx">
                                     <i class="fa fa-user-plus"></i><span>My Profile</span>
                                 </a>
@@ -364,7 +364,7 @@
                                 <a href="myroster.aspx">
                                     <i class="fa fa-calendar-plus-o"></i><span>My Roster</span>
                                 </a>
-                            </li>
+                            </li>--%>
                             <li>
                                 <a href="profile.aspx">
                                     <i class="fa fa-user-plus"></i><span>My Profile</span>
@@ -372,22 +372,22 @@
                             </li>
                             <li>
                                 <a href="pacman.aspx">
-                                    <i class="fa fa-user-plus"></i><span>My PACMAN</span>
+                                    <i class="fa fa-user"></i><span>My PACMAN</span>
                                 </a>
                             </li>
-                            <li>
+                            <%--<li>
                                 <a href="CoachingFeedback.aspx">
                                     <i class="fa fa-user-plus"></i><span>Coaching & Feedback</span>
                                 </a>
-                            </li>
+                            </li>--%>
                             <li>
                                 <a href="EscalationsInitiatives.aspx">
-                                    <i class="fa fa-user-plus"></i><span>Escalations & Initiatives</span>
+                                    <i class="fa fa-line-chart"></i><span>Escalations & Initiatives</span>
                                 </a>
                             </li>
                             <li>
                                 <a href="PacmanDiscussion.aspx">
-                                    <i class="fa fa-user-plus"></i><span>PACMAN Discussion</span>
+                                    <i class="fa fa-file-text"></i><span>PACMAN Discussion</span>
                                 </a>
                             </li>
                             <li>
@@ -726,7 +726,7 @@
         $(function () {
             $('.DataTable').dataTable({
                 "sPaginationType": "full_numbers",
-                "lengthMenu": [5, 10, 25, 50, 75, 100],
+                "lengthMenu": [10, 5, 10, 25, 50, 75, 100],
                 "aaSortingFixed": [[0, 'asc']],
                 "bSort": true,
                 dom: 'Bfrltip',
