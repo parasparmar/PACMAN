@@ -152,6 +152,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ddlReviewPeriod.DataTextField = "TextDescription";
         ddlReviewPeriod.DataValueField = "Id";
         ddlReviewPeriod.DataBind();
+        ddlReviewPeriod.SelectedIndex = 0;
     }
 
     private void fillddlStage()

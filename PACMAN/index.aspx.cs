@@ -11,31 +11,40 @@ using System.Data.Sql;
 public partial class index : System.Web.UI.Page
 {
 
-    string myID;
+    private string myID { get; set; }
     protected void Page_Load(object sender, EventArgs e)
     {
-
         if (Request.UrlReferrer != null)
         {
             ViewState["PreviousPageUrl"] = Request.UrlReferrer.ToString();
         }
-        //myID = PageExtensionMethods.getMyWindowsID().ToString();
         
-        //myID = "pbhat004"; //Planner Puja Bhatia
-        //myID = "vchoh001"; //RTA Vinod Chauhan
-        //myID = "slall002"; //Manager Sandeep Lalla
-        myID = "jsing050"; //Scheduler Jagdeep.Singh@sitel.com
-        //myID = "akamb002"; //Planner Anil Kamble
+        if (Request.QueryString["q"] != null)
+        {
+            string skillset = Request.QueryString["q"].ToString();
+            myID = getMyImpersonatorsNTID(skillset);
+            RedirectBasedOnNTNameLookup(myID);
+        }
+        else
+        {
+            myID = PageExtensionMethods.getMyWindowsID().ToString();
+            RedirectBasedOnNTNameLookup(myID);
+        }
+    }
 
+    private void RedirectBasedOnNTNameLookup(string myID)
+    {
+        Helper my = new Helper();
+        DataTable dt = new DataTable();
         if (myID != "IDNotFound")
         {
-
-            Helper my = new Helper();
-
-            DataTable dt = my.GetData("WFMP.getEmployeeData '" + myID + "'");
+            SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
+            cmd.Parameters.AddWithValue("@NT_ID", myID);
+            
             try
             {
-                if (dt.Rows.Count > 0)
+                dt = my.GetDataTableViaProcedure(ref cmd);
+                if (dt != null && dt.Rows.Count > 0)
                 {
 
                     Session["dtEmp"] = dt;
@@ -58,6 +67,54 @@ public partial class index : System.Web.UI.Page
             Response.Redirect("lockscreen.aspx", false);
         }
 
+        
+    }
 
+    private DataTable getSkillsetImpersonator()
+    {
+        Helper my = new Helper();
+        string strSQL = "Select distinct  A.Skillset from [WFMPMS].[tblDsgn2KPIWtg] A ";
+        strSQL += " where A.SkillsetId <> 5 ";
+        strSQL += " union select distinct A.Skillset + '-Manager' as Skillset from[WFMPMS].[tblDsgn2KPIWtg] A";
+        strSQL += " where A.SkillsetId <> 5 ";
+        DataTable dt = my.GetData(strSQL);
+        return dt;
+
+    }
+
+    private string getMyImpersonatorsNTID(string QueryString)
+    {
+        switch (QueryString)
+        {
+            case "Analytics":
+                myID = "pparm001";
+                break;
+            case "Analytics - Manager":
+                myID = "gsing017";
+                break;
+            case "Planning":
+                myID = "pbhat004"; //Planner Puja Bhatia
+                                   //myID = "akamb002"; //Planner Anil Kamble
+                break;
+            case "Planning - Manager":
+
+                break;
+            case "RTA":
+                myID = "vchoh001"; //RTA Vinod Chauhan
+                break;
+            case "RTA - Manager":
+                myID = "slall002"; //Manager Sandeep Lalla
+                break;
+            case "Scheduling":
+                myID = "jsing050"; //Scheduler Jagdeep.Singh@sitel.com
+                break;
+            case "Scheduling - Manager":
+                myID = "slall002"; //Manager Sandeep Lalla
+                break;
+            default:
+                myID = PageExtensionMethods.getMyWindowsID().ToString();
+                break;
+        }
+        return myID;
     }
 }

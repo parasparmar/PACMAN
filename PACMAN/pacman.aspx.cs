@@ -113,51 +113,45 @@ public partial class pacman : System.Web.UI.Page
     {
 
         string strSQL = "WFMPMS.getSLSummaryForPACMAN";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+        SqlCommand cmd = new SqlCommand(strSQL);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        cmd.Parameters.AddWithValue("@StartDate", StartDate);
+        cmd.Parameters.AddWithValue("@EndDate", EndDate);
+
+        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+        if (dt != null)
         {
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+            GridView gvPrimaryKPI = new GridView();
+            gvPrimaryKPI.ID = "gvPrimaryKPI";
+            gvPrimaryKPI.AutoGenerateColumns = true;
+            //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+            DataRow dr = dt.NewRow();
+
+            gvPrimaryKPI.DataSource = dt;
+            gvPrimaryKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+
+            gvPrimaryKPI.DataBind();
+            if (dt.Rows.Count > 0)
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                SqlDataAdapter da = new SqlDataAdapter(cmd);
-                DataSet ds = new DataSet();
-                da.Fill(ds);
-                DataTable dt = ds.Tables[0];
-                if (dt.Rows.Count > 0)
-                {
-                    GridView gvPrimaryKPI = new GridView();
-                    gvPrimaryKPI.ID = "gvPrimaryKPI";
-                    gvPrimaryKPI.AutoGenerateColumns = true;
-                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-
-
-                    dt.Columns.Add("Calculation");
-                    DataRow dr = dt.NewRow();
-
-                    dt.ImportRow(ds.Tables[1].Rows[0]);
-                    gvPrimaryKPI.DataSource = dt;
-                    gvPrimaryKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-
-                    gvPrimaryKPI.DataBind();
-                    gvPrimaryKPI.Rows[gvPrimaryKPI.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                    gvPrimaryKPI.Rows[gvPrimaryKPI.Rows.Count - 1].Font.Bold = true;
-                    gvPrimaryKPI.PreRender += gv_PreRender;
-
-                    SLRating = Convert.ToDecimal(ds.Tables[1].Rows[0]["Rating"].ToString());
-                    ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp";
-                    ltl_KPI.Text = SLRating.ToString();
-                    pnlKPI.Controls.Add(gvPrimaryKPI);
-                }
-                else
-                {
-                    ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp" + "No Data found";
-                }
+                gvPrimaryKPI.Rows[dt.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                gvPrimaryKPI.Rows[dt.Rows.Count - 1].Font.Bold = true;
             }
+            gvPrimaryKPI.PreRender += gv_PreRender;
 
+            SLRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+            ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp";
+            ltl_KPI.Text = SLRating.ToString();
+            pnlKPI.Controls.Add(gvPrimaryKPI);
         }
+        else
+        {
+            ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp" + "No Data found";
+        }
+
+
     }
+
     private void getFinalRating(int ForEmpID)
     {
         string strSQL = "SELECT Distinct B.id, B.Metrics, B.Weight FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
@@ -214,32 +208,45 @@ public partial class pacman : System.Web.UI.Page
 
         foreach (DataRow d in dt.Rows)
         {
-            myPanelName = "pnl_" + d["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
-            Control c = Page.FindControlRecursive(myPanelName);
-            if (c != null)
+            // For Troubleshooting : Paras - Please remove when not needed.
+            if (d["Metrics"].ToString().Replace("&", "").Replace(" ", "_") == "BTP")
             {
-                Panel thePanel = c as Panel;
-                thePanel.Visible = true;
-                Type thisType = this.GetType();
-                MethodInfo theMethod = thisType.GetMethod("fill" + myPanelName);
-                theMethod.Invoke(this, new object[] { MyEmpID });
-
-
-                //fillpnl_Absenteeism --Done
-                //fillpnl_KPI --Done
-                //fillpnl_BTP --Done
-                //fillpnl_Accuracy  --Done -- Analytics KPI
-                //fillpnl_Attrition --NA -- Manager KPI
-                //fillpnl_Coaching_Feedback-- Analytics KPI
-                //fillpnl_Escalations --Done
-                //fillpnl_Forecasting_Accuracy --Empty Method
-                //fillpnl_Headcount_Accuracy --Empty Method
-                //fillpnl_IEX_Management --Done
-                //fillpnl_On_Time_Delivery -- Analytics KPI
-                //fillpnl_Projects --Done
-                //fillpnl_Real_Time_Optimization --Done
-                //fillpnl_Revenue_Cost_optimization -- Manager KPI
-                //fillpnl_Scheduling_Accuracy
+                myPanelName = "pnl_" + d["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
+                Control c = Page.FindControlRecursive(myPanelName);
+                if (c != null)
+                {
+                    Panel thePanel = c as Panel;
+                    thePanel.Visible = true;
+                    Type thisType = this.GetType();
+                    MethodInfo theMethod = thisType.GetMethod("fill" + myPanelName);
+                    try
+                    {
+                        theMethod.Invoke(this, new object[] { MyEmpID });
+                    }
+                    catch (Exception Ex)
+                    {
+                        Response.Write(Ex.Message.ToString());
+                    }
+                    finally
+                    {
+                        my.close_conn();
+                    }
+                    //fillpnl_Absenteeism --Done
+                    //fillpnl_KPI --Done
+                    //fillpnl_BTP --Done
+                    //fillpnl_Accuracy  --Done -- Analytics KPI
+                    //fillpnl_Attrition --NA -- Manager KPI
+                    //fillpnl_Coaching_Feedback-- Analytics KPI
+                    //fillpnl_Escalations --Done
+                    //fillpnl_Forecasting_Accuracy --Empty Method
+                    //fillpnl_Headcount_Accuracy --Empty Method
+                    //fillpnl_IEX_Management --Done
+                    //fillpnl_On_Time_Delivery -- Analytics KPI
+                    //fillpnl_Projects --Done
+                    //fillpnl_Real_Time_Optimization --Done
+                    //fillpnl_Revenue_Cost_optimization -- Manager KPI
+                    //fillpnl_Scheduling_Accuracy
+                }
             }
         }
     }
@@ -307,6 +314,7 @@ public partial class pacman : System.Web.UI.Page
         ddlReviewPeriod.DataTextField = "TextDescription";
         ddlReviewPeriod.DataValueField = "Id";
         ddlReviewPeriod.DataBind();
+        ddlReviewPeriod.SelectedIndex = 0;
     }
 
     protected void ddlReviewPeriod_SelectedIndexChanged(object sender, EventArgs e)
@@ -604,7 +612,8 @@ public partial class pacman : System.Web.UI.Page
         }
         DataTable dt = new DataTable();
         DataTable scratchTable = new DataTable();
-        foreach (DataRow d in DtOfAccountsIHandle.Rows)
+        DataRow[] drow = DtOfAccountsIHandle.Select("InBO=1");
+        foreach (DataRow d in drow)
         {
             strSQL = "WFMPMS.getBTPForAccount";
             SqlCommand cmd = new SqlCommand(strSQL);
@@ -612,6 +621,7 @@ public partial class pacman : System.Web.UI.Page
             cmd.Parameters.AddWithValue("@AccountId", d["PrimaryClientID"].ToString());
             cmd.Parameters.AddWithValue("@Month", StartDate);
             scratchTable = my.GetDataTableViaProcedure(ref cmd);
+           
             if (scratchTable != null && scratchTable.Rows.Count > 0)
             {
                 dt.Merge(scratchTable);
@@ -848,5 +858,5 @@ public partial class pacman : System.Web.UI.Page
     }
     #endregion
 
-   
+
 }
