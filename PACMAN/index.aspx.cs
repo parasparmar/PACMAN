@@ -30,6 +30,7 @@ public partial class index : System.Web.UI.Page
             myID = PageExtensionMethods.getMyWindowsID().ToString();
             RedirectBasedOnNTNameLookup(myID);
         }
+        
     }
 
     private void RedirectBasedOnNTNameLookup(string myID)
@@ -38,6 +39,7 @@ public partial class index : System.Web.UI.Page
         DataTable dt = new DataTable();
         if (myID != "IDNotFound")
         {
+            myID = "nchan016"; //RTA Vinod Chauhan
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
             cmd.Parameters.AddWithValue("@NT_ID", myID);
             

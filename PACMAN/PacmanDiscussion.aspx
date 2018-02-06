@@ -560,7 +560,7 @@
                     <div class="form-group">
                         <h4>Has the above Reportee's PACMAN been discussed?
                  <span class="btn-group pull-right">
-                     <asp:Button ID="btnNotDiscussed" runat="server" Text="Not Discussed" CssClass="btn btn-default" />
+                     <%--<asp:Button ID="btnNotDiscussed" runat="server" Text="Not Discussed" CssClass="btn btn-default" />--%>
                      <asp:Button ID="btnYesDiscussed" runat="server" Text="Discussed" CssClass="btn btn-primary" OnClick="btnYesDiscussed_Click" />
                  </span>
                         </h4>

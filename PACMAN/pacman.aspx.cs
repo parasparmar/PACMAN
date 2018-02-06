@@ -36,6 +36,8 @@ public partial class pacman : System.Web.UI.Page
     private decimal SchedulingAccuracy { get; set; }
     private decimal ForecastingAccuracy { get; set; }
     private decimal HeadcountAccuracy { get; set; }
+
+    private int CurrrentPacManCycle { get; set; }
     protected void Page_Load(object sender, EventArgs e)
     {
         my = new Helper();
@@ -136,17 +138,23 @@ public partial class pacman : System.Web.UI.Page
             {
                 gvPrimaryKPI.Rows[dt.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
                 gvPrimaryKPI.Rows[dt.Rows.Count - 1].Font.Bold = true;
+                gvPrimaryKPI.PreRender += gv_PreRender;
+                SLRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+                ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp";
+                ltl_KPI.Text = SLRating.ToString();
+                pnlKPI.Controls.Add(gvPrimaryKPI);
             }
-            gvPrimaryKPI.PreRender += gv_PreRender;
+            else
+            {
+                ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp";// + "No Data found";
+                ltl_KPI.Text = String.Empty;
+            }
 
-            SLRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
-            ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp";
-            ltl_KPI.Text = SLRating.ToString();
-            pnlKPI.Controls.Add(gvPrimaryKPI);
         }
         else
         {
-            ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp" + "No Data found";
+            ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp";// + "No Data found";
+            ltl_KPI.Text = String.Empty;
         }
 
 
@@ -154,6 +162,8 @@ public partial class pacman : System.Web.UI.Page
 
     private void getFinalRating(int ForEmpID)
     {
+        
+
         string strSQL = "SELECT Distinct B.id, B.Metrics, B.Weight FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
         strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
         strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
@@ -166,8 +176,10 @@ public partial class pacman : System.Web.UI.Page
             Decimal KPIWt = Convert.ToDecimal(dr["Weight"].ToString());
             string KPIname = dr["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
             Literal ltl = (Literal)Page.FindControlRecursive("ltl_" + KPIname);
+
             if (ltl != null)
             {
+                ltl.Text = (ltl.Text == "") ? "0" : ltl.Text;
                 Decimal KPIScore = Convert.ToDecimal(ltl.Text);
                 FinalRating = FinalRating + (KPIScore * KPIWt);
             }
@@ -209,46 +221,31 @@ public partial class pacman : System.Web.UI.Page
         foreach (DataRow d in dt.Rows)
         {
             // For Troubleshooting : Paras - Please remove when not needed.
-            if (d["Metrics"].ToString().Replace("&", "").Replace(" ", "_") == "BTP")
+            //if (d["Metrics"].ToString().Replace("&", "").Replace(" ", "_") == "BTP")
+            //{
+            myPanelName = "pnl_" + d["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
+            Control c = Page.FindControlRecursive(myPanelName);
+            if (c != null)
             {
-                myPanelName = "pnl_" + d["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
-                Control c = Page.FindControlRecursive(myPanelName);
-                if (c != null)
+                Panel thePanel = c as Panel;
+                thePanel.Visible = true;
+                Type thisType = this.GetType();
+                MethodInfo theMethod = thisType.GetMethod("fill" + myPanelName);
+                try
                 {
-                    Panel thePanel = c as Panel;
-                    thePanel.Visible = true;
-                    Type thisType = this.GetType();
-                    MethodInfo theMethod = thisType.GetMethod("fill" + myPanelName);
-                    try
-                    {
-                        theMethod.Invoke(this, new object[] { MyEmpID });
-                    }
-                    catch (Exception Ex)
-                    {
-                        Response.Write(Ex.Message.ToString());
-                    }
-                    finally
-                    {
-                        my.close_conn();
-                    }
-                    //fillpnl_Absenteeism --Done
-                    //fillpnl_KPI --Done
-                    //fillpnl_BTP --Done
-                    //fillpnl_Accuracy  --Done -- Analytics KPI
-                    //fillpnl_Attrition --NA -- Manager KPI
-                    //fillpnl_Coaching_Feedback-- Analytics KPI
-                    //fillpnl_Escalations --Done
-                    //fillpnl_Forecasting_Accuracy --Empty Method
-                    //fillpnl_Headcount_Accuracy --Empty Method
-                    //fillpnl_IEX_Management --Done
-                    //fillpnl_On_Time_Delivery -- Analytics KPI
-                    //fillpnl_Projects --Done
-                    //fillpnl_Real_Time_Optimization --Done
-                    //fillpnl_Revenue_Cost_optimization -- Manager KPI
-                    //fillpnl_Scheduling_Accuracy
+                    theMethod.Invoke(this, new object[] { MyEmpID });
+                }
+                catch (Exception Ex)
+                {
+                    Response.Write(Ex.Message.ToString());
+                }
+                finally
+                {
+                    my.close_conn();
                 }
             }
         }
+        //}
     }
     private void getNamePacmanCycle()
     {
@@ -284,20 +281,22 @@ public partial class pacman : System.Web.UI.Page
 
                 if (CurrentStage == 0 || CurrentStage == 2 || CurrentStage == 5)
                 {
-                    btnYesDiscussed.Enabled = false;
-                    btnNotDiscussed.Enabled = false;
+                    //btnYesDiscussed.Enabled = false;
+                    //btnNotDiscussed.Enabled = false;
                     btnAgree.Enabled = false;
+                    // Please remove the below true in production..........
+                    btnAgree.Enabled = true;
                 }
                 else if (CurrentStage == 3)
                 {
-                    btnYesDiscussed.Enabled = true;
-                    btnNotDiscussed.Enabled = true;
-                    btnAgree.Enabled = false;
+                    //btnYesDiscussed.Enabled = true;
+                    //btnNotDiscussed.Enabled = true;
+                    btnAgree.Enabled = true;
                 }
                 else if (CurrentStage == 4)
                 {
-                    btnYesDiscussed.Enabled = false;
-                    btnNotDiscussed.Enabled = false;
+                    //btnYesDiscussed.Enabled = false;
+                    //btnNotDiscussed.Enabled = false;
                     btnAgree.Enabled = true;
                 }
             }
@@ -309,12 +308,23 @@ public partial class pacman : System.Web.UI.Page
         string strSQL = "WFMPMS.fillPacmanCycleSelectionDropdownList";
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+        DataTable dt =  my.GetDataTableViaProcedure(ref cmd);
+        
         ddlReviewPeriod.DataSource = dt;
+        
         ddlReviewPeriod.DataTextField = "TextDescription";
         ddlReviewPeriod.DataValueField = "Id";
         ddlReviewPeriod.DataBind();
+        //ddlReviewPeriod.Items.Add(new ListItem("----Select-----", "0"));
+        
         ddlReviewPeriod.SelectedIndex = 0;
+        
+    }
+
+    private void fillddlReviewPeriodOnPageLoad()
+    {
+        ddlReviewPeriod.SelectedValue = CurrrentPacManCycle.ToString();
+        ddlReviewPeriod_SelectedIndexChanged(this, new EventArgs());
     }
 
     protected void ddlReviewPeriod_SelectedIndexChanged(object sender, EventArgs e)
@@ -328,38 +338,38 @@ public partial class pacman : System.Web.UI.Page
         getFinalRating(MyEmpID);
 
     }
-    protected void btnYesDiscussed_Click(object sender, EventArgs e)
-    {
-        btnAgree.Enabled = true;
-        btnYesDiscussed.Enabled = false;
-        btnNotDiscussed.Enabled = false;
+    //protected void btnYesDiscussed_Click(object sender, EventArgs e)
+    //{
+    //    btnAgree.Enabled = true;
+    //    btnYesDiscussed.Enabled = false;
+    //    btnNotDiscussed.Enabled = false;
 
-        SqlConnection con = new SqlConnection(my.getConnectionString());
-        con.Open();
+    //    SqlConnection con = new SqlConnection(my.getConnectionString());
+    //    con.Open();
 
-        String strSQL = "[WFMPMS].[InsertPacmanStage]";
-        SqlCommand cmd = new SqlCommand(strSQL, con);
-        cmd.CommandType = CommandType.StoredProcedure;
+    //    String strSQL = "[WFMPMS].[InsertPacmanStage]";
+    //    SqlCommand cmd = new SqlCommand(strSQL, con);
+    //    cmd.CommandType = CommandType.StoredProcedure;
 
-        MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
-        int Stage = 4;
-        int PreviousStage = 3;
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
-        cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-        cmd.Parameters.AddWithValue("@Stage", Stage);
-        cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-        cmd.Parameters.AddWithValue("@ActionBy", MyEmpID);
-        cmd.Parameters.AddWithValue("@PreviousStage", PreviousStage);
+    //    MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
+    //    int Stage = 4;
+    //    int PreviousStage = 3;
+    //    PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
+    //    cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+    //    cmd.Parameters.AddWithValue("@Stage", Stage);
+    //    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+    //    cmd.Parameters.AddWithValue("@ActionBy", MyEmpID);
+    //    cmd.Parameters.AddWithValue("@PreviousStage", PreviousStage);
 
-        cmd.Connection = con;
-        cmd.ExecuteNonQuery();
-        con.Close();
-        //enableDisableButtons();
-    }
+    //    cmd.Connection = con;
+    //    cmd.ExecuteNonQuery();
+    //    con.Close();
+    //    //enableDisableButtons();
+    //}
     protected void btnAgree_Click(object sender, EventArgs e)
     {
-        btnYesDiscussed.Enabled = false;
-        btnNotDiscussed.Enabled = false;
+        //btnYesDiscussed.Enabled = false;
+        //btnNotDiscussed.Enabled = false;
         btnAgree.Enabled = false;
 
         SqlConnection con = new SqlConnection(my.getConnectionString());
@@ -371,7 +381,7 @@ public partial class pacman : System.Web.UI.Page
 
         MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
         int Stage = 5;
-        int PreviousStage = 4;
+        int PreviousStage = 3;
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
         cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
         cmd.Parameters.AddWithValue("@Stage", Stage);
@@ -382,9 +392,64 @@ public partial class pacman : System.Web.UI.Page
         cmd.Connection = con;
         cmd.ExecuteNonQuery();
         con.Close();
-
+        InsertTotblFinalKPI(MyEmpID);
         enableDisableButtons();
     }
+
+    private void InsertTotblFinalKPI(int ForEmpID)
+    {
+        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+        DataTable dt = my.GetData(strSQL);
+        StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
+
+        strSQL = " SELECT Distinct B.Id, A.EmpCode,'' as PacmanCycle,B.SkillsetId, B.Metrics as Metric ";
+        strSQL += " , B.DataLevel, B.Weight as Weightage, '' as Acheived, '' as Score";
+        strSQL += " , getdate() as Date FROM[CWFM_Umang].[WFMPMS].[tblEmp2Account] A ";
+        strSQL += " inner join[WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId ";
+        strSQL += " where EmpCode = "+ ForEmpID + " and[Active] = 1 and '"+ StartDate + "' between A.FromDate and A.ToDate ";
+        strSQL += " order by B.Id, B.Metrics, B.Weight ";
+
+        FinalRating = 0;
+        DataTable dtWeights = my.GetData(strSQL);
+        strSQL = "[WFMPMS].[InsertFinalKPI]";
+
+        foreach (DataRow dr in dtWeights.Rows)
+        {
+            Decimal KPIWt = Convert.ToDecimal(dr["Weightage"].ToString());
+            string KPIname = dr["Metric"].ToString().Replace("&", "").Replace(" ", "_");
+            Literal ltl = (Literal)Page.FindControlRecursive("ltl_" + KPIname);
+
+            if (ltl != null)
+            {
+                
+                Decimal KPIScore = Convert.ToDecimal(ltl.Text);
+                FinalRating = KPIScore * KPIWt;
+                
+                SqlCommand cmd = new SqlCommand(strSQL);
+                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                cmd.Parameters.AddWithValue("@SkillsetId", Convert.ToDecimal(dr["SkillsetId"].ToString()));
+                cmd.Parameters.AddWithValue("@Metric", dr["Metric"].ToString());
+                cmd.Parameters.AddWithValue("@DataLevel", dr["DataLevel"].ToString());
+                cmd.Parameters.AddWithValue("@Weightage", Convert.ToDecimal(dr["Weightage"].ToString()));
+                cmd.Parameters.AddWithValue("@Achieved", KPIScore);
+                cmd.Parameters.AddWithValue("@Score", FinalRating);
+                my.ExecuteDMLCommand(ref cmd, strSQL, "S");
+                cmd.Dispose();
+
+            }
+        }
+        
+
+
+
+        
+        //my.ExecuteDMLCommand(ref cmd, strSQL, "");
+
+    } 
+
+
     public void fillltlfinalScore(int ForEmpID)
     {
         int FinalScore = 0;
@@ -605,28 +670,20 @@ public partial class pacman : System.Web.UI.Page
     #region Planning
     public void fillpnl_BTP(int ForEmpID)
     {
-        List<string> myAccounts = new List<string>();
-        if (DtOfAccountsIHandle == null)
-        {
-            DtOfAccountsIHandle = getDtOfAccountsIHandle();
-        }
-        DataTable dt = new DataTable();
-        DataTable scratchTable = new DataTable();
-        DataRow[] drow = DtOfAccountsIHandle.Select("InBO=1");
-        foreach (DataRow d in drow)
-        {
-            strSQL = "WFMPMS.getBTPForAccount";
-            SqlCommand cmd = new SqlCommand(strSQL);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@AccountId", d["PrimaryClientID"].ToString());
-            cmd.Parameters.AddWithValue("@Month", StartDate);
-            scratchTable = my.GetDataTableViaProcedure(ref cmd);
-           
-            if (scratchTable != null && scratchTable.Rows.Count > 0)
-            {
-                dt.Merge(scratchTable);
-            }
-        }
+        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+        DataTable dt = my.GetData(strSQL);
+        StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
+
+        
+        strSQL = "[WFMPMS].GetBTPByEmp";
+        SqlCommand cmd = new SqlCommand(strSQL);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        cmd.Parameters.AddWithValue("@Month", StartDate);
+        dt = my.GetDataTableViaProcedure(ref cmd);
+
+            
         GridView gvBTP = new GridView();
         gvBTP.ID = "gvBTP";
         gvBTP.AutoGenerateColumns = true;
@@ -644,7 +701,7 @@ public partial class pacman : System.Web.UI.Page
         }
         else
         {
-
+            ltlBTP.Text = string.Empty;
         }
         ltlBTP.Text = "Billed To Pay &nbsp= &nbsp";
         pnlBTP.Controls.Add(gvBTP);
@@ -664,10 +721,41 @@ public partial class pacman : System.Web.UI.Page
                 cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
                 cmd.Parameters.AddWithValue("@total", EIRating);
                 cmd.Parameters["@total"].Direction = ParameterDirection.Output;
-                cmd.ExecuteNonQuery();
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+
+
                 EIRating = Convert.ToInt32(cmd.Parameters["@total"].Value.ToString());
                 ltlEI.Text = "Escalations & Initiatives &nbsp= &nbsp";
                 ltl_Escalations.Text = EIRating.ToString();
+
+                if (dt != null)
+                {
+                    GridView gvEscalations = new GridView();
+                    gvEscalations.ID = "gvEscalations";
+                    gvEscalations.AutoGenerateColumns = true;
+                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+                    DataRow dr = dt.NewRow();
+
+                    gvEscalations.DataSource = dt;
+                    gvEscalations.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                    gvEscalations.DataBind();
+                    if (dt.Rows.Count > 0)
+                    {
+                        gvEscalations.Rows[gvEscalations.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                        gvEscalations.Rows[gvEscalations.Rows.Count - 1].Font.Bold = true;
+                        gvEscalations.PreRender += gv_PreRender;
+                    }
+
+
+                    pnlEscalations.Controls.Add(gvEscalations);
+                }
+                else
+                {
+                    ltl_Escalations.Text = string.Empty;
+                }
             }
 
         }
@@ -675,7 +763,7 @@ public partial class pacman : System.Web.UI.Page
     public void fillpnl_Forecasting_Accuracy(int ForEmpID)
     {
         //WFMPMS.getForecastAccuracyScore
-        string strSQL = "WFMPMS.getForecastAccuracyScore";
+        string strSQL = "[WFMPMS].[IEXForecatingScore]";
 
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.CommandType = CommandType.StoredProcedure;
@@ -767,7 +855,7 @@ public partial class pacman : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@EndDate", EndDate);
 
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        if (dt.Rows.Count > 0)
+        if (dt != null && dt.Rows.Count > 0)
         {
             GridView gvOptimizationKPI = new GridView();
             gvOptimizationKPI.AutoGenerateColumns = true;
@@ -784,6 +872,11 @@ public partial class pacman : System.Web.UI.Page
 
             gvOptimizationKPI.PreRender += gv_PreRender;
         }
+        else
+        {
+            ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
+            ltl_Real_Time_Optimization.Text = String.Empty;
+        }
 
 
     }
@@ -792,7 +885,7 @@ public partial class pacman : System.Web.UI.Page
     public void fillpnl_Scheduling_Accuracy(int ForEmpID)
     {
         //WFMPMS.getSchedulingAccuracyScore
-        string strSQL = "WFMPMS.getSchedulingAccuracyScore";
+        string strSQL = "[WFMPMS].[getIEXSchedulingAccuracy]";
 
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.CommandType = CommandType.StoredProcedure;
@@ -801,7 +894,7 @@ public partial class pacman : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@EndDate", EndDate);
 
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        if (dt != null)
+        if (dt != null && dt.Rows.Count > 0)
         {
             GridView gvSchedulingAccuracy = new GridView();
             gvSchedulingAccuracy.ID = "gvSchedulingAccuracy";
@@ -813,21 +906,20 @@ public partial class pacman : System.Web.UI.Page
             gvSchedulingAccuracy.DataSource = dt;
             gvSchedulingAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
             gvSchedulingAccuracy.DataBind();
-            if (dt.Rows.Count > 0)
-            {
-                gvSchedulingAccuracy.Rows[gvSchedulingAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                gvSchedulingAccuracy.Rows[gvSchedulingAccuracy.Rows.Count - 1].Font.Bold = true;
-                gvSchedulingAccuracy.PreRender += gv_PreRender;
-                SchedulingAccuracy = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
-                ltl_Scheduling_Accuracy.Text = SchedulingAccuracy.ToString();
-            }
 
 
-            pnlKPI.Controls.Add(gvSchedulingAccuracy);
+            gvSchedulingAccuracy.Rows[gvSchedulingAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+            gvSchedulingAccuracy.Rows[gvSchedulingAccuracy.Rows.Count - 1].Font.Bold = true;
+            gvSchedulingAccuracy.PreRender += gv_PreRender;
+            SchedulingAccuracy = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+            ltl_Scheduling_Accuracy.Text = SchedulingAccuracy.ToString();
+
+            pnl_Scheduling_Accuracy.Controls.Add(gvSchedulingAccuracy);
         }
         else
         {
             ltl_Scheduling_Accuracy.Text = "Scheduling Accuracy &nbsp= &nbsp" + "No Data found";
+            ltlSchedulingAccuracy.Text = string.Empty;
         }
     }
     public void fillpnl_IEX_Management(int ForEmpID)

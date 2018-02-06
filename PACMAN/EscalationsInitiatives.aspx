@@ -128,7 +128,7 @@
                     <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" Display="Dynamic" ControlToValidate="txtEscalation" ErrorMessage="enter valid reason" ForeColor="Red" ValidationExpression="^[a-zA-Z ]+$" ValidationGroup="Escalation"></asp:RegularExpressionValidator>
                     <br />
                     <div class="pull-left" style="margin-top: 1%">
-                        <asp:FileUpload ID="FileUploadAttachMailEsc" runat="server" />
+                        <asp:FileUpload ID="FileUploadAttachMailEsc" runat="server"  accept=".msg" />
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator6" runat="server" Display="Dynamic" ErrorMessage="Escalation Mail required" ForeColor="Red" ControlToValidate="FileUploadAttachMailEsc" ValidationGroup="Escalation"></asp:RequiredFieldValidator>
 
                     </div>
@@ -199,7 +199,7 @@
                     <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" Display="Dynamic" ControlToValidate="txtInitiative" ErrorMessage="enter valid reason" ForeColor="Red" ValidationExpression="^[a-zA-Z ]+$" ValidationGroup="Initiative"></asp:RegularExpressionValidator>
                     <br />
                     <div class="pull-left" style="margin-top: 1%">
-                        <asp:FileUpload ID="FileUploadAttachMailIni" runat="server" />
+                        <asp:FileUpload ID="FileUploadAttachMailIni" runat="server"  accept=".msg" />
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator5" runat="server" Display="Dynamic" ErrorMessage="Select a category" ForeColor="Red" ControlToValidate="FileUploadAttachMailIni" ValidationGroup="Initiative"></asp:RequiredFieldValidator>
 
                     </div>

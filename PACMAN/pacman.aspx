@@ -161,12 +161,13 @@
                 <!-- Tabs within a box -->
                 <ul class="nav nav-tabs pull-right">
                     <%--<li><a href="#itemized-details" data-toggle="tab">Itemized Details</a></li>--%>
-                    <li><a href="#monthly-scorecard" data-toggle="tab">Overall Score</a></li>
-                    <li class="active"><a href="#all-my-accounts" data-toggle="tab">My Accounts</a></li>
+                    
+                    <li><a href="#all-my-accounts" data-toggle="tab">My Accounts</a></li>
+                    <li class="active"><a href="#monthly-scorecard" data-toggle="tab">Overall Score</a></li>
                     <li class="pull-left header"><i class="fa fa-inbox"></i>My Performance Management Cycle</li>
                 </ul>
                 <div class="tab-content no-padding">
-                    <div class="box-body tab-pane active" id="all-my-accounts" style="position: relative">
+                    <div class="box-body tab-pane" id="all-my-accounts" style="position: relative">
                         <asp:GridView ID="gvAllMyAccounts" runat="server" CssClass="table DataTable table-condensed table-bordered table-responsive"
                             AutoGenerateColumns="false" OnPreRender="gv_PreRender">
                             <Columns>
@@ -179,7 +180,7 @@
                             </Columns>
                         </asp:GridView>
                     </div>
-                    <div class="box-body tab-pane" id="monthly-scorecard" style="position: relative; height: 300px;">
+                    <div class="box-body tab-pane  active" id="monthly-scorecard" style="position: relative; height: 300px;">
                         <!-- START ACCORDION & CAROUSEL-->
                         <div class="row">
                             <div class="col-md-12">
@@ -234,12 +235,12 @@
                                                     </a>
                                                 </h4>
                                             </div>
-                                            <%--<div id="collapseThree" class="panel-collapse collapse">
+                                            <div id="collapseThree" class="panel-collapse collapse">
                                                     <div class="box-body">
-                                                        
-                   
+                                                       <asp:Panel ID="pnlEscalations" runat="server">
+                                                    </asp:Panel>                    
                                                     </div>
-                                                </div>--%>
+                                                </div>
                                         </asp:Panel>
                                         <!--Escalations & Initiatives-->
 
@@ -444,7 +445,7 @@
             <!-- /.nav-tabs-custom -->
         </section>
         <!-- /.Left col -->
-        <div class="col-md-6">
+        <%--<div class="col-md-6">
             <div class="box">
                 <div class="box-body">
                     <div class="form-group">
@@ -457,8 +458,8 @@
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-6">
+        </div>--%>
+        <div class="col-md-12">
             <div class="box">
                 <div class="box-body">
                     <div class="form-group">

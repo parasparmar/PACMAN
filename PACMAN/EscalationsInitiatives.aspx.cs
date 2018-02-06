@@ -216,7 +216,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
 
         FileUploadAttachMailEsc.SaveAs(folderPath + Path.GetFileName(FileUploadAttachMailEsc.FileName));
 
-        string Attachment = Server.MapPath("~/Sitel/mails/") + fileName;
+        string Attachment = "Sitel/mails/" + fileName;
 
         //if (FileUploadAttachMailEsc.HasFile)
         //{
@@ -250,10 +250,17 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@Attachment", Attachment);
         cmd.Parameters.AddWithValue("@ActionBy", MyEmpID);
         cmd.Parameters.AddWithValue("@PacmanCycle", Convert.ToInt32(pacmancycle));
+        cmd.Parameters.Add("@stop", SqlDbType.Int);
+        cmd.Parameters["@stop"].Direction = ParameterDirection.Output;
         cmd.Connection = con;
 
         cmd.ExecuteNonQuery();
+        string decider = cmd.Parameters["@stop"].Value.ToString();
         con.Close();
+        if (Convert.ToInt32(decider) == 1)
+        {
+            Page.ClientScript.RegisterStartupScript(this.GetType(), "toastr_message", "toastr.warning('Cannot issue Escalation for past pacman cycle.')", true);
+        }
         fillgvEscalationlog();
         getTotalScore();
         clearfields();
@@ -278,7 +285,8 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         string folderPath = Server.MapPath("~/Sitel/mails/");
         string fileName = Path.GetFileName(FileUploadAttachMailIni.FileName);
         FileUploadAttachMailIni.SaveAs(folderPath + Path.GetFileName(FileUploadAttachMailIni.FileName));
-        string Attachment = Server.MapPath("~/Sitel/mails/") + fileName;
+        //string Attachment = Server.MapPath("~/Sitel/mails/") + fileName;
+        string Attachment = "Sitel/mails/" + fileName;
 
         cmd.Parameters.AddWithValue("@EmpCode", Convert.ToInt32(reportee));
         cmd.Parameters.AddWithValue("@Type", type);
@@ -287,10 +295,17 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@Attachment", Attachment);
         cmd.Parameters.AddWithValue("@ActionBy", MyEmpID);
         cmd.Parameters.AddWithValue("@PacmanCycle", Convert.ToInt32(pacmancycle));
+        cmd.Parameters.Add("@stop", SqlDbType.Int);
+        cmd.Parameters["@stop"].Direction = ParameterDirection.Output;
         cmd.Connection = con;
 
         cmd.ExecuteNonQuery();
+        string decider = cmd.Parameters["@stop"].Value.ToString();
         con.Close();
+        if (Convert.ToInt32(decider) == 1)
+        {
+            Page.ClientScript.RegisterStartupScript(this.GetType(), "toastr_message", "toastr.warning('Cannot issue Initiative for past pacman cycle.')", true);
+        }
         fillgvInitiativelog();
         getTotalScore();
         clearfields();

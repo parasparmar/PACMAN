@@ -161,7 +161,7 @@
                         <div class="input-group">
                             <%--<asp:ListBox  ItemType="text" CssClass="form-control select" ID="lbSites" SelectionMode="Multiple" runat="server">
                             </asp:ListBox>--%>
-                            <asp:FileUpload ID="AttachIssueMail" runat="server"   />
+                            <asp:FileUpload ID="AttachIssueMail" runat="server"  accept=".msg" />
                                 <asp:RequiredFieldValidator ID="RequiredFieldValidator8" runat="server" Display="Dynamic" ErrorMessage="Attach refrence Mail" ForeColor="Red" ControlToValidate="AttachIssueMail" ValidationGroup="downtime"></asp:RequiredFieldValidator>
 
                         </div>

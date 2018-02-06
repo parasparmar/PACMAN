@@ -58,10 +58,20 @@ public partial class IntervalTracker : System.Web.UI.Page
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
         DataTable dt1 = my.GetDataTableViaProcedure(ref cmd);
-        ddlAccount.DataSource = dt1;
-        ddlAccount.DataTextField = "Account";
-        ddlAccount.DataValueField = "PrimaryClientID";
-        ddlAccount.DataBind();
+        if (dt1!= null && dt1.Rows.Count > 0)
+        {
+            
+            ddlAccount.DataSource = dt1;
+            ddlAccount.DataTextField = "Account";
+            ddlAccount.DataValueField = "PrimaryClientID";
+            ddlAccount.DataBind();
+        }
+        else
+        {
+            //ddlAccount.DataSource = dt1;
+            ddlAccount.DataTextField = "No-Account";
+            //ddlAccount.DataValueField = "PrimaryClientID"; 
+        }
     }
     protected void ddlAccount_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -139,7 +149,7 @@ public partial class IntervalTracker : System.Web.UI.Page
         string folderPath = Server.MapPath("~/Sitel/mails/");
         string fileName = Path.GetFileName(AttachIssueMail.FileName);
         AttachIssueMail.SaveAs(folderPath + Path.GetFileName(AttachIssueMail.FileName));
-        string Attachment = Server.MapPath("~/Sitel/mails/") + fileName;
+        string Attachment = "Sitel/mails/" + fileName;
 
         if (DateTime.TryParse(tbDate.Text, out Date))
         {

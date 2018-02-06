@@ -78,23 +78,23 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             if (RStage == 3 || RStage == 4 || RStage == 5)
             {
                 btnYesDiscussed.Enabled = false;
-                btnNotDiscussed.Enabled = false;
+                //btnNotDiscussed.Enabled = false;
             }
             else if (RStage == 2)
             {
                 btnYesDiscussed.Enabled = false;
-                btnNotDiscussed.Enabled = false;
+                //btnNotDiscussed.Enabled = false;
                 btnSubmitPacman.Enabled = true;
             }
             else
             {
                 btnYesDiscussed.Enabled = true;
-                btnNotDiscussed.Enabled = true;
+                //btnNotDiscussed.Enabled = true;
             }
             if (IsRepMgr == 0)
             {
                 btnYesDiscussed.Enabled = false;
-                btnNotDiscussed.Enabled = false;
+               // btnNotDiscussed.Enabled = false;
             }
 
             DtOfAccountsIHandle = getDtOfAccountsIHandle();
@@ -174,18 +174,18 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         if (RStage == 3 || RStage == 4 || RStage == 5)
         {
             btnYesDiscussed.Enabled = false;
-            btnNotDiscussed.Enabled = false;
+            //btnNotDiscussed.Enabled = false;
         }
         else if (RStage == 2)
         {
             btnYesDiscussed.Enabled = false;
-            btnNotDiscussed.Enabled = false;
+            //btnNotDiscussed.Enabled = false;
             btnSubmitPacman.Enabled = true;
         }
         else
         {
             btnYesDiscussed.Enabled = true;
-            btnNotDiscussed.Enabled = true;
+           // btnNotDiscussed.Enabled = true;
         }
     }
 
@@ -270,7 +270,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     {
         btnSubmitPacman.Enabled = true;
         btnYesDiscussed.Enabled = false;
-        btnNotDiscussed.Enabled = false;
+       // btnNotDiscussed.Enabled = false;
 
         SqlConnection con = new SqlConnection(my.getConnectionString());
         con.Open();
@@ -281,7 +281,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
         MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
         int reportee = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
-        int PreviousStage = Convert.ToInt32(ddlStage.SelectedItem.Value.ToString());
+        //int PreviousStage = Convert.ToInt32(ddlStage.SelectedItem.Value.ToString());
+        int PreviousStage = 1;
         int Stage = 2;
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
         cmd.Parameters.AddWithValue("@EmpCode", reportee);
@@ -314,7 +315,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     protected void btnSubmitPacman_Click(object sender, EventArgs e)
     {
         btnYesDiscussed.Enabled = false;
-        btnNotDiscussed.Enabled = false;
+        //btnNotDiscussed.Enabled = false;
         btnSubmitPacman.Enabled = false;
 
         SqlConnection con = new SqlConnection(my.getConnectionString());
@@ -326,7 +327,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
         MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
         int reportee = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
-        int PreviousStage = Convert.ToInt32(ddlStage.SelectedItem.Value.ToString());
+        //int PreviousStage = Convert.ToInt32(ddlStage.SelectedItem.Value.ToString());
+        int PreviousStage = 2;
         int Stage = 3;
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
         cmd.Parameters.AddWithValue("@EmpCode", reportee);
