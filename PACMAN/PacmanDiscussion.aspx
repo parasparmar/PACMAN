@@ -38,7 +38,7 @@
     <div class="pageheader">
         <div class="pageicon"><span class="fa fa-file-text"></span></div>
         <div class="pagetitle">
-            <h5>Discussion of Monthly Performance <strong>for my team</strong></h5>
+            <h5>Discussion of Monthly Performance</h5>
             <h1>PACMAN Discussion</h1>
         </div>
     </div>
@@ -175,7 +175,7 @@
                             <div class="input-group-addon">
                                 <i class="fa fa-user"></i>
                             </div>
-                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlReportee" runat="server">
+                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlReportee" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlReportee_SelectedIndexChanged">
                             </asp:DropDownList>
                         </div>
                         <!-- /.input group -->
@@ -188,8 +188,8 @@
                             <div class="input-group-addon">
                                 <i class="fa fa-user"></i>
                             </div>
-                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="DropDownList3" runat="server">
-                                <asp:ListItem Enabled="true" Selected="True" Text="Select SPI Status" Value="2"></asp:ListItem>
+                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlSPI" runat="server">
+                                <%--<asp:ListItem Enabled="true" Selected="True" Text="Select SPI Status" Value="2"></asp:ListItem>--%>
                                 <asp:ListItem Enabled="true" Text="False" Value="0"></asp:ListItem>
                                 <asp:ListItem Enabled="true" Text="True" Value="1"></asp:ListItem>
                             </asp:DropDownList>
@@ -234,7 +234,6 @@
 
                                         <div class="box-group" id="accordion">
                                             <!-- we are adding the .panel class so bootstrap.js collapse plugin detects it -->
-
                                             <!--Common KPI for RTA, Scheduler, Planner-->
                                             <asp:Panel ID="pnl_KPI" CssClass="panel box box-primary" runat="server" Visible="false">
                                                 <div class="box-header with-border">
@@ -244,7 +243,7 @@
                                                             <asp:Literal ID="ltl_KPI" Text="0" runat="server"></asp:Literal></a>
                                                     </h4>
                                                 </div>
-                                                <div id="collapseOne" class="panel-collapse collapse in">
+                                                <div id="collapseOne" class="panel-collapse collapse">
                                                     <div class="box-body">
                                                         <asp:Panel ID="pnlKPI" runat="server">
                                                         </asp:Panel>
@@ -278,15 +277,14 @@
                                                         </a>
                                                     </h4>
                                                 </div>
-                                                <%--<div id="collapseThree" class="panel-collapse collapse">
+                                                <div id="collapseThree" class="panel-collapse collapse">
                                                     <div class="box-body">
-                                                        
-                   
+                                                        <asp:Panel ID="pnlEscalations" runat="server">
+                                                        </asp:Panel>                   
                                                     </div>
-                                                </div>--%>
+                                                </div>
                                             </asp:Panel>
                                             <!--Escalations & Initiatives-->
-
                                             <!--Commom KPI for all(RTA, Scheduler, Planner, Analytics)-->
                                             <asp:Panel ID="pnl_Absenteeism" CssClass="panel box box-primary" runat="server" Visible="false">
                                                 <div class="box-header with-border">
@@ -297,13 +295,12 @@
                                                         </a>
                                                     </h4>
                                                 </div>
-                                                <%--<div id="collapseFour" class="panel-collapse collapse">
+                                                <div id="collapseFour" class="panel-collapse collapse">
                                                     <div class="box-body">
                                                     </div>
-                                                </div>--%>
+                                                </div>
                                             </asp:Panel>
                                             <!--Self-Attendance-->
-
                                             <!--RTA KPI's-->
                                             <asp:Panel ID="pnl_Real_Time_Optimization" CssClass="panel box box-primary" runat="server" Visible="false">
                                                 <div class="box-header with-border">
@@ -324,7 +321,6 @@
                                                 </div>
                                             </asp:Panel>
                                             <!--Real Time Optimization KPI-->
-
                                             <!-- Planner KPI's -->
                                             <asp:Panel ID="pnl_Forecasting_Accuracy" CssClass="panel box box-primary" runat="server" Visible="false">
                                                 <div class="box-header with-border">
@@ -336,7 +332,7 @@
                                                         </a>
                                                     </h4>
                                                 </div>
-                                                <div id="collapseSix" class="panel-collapse collapse in">
+                                                <div id="collapseSix" class="panel-collapse collapse">
                                                     <div class="box-body">
                                                         <asp:Panel ID="pnlForecasting_Accuracy" runat="server">
                                                         </asp:Panel>
@@ -353,7 +349,7 @@
                                                         </a>
                                                     </h4>
                                                 </div>
-                                                <div id="collapseSeven" class="panel-collapse collapse in">
+                                                <div id="collapseSeven" class="panel-collapse collapse">
                                                     <div class="box-body">
                                                         <asp:Panel ID="pnlHeadcount_Accuracy" runat="server">
                                                         </asp:Panel>
@@ -361,7 +357,6 @@
                                                 </div>
                                             </asp:Panel>
                                             <!--Headcount Accuracy-->
-
                                             <!--Scheduler KPI's-->
                                             <asp:Panel ID="pnl_Scheduling_Accuracy" CssClass="panel box box-primary" runat="server" Visible="false">
                                                 <div class="box-header with-border">
@@ -371,15 +366,14 @@
                                                             <asp:Literal ID="ltl_Scheduling_Accuracy" Text="0" runat="server"></asp:Literal></a>
                                                     </h4>
                                                 </div>
-                                                <div id="Div1" class="panel-collapse collapse in">
+                                                <div id="collapseNine" class="panel-collapse collapse">
                                                     <div class="box-body">
-                                                        <asp:Panel ID="pnlScheduling_Accuracy" runat="server">
+                                                        <asp:Panel ID="pnlSchedulingAccuracy" runat="server">
                                                         </asp:Panel>
                                                     </div>
                                                 </div>
                                             </asp:Panel>
                                             <!--Scheduling Accuracy-->
-
                                             <asp:Panel ID="pnl_IEX_Management" CssClass="panel box box-primary" runat="server" Visible="false">
                                                 <div class="box-header with-border">
                                                     <h4 class="box-title">
@@ -418,7 +412,6 @@
                                                 </div>
                                             </asp:Panel>
                                             <!--IEX Management-->
-
                                             <!--Analytics KPI-->
                                             <asp:Panel ID="pnl_Analytics" runat="server" Visible="false">
 

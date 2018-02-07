@@ -41,8 +41,7 @@
             <img src="sitel/img/performance-360_bw.png" style="height: 60px" alt="" />
         </div>
         <div class="pagetitle">
-            <h5>The Monthly Performance Management Dashboard <strong>
-                <asp:Label ID="lblName" runat="server"></asp:Label>,<asp:Label ID="lblPC" runat="server"></asp:Label></strong></h5>
+            <h5>The Monthly Performance Management Dashboard</h5>
             <h1>My PACMAN</h1>
         </div>
     </div>
@@ -201,7 +200,7 @@
                                                     </a>
                                                 </h4>
                                             </div>
-                                            <div id="collapseOne" class="panel-collapse collapse in">
+                                            <div id="collapseOne" class="panel-collapse collapse">
                                                 <div class="box-body">
                                                     <asp:Panel ID="pnlKPI" runat="server">
                                                     </asp:Panel>
@@ -292,7 +291,7 @@
                                                     </a>
                                                 </h4>
                                             </div>
-                                            <div id="collapseSix" class="panel-collapse collapse in">
+                                            <div id="collapseSix" class="panel-collapse collapse">
                                                 <div class="box-body">
                                                     <asp:Panel ID="pnlForecasting_Accuracy" runat="server">
                                                     </asp:Panel>
@@ -310,7 +309,7 @@
                                                     </a>
                                                 </h4>
                                             </div>
-                                            <div id="collapseSeven" class="panel-collapse collapse in">
+                                            <div id="collapseSeven" class="panel-collapse collapse">
                                                 <div class="box-body">
                                                     <asp:Panel ID="pnlHeadcount_Accuracy" runat="server">
                                                     </asp:Panel>
@@ -329,7 +328,7 @@
                                                     </a>
                                                 </h4>
                                             </div>
-                                            <div id="collapseNine" class="panel-collapse collapse in">
+                                            <div id="collapseNine" class="panel-collapse collapse">
                                                 <div class="box-body">
                                                     <asp:Panel ID="pnlSchedulingAccuracy" runat="server">
                                                     </asp:Panel>
@@ -347,7 +346,7 @@
                                                     </a>
                                                 </h4>
                                             </div>
-                                            <div id="collapseEight" class="panel-collapse collapse in">
+                                            <div id="collapseEight" class="panel-collapse collapse">
                                                 <div class="box-body">
                                                     <asp:Panel ID="pnlIEX_Management" runat="server">
 

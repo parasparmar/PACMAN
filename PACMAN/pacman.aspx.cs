@@ -66,8 +66,7 @@ public partial class pacman : System.Web.UI.Page
             Literal title = (Literal)PageExtensionMethods.FindControlRecursive(Master, "ltlPageTitle");
             title.Text = "PACMAN";
             fillddlReviewPeriod();
-            enableDisableButtons();
-            getNamePacmanCycle();
+            enableDisableButtons();            
             DtOfAccountsIHandle = getDtOfAccountsIHandle();
             showRelevantMetricPanels(MyEmpID);
 
@@ -140,26 +139,25 @@ public partial class pacman : System.Web.UI.Page
                 gvPrimaryKPI.Rows[dt.Rows.Count - 1].Font.Bold = true;
                 gvPrimaryKPI.PreRender += gv_PreRender;
                 SLRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
-                ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp";
+                ltlPrimaryKPI.Text = "Primary KPIname &nbsp= &nbsp";
                 ltl_KPI.Text = SLRating.ToString();
                 pnlKPI.Controls.Add(gvPrimaryKPI);
             }
             else
             {
-                ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp";// + "No Data found";
+                ltlPrimaryKPI.Text = "Primary KPIname&nbsp= &nbsp";// + "No Data found";
                 ltl_KPI.Text = String.Empty;
             }
 
         }
         else
         {
-            ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp";// + "No Data found";
+            ltlPrimaryKPI.Text = "Primary KPIname&nbsp= &nbsp";// + "No Data found";
             ltl_KPI.Text = String.Empty;
         }
 
 
     }
-
     private void getFinalRating(int ForEmpID)
     {
         
@@ -247,23 +245,7 @@ public partial class pacman : System.Web.UI.Page
         }
         //}
     }
-    private void getNamePacmanCycle()
-    {
-        lblPC.Text = ddlReviewPeriod.SelectedItem.Text.ToString();
-        string Name;
-        strSQL = "[WFMPMS].[GetName]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
-        {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                Name = cmd.ExecuteScalar().ToString();
-            }
-        }
-        lblName.Text = Name;
-    }
+    
     private void enableDisableButtons()
     {
         int CurrentStage;
@@ -320,13 +302,11 @@ public partial class pacman : System.Web.UI.Page
         ddlReviewPeriod.SelectedIndex = 0;
         
     }
-
     private void fillddlReviewPeriodOnPageLoad()
     {
         ddlReviewPeriod.SelectedValue = CurrrentPacManCycle.ToString();
         ddlReviewPeriod_SelectedIndexChanged(this, new EventArgs());
     }
-
     protected void ddlReviewPeriod_SelectedIndexChanged(object sender, EventArgs e)
     {
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
@@ -395,7 +375,6 @@ public partial class pacman : System.Web.UI.Page
         InsertTotblFinalKPI(MyEmpID);
         enableDisableButtons();
     }
-
     private void InsertTotblFinalKPI(int ForEmpID)
     {
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
@@ -447,9 +426,7 @@ public partial class pacman : System.Web.UI.Page
         
         //my.ExecuteDMLCommand(ref cmd, strSQL, "");
 
-    } 
-
-
+    }     
     public void fillltlfinalScore(int ForEmpID)
     {
         int FinalScore = 0;
@@ -489,25 +466,7 @@ public partial class pacman : System.Web.UI.Page
             gv.BorderWidth = Unit.Pixel(1);
         }
     }
-    public string InvokeStringMethod(string typeName, string methodName, int stringParam)
-    {
-        // Get the Type for the class
-        Type calledType = Type.GetType(typeName);
-
-        // Invoke the method itself. The string returned by the method winds up in s.
-        // Note that stringParam is passed via the last parameter of InvokeMember,
-        // as an array of Objects.
-        String s = (String)calledType.InvokeMember(
-                        methodName,
-                        BindingFlags.InvokeMethod | BindingFlags.Public,
-                        null,
-                        null,
-                        new Object[] { stringParam });
-
-        // Return the string that was returned by the called method.
-        return s;
-    }
-
+   
     #region Analytics KPIs
     public void fillltlAnalyticCoaching(int ForEmpID)
     {
@@ -885,7 +844,7 @@ public partial class pacman : System.Web.UI.Page
     public void fillpnl_Scheduling_Accuracy(int ForEmpID)
     {
         //WFMPMS.getSchedulingAccuracyScore
-        string strSQL = "[WFMPMS].[getIEXSchedulingAccuracy]";
+        string strSQL = "[WFMPMS].[IEXSchedulingScore]";
 
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.CommandType = CommandType.StoredProcedure;
@@ -914,12 +873,13 @@ public partial class pacman : System.Web.UI.Page
             SchedulingAccuracy = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
             ltl_Scheduling_Accuracy.Text = SchedulingAccuracy.ToString();
 
-            pnl_Scheduling_Accuracy.Controls.Add(gvSchedulingAccuracy);
+            pnlSchedulingAccuracy.Controls.Add(gvSchedulingAccuracy);
         }
         else
         {
-            ltl_Scheduling_Accuracy.Text = "Scheduling Accuracy &nbsp= &nbsp" + "No Data found";
-            ltlSchedulingAccuracy.Text = string.Empty;
+            ltlSchedulingAccuracy.Text = "Scheduling Accuracy";
+            ltl_Scheduling_Accuracy.Text = "0";
+            
         }
     }
     public void fillpnl_IEX_Management(int ForEmpID)

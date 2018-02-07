@@ -241,7 +241,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </a>
-
+                     
                     <div class="navbar-custom-menu">
                         <asp:ContentPlaceHolder ID="headmenu" runat="server">
                             <ul class="nav navbar-nav">
@@ -308,8 +308,11 @@
                                 </li>
                             </ul>
                         </asp:ContentPlaceHolder>
+                       
                     </div>
+                    <h3 style="color: white;">Development Environment</h3>
                 </nav>
+                
             </header>
             <!-- =============================================== -->
             <!-- Left side column. contains the sidebar -->

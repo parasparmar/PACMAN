@@ -39,7 +39,7 @@ public partial class index : System.Web.UI.Page
         DataTable dt = new DataTable();
         if (myID != "IDNotFound")
         {
-            myID = "nchan016"; //RTA Vinod Chauhan
+            //myID = "nchan016"; //RTA Vinod Chauhan
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
             cmd.Parameters.AddWithValue("@NT_ID", myID);
             
@@ -89,17 +89,17 @@ public partial class index : System.Web.UI.Page
         switch (QueryString)
         {
             case "Analytics":
-                myID = "pparm001";
+                myID = "ktriv003";
                 break;
             case "Analytics - Manager":
                 myID = "gsing017";
                 break;
             case "Planning":
-                myID = "pbhat004"; //Planner Puja Bhatia
+                myID = "akamb002"; //Planner Anil Kamble 
                                    //myID = "akamb002"; //Planner Anil Kamble
                 break;
             case "Planning - Manager":
-
+                myID = "g.001"; //Manager Gorang Suri
                 break;
             case "RTA":
                 myID = "vchoh001"; //RTA Vinod Chauhan
@@ -108,10 +108,10 @@ public partial class index : System.Web.UI.Page
                 myID = "slall002"; //Manager Sandeep Lalla
                 break;
             case "Scheduling":
-                myID = "jsing050"; //Scheduler Jagdeep.Singh@sitel.com
+                myID = "nchan016"; //Scheduler Neha Chandna
                 break;
             case "Scheduling - Manager":
-                myID = "slall002"; //Manager Sandeep Lalla
+                myID = "utiwa002"; //Manager UmanKant Tiwari 
                 break;
             default:
                 myID = PageExtensionMethods.getMyWindowsID().ToString();
