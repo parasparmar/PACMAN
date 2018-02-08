@@ -138,21 +138,31 @@ public partial class pacman : System.Web.UI.Page
                 gvPrimaryKPI.Rows[dt.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
                 gvPrimaryKPI.Rows[dt.Rows.Count - 1].Font.Bold = true;
                 gvPrimaryKPI.PreRender += gv_PreRender;
-                SLRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
-                ltlPrimaryKPI.Text = "Primary KPIname &nbsp= &nbsp";
+                bool slrating = false;
+                decimal dec_slrating;
+                slrating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_slrating);
+                if (slrating)
+                {
+                    SLRating = dec_slrating;
+                }
+                else
+                {
+                    SLRating = 0;
+                }
+                ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";
                 ltl_KPI.Text = SLRating.ToString();
                 pnlKPI.Controls.Add(gvPrimaryKPI);
             }
             else
             {
-                ltlPrimaryKPI.Text = "Primary KPIname&nbsp= &nbsp";// + "No Data found";
+                ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
                 ltl_KPI.Text = String.Empty;
             }
 
         }
         else
         {
-            ltlPrimaryKPI.Text = "Primary KPIname&nbsp= &nbsp";// + "No Data found";
+            ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
             ltl_KPI.Text = String.Empty;
         }
 
@@ -656,7 +666,7 @@ public partial class pacman : System.Web.UI.Page
             gvBTP.Rows[gvBTP.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
             gvBTP.Rows[gvBTP.Rows.Count - 1].Font.Bold = true;
             gvBTP.PreRender += gv_PreRender;
-            BTPRating = Convert.ToDecimal(dt.Rows[0]["Rating"].ToString());
+            BTPRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count-1]["Rating"].ToString());
         }
         else
         {
@@ -722,7 +732,7 @@ public partial class pacman : System.Web.UI.Page
     public void fillpnl_Forecasting_Accuracy(int ForEmpID)
     {
         //WFMPMS.getForecastAccuracyScore
-        string strSQL = "[WFMPMS].[IEXForecatingScore]";
+        string strSQL = "[WFMPMS].[IEXForecastingScore]";
 
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.CommandType = CommandType.StoredProcedure;

@@ -412,6 +412,11 @@
                                     <i class="fa fa-sliders"></i><span>Interval Tracker</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="ExceptionTracker.aspx">
+                                    <i class="fa fa-exclamation-circle"></i><span>Exception Tracker</span>
+                                </a>
+                            </li>
 
 
                         </ul>

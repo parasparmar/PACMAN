@@ -837,7 +837,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     public void fillpnl_Forecasting_Accuracy(int ForEmpID)
     {
         //WFMPMS.getForecastAccuracyScore
-        string strSQL = "[WFMPMS].[IEXForecastingScore]";
+        string strSQL = "[WFMPMS].[IEXForecatingScore]";
 
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.CommandType = CommandType.StoredProcedure;
