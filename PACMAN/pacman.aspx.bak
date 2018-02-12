@@ -440,7 +440,6 @@
                                                 </div>
                                             </div>
                                         </asp:Panel>
-
                                         <asp:Panel ID="pnl_On_Time_Delivery" CssClass="panel box box-primary" runat="server" Visible="false">
                                             <div class="box-header with-border">
                                                 <h4 class="box-title">
@@ -457,7 +456,6 @@
                                                 </div>
                                             </div>
                                         </asp:Panel>
-
                                         <asp:Panel ID="pnl_Projects" CssClass="panel box box-primary" runat="server" Visible="false">
                                             <div class="box-header with-border">
                                                 <h4 class="box-title">
@@ -470,7 +468,6 @@
                                             <div id="collapseProject" class="panel-collapse collapse">
                                                 <div class="box-body">
                                                     <asp:Panel ID="pnlProjects" runat="server">
-
                                                     </asp:Panel>
                                                 </div>
                                             </div>
@@ -479,7 +476,7 @@
                                     </div>
                                 </div>
                                 <!-- /.box-body -->
-                            </div>
+                            </div>                            
                             <!-- /.col -->
                         </div>
                         <!-- /.row -->

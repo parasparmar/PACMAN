@@ -39,7 +39,7 @@ public partial class index : System.Web.UI.Page
         DataTable dt = new DataTable();
         if (myID != "IDNotFound")
         {
-            myID = "akamb002"; //RTA Vinod Chauhan
+            myID = "avish001"; //RTA Vinod Chauhan
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
             cmd.Parameters.AddWithValue("@NT_ID", myID);
             

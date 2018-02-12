@@ -67,6 +67,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         title.Text = "PACMAN Discussion";
 
         btnSubmitPacman.Enabled = false;
+        //btnSubmitPacman.Enabled = true;
 
 
         if (!IsPostBack)
@@ -103,6 +104,14 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 btnIEXMgmtScoreSubmit.Enabled = false;
             }
+            if (Convert.ToInt32(ltl_Project.Text) != 0)
+            {
+                btnAnalyticProjectScoreSubmit.Enabled = false;
+            }
+            if (Convert.ToInt32(ltl_Coaching_and_Feedback.Text) != 0)
+            {
+                btnCoachingScoreSubmit.Enabled = false;
+            }
 
         }
     }
@@ -125,7 +134,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
     private void getFinalRating(int ForEmpID)
     {
-        
+        ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
 
         string strSQL = "SELECT Distinct B.id, B.Metrics, B.Weight FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
         strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
@@ -300,7 +309,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     {
         btnSubmitPacman.Enabled = true;
         btnYesDiscussed.Enabled = false;
-       // btnNotDiscussed.Enabled = false;
+        //btnNotDiscussed.Enabled = false;
 
         SqlConnection con = new SqlConnection(my.getConnectionString());
         con.Open();
@@ -344,6 +353,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     protected void btnSubmitPacman_Click(object sender, EventArgs e)
     {
+        InsertTotblFinalKPI(ForEmpID);
+
         btnYesDiscussed.Enabled = false;
         //btnNotDiscussed.Enabled = false;
         btnSubmitPacman.Enabled = false;
@@ -372,6 +383,56 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         con.Close();
 
         fillddlReportee();
+    }
+
+    private void InsertTotblFinalKPI(int ForEmpID)
+    {
+        int IsSPI = Convert.ToInt32(ddlSPI.SelectedValue.ToString());
+        ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
+        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+        DataTable dt = my.GetData(strSQL);
+        StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
+
+        strSQL = " SELECT Distinct B.Id, A.EmpCode,'' as PacmanCycle,B.SkillsetId, B.Metrics as Metric ";
+        strSQL += " , B.DataLevel, B.Weight as Weightage, '' as Acheived, '' as Score";
+        strSQL += " , getdate() as Date FROM[CWFM_Umang].[WFMPMS].[tblEmp2Account] A ";
+        strSQL += " inner join[WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId ";
+        strSQL += " where EmpCode = " + ForEmpID + " and[Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
+        strSQL += " order by B.Id, B.Metrics, B.Weight ";
+
+        FinalRating = 0;
+        DataTable dtWeights = my.GetData(strSQL);
+        strSQL = "[WFMPMS].[InsertFinalKPI]";
+
+        foreach (DataRow dr in dtWeights.Rows)
+        {
+            Decimal KPIWt = Convert.ToDecimal(dr["Weightage"].ToString());
+            string KPIname = dr["Metric"].ToString().Replace("&", "").Replace(" ", "_");
+            Literal ltl = (Literal)Page.FindControlRecursive("ltl_" + KPIname);
+
+            if (ltl != null)
+            {
+
+                Decimal KPIScore = Convert.ToDecimal(ltl.Text);
+                if (IsSPI == 0)
+                { FinalRating = KPIScore * KPIWt; }
+                else { FinalRating = 3; }
+
+                SqlCommand cmd = new SqlCommand(strSQL);
+                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                cmd.Parameters.AddWithValue("@SkillsetId", Convert.ToDecimal(dr["SkillsetId"].ToString()));
+                cmd.Parameters.AddWithValue("@Metric", KPIname);
+                cmd.Parameters.AddWithValue("@DataLevel", dr["DataLevel"].ToString());
+                cmd.Parameters.AddWithValue("@Weightage", Convert.ToDecimal(dr["Weightage"].ToString()));
+                cmd.Parameters.AddWithValue("@Achieved", KPIScore);
+                cmd.Parameters.AddWithValue("@Score", FinalRating);
+                my.ExecuteDMLCommand(ref cmd, strSQL, "S");
+                cmd.Dispose();
+
+            }
+        }
     }
 
     private void clearIEXMgmtScorefields()
@@ -585,7 +646,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     
     #region Analytics KPIs
-    public void fillltlAnalyticCoaching(int ForEmpID)
+    public void fillpnl_Coaching_and_Feedback(int ForEmpID)
     {
         AnalyticCoaching = 0;
         strSQL = "[WFMPMS].[getAnalyticCoachingScore]";
@@ -602,15 +663,31 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 {
                     if (sdr.HasRows)
                     {
-                        AnalyticCoaching = Convert.ToInt32(sdr.GetValue(0));
+                        //string AnalyticCoaching =  sdr.GetValue(0).ToString();// Convert.ToInt32(sdr.GetValue(0));
+                       AnalyticCoaching = Convert.ToInt32(sdr.GetValue(0));
+                        ltlCoachingFeedback.Text = "Coaching & Feedback &nbsp= &nbsp";
+                        ltl_Coaching_and_Feedback.Text = AnalyticCoaching.ToString();
+
+                        //if (AnalyticCoaching != null)
+                        //{
+                        //    ltlCoachingFeedback.Text = "Coaching & Feedback &nbsp= &nbsp";
+                        //    ltl_Coaching_and_Feedback.Text = AnalyticCoaching.ToString();
+                        //}
+                        
+                    }
+                    else
+                    {
+                        int noVal = 0;
+                        ltlCoachingFeedback.Text = noVal.ToString();
+                        ltl_Coaching_and_Feedback.Text = noVal.ToString();
                     }
                 }
-                ltlCoachingFeedback.Text = "Coaching & Feedback &nbsp= &nbsp" + "<div class=\"pull-right header\">" + AnalyticCoaching + "</div>";
+                
             }
 
         }
     }
-    public void fillltlAnalyticTimeline(int ForEmpID)
+    public void fillpnl_On_Time_Delivery(int ForEmpID)
     {
         AnalyticTimeline = 0;
         strSQL = "[WFMPMS].[GetAnalyticTimelineScore]";
@@ -630,11 +707,15 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                         string val = sdr.GetValue(0).ToString();
                         //AnalyticTimeline = Convert.ToInt32(sdr.GetValue(0));
                         if (val != null)
-                            ltlOntimeDelivery.Text = "On Time Delivery &nbsp= &nbsp" + "<div class=\"pull-right header\">" + AnalyticTimeline + "</div>";
+                        {
+                            ltlOntimeDelivery.Text = "On Time Delivery &nbsp= &nbsp";
+                            ltl_On_time_Delivery.Text = val.ToString();
+                        }
                         else
                         {
                             int noVal = 0;
                             ltlOntimeDelivery.Text = noVal.ToString();
+                            ltl_On_time_Delivery.Text = noVal.ToString();
                         }
 
                     }
@@ -668,10 +749,17 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                     if (sdr.HasRows)
                     {
                         AbsenteeismRating = Convert.ToInt32(sdr.GetValue(0));
+                        ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
+                        ltl_Absenteeism.Text = AbsenteeismRating.ToString();
+                    }
+                    else
+                    {
+                        int noVal = 0;
+                        ltlAbsenteeism.Text = noVal.ToString();
+                        ltl_Absenteeism.Text = noVal.ToString();
                     }
                 }
-                ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
-                ltl_Absenteeism.Text = AbsenteeismRating.ToString();
+                
             }
 
         }
@@ -694,12 +782,14 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                     if (sdr.HasRows)
                     {
                         Accuracy = Convert.ToInt32(sdr.GetValue(0));
-                        ltlAccuracy.Text = "Accuracy &nbsp= &nbsp" + "<div class=\"pull-right header\">" + Accuracy + "</div>";
+                        ltlAccuracy.Text = "Accuracy &nbsp= &nbsp" ;
+                        ltl_Accuracy.Text = Accuracy.ToString();
                     }
                     else
                     {
                         int noVal = 0;
                         ltlAccuracy.Text = noVal.ToString();
+                        ltl_Accuracy.Text = noVal.ToString();
                     }
                 }
                 //ltlAccuracy.Text = "Accuracy &nbsp= &nbsp" + "<div class=\"pull-right header\">" + Accuracy + "</div>";
@@ -725,9 +815,18 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                     if (sdr.HasRows)
                     {
                         AnalyticProject = Convert.ToInt32(sdr.GetValue(0));
+                        ltlProject.Text = "Projects &nbsp= &nbsp";
+                        ltl_Project.Text = AnalyticProject.ToString();
                     }
+                    else
+                    {
+                        int noVal = 0;
+                        ltlProject.Text = noVal.ToString();
+                        ltl_Project.Text = noVal.ToString();
+                    }
+
                 }
-                ltlAnalyticProject.Text = "Projects &nbsp= &nbsp" + "<div class=\"pull-right header\">" + AnalyticProject + "</div>";
+                
             }
 
         }

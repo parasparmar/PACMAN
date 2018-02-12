@@ -32,6 +32,9 @@ public partial class pacman : System.Web.UI.Page
     private int AnalyticCoaching { get; set; }
     private int AnalyticTimeline { get; set; }
     private int Accuracy { get; set; }
+    private int CurrentStage { get; set; }
+    private int EachKPI_Score { get; set; }
+    
     private decimal FinalRating { get; set; }
     private decimal SchedulingAccuracy { get; set; }
     private decimal ForecastingAccuracy { get; set; }
@@ -66,7 +69,8 @@ public partial class pacman : System.Web.UI.Page
             Literal title = (Literal)PageExtensionMethods.FindControlRecursive(Master, "ltlPageTitle");
             title.Text = "PACMAN";
             fillddlReviewPeriod();
-            enableDisableButtons();            
+            enableDisableButtons();
+            getNamePacmanCycle();
             DtOfAccountsIHandle = getDtOfAccountsIHandle();
             showRelevantMetricPanels(MyEmpID);
 
@@ -168,33 +172,7 @@ public partial class pacman : System.Web.UI.Page
 
 
     }
-    private void getFinalRating(int ForEmpID)
-    {
-        
-
-        string strSQL = "SELECT Distinct B.id, B.Metrics, B.Weight FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
-        strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
-        strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
-        strSQL += " order by B.id, B.Metrics, B.Weight ";
-
-        FinalRating = 0;
-        DataTable dtWeights = my.GetData(strSQL);
-        foreach (DataRow dr in dtWeights.Rows)
-        {
-            Decimal KPIWt = Convert.ToDecimal(dr["Weight"].ToString());
-            string KPIname = dr["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
-            Literal ltl = (Literal)Page.FindControlRecursive("ltl_" + KPIname);
-
-            if (ltl != null)
-            {
-                ltl.Text = (ltl.Text == "") ? "0" : ltl.Text;
-                Decimal KPIScore = Convert.ToDecimal(ltl.Text);
-                FinalRating = FinalRating + (KPIScore * KPIWt);
-            }
-        }
-        ltlfinalScore.Text = FinalRating.ToString();
-
-    }
+    
     private void showRelevantMetricPanels(int ForEmpID)
     {
         string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
@@ -255,10 +233,26 @@ public partial class pacman : System.Web.UI.Page
         }
         //}
     }
-    
+    private void getNamePacmanCycle()
+    {
+        //lblPC.Text = ddlReviewPeriod.SelectedItem.Text.ToString();
+        string Name;
+        strSQL = "[WFMPMS].[GetName]";
+        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+        {
+            cn.Open();
+            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+                Name = cmd.ExecuteScalar().ToString();
+            }
+        }
+        //lblName.Text = Name;
+    }
     private void enableDisableButtons()
     {
-        int CurrentStage;
+        //int CurrentStage;
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         strSQL = "[WFMPMS].[GetPacmanStage]";
         using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
@@ -269,15 +263,15 @@ public partial class pacman : System.Web.UI.Page
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
                 cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                CurrentStage = Convert.ToInt32(cmd.ExecuteScalar());
-
+                //CurrentStage = Convert.ToInt32(cmd.ExecuteScalar());
+                //CurrentStage = 4;
                 if (CurrentStage == 0 || CurrentStage == 2 || CurrentStage == 5)
                 {
                     //btnYesDiscussed.Enabled = false;
                     //btnNotDiscussed.Enabled = false;
                     btnAgree.Enabled = false;
                     // Please remove the below true in production..........
-                    btnAgree.Enabled = true;
+                    //btnAgree.Enabled = true;
                 }
                 else if (CurrentStage == 3)
                 {
@@ -325,7 +319,9 @@ public partial class pacman : System.Web.UI.Page
         StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
         EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
         fillRelevantMetricsInPanels(MyEmpID);
+        enableDisableButtons();
         getFinalRating(MyEmpID);
+        
 
     }
     //protected void btnYesDiscussed_Click(object sender, EventArgs e)
@@ -356,6 +352,40 @@ public partial class pacman : System.Web.UI.Page
     //    con.Close();
     //    //enableDisableButtons();
     //}
+
+    private void getFinalRating(int ForEmpID)
+    {
+
+
+        string strSQL = "SELECT Distinct B.id, B.Metrics, B.Weight FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
+        strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
+        strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
+        strSQL += " order by B.id, B.Metrics, B.Weight ";
+
+        FinalRating = 0;
+        DataTable dtWeights = my.GetData(strSQL);
+        foreach (DataRow dr in dtWeights.Rows)
+        {
+            Decimal KPIWt = Convert.ToDecimal(dr["Weight"].ToString());
+            string KPIname = dr["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
+            Literal ltl = (Literal)Page.FindControlRecursive("ltl_" + KPIname);
+
+            if (ltl != null)
+            {
+                ltl.Text = (ltl.Text == "") ? "0" : ltl.Text;
+                Decimal KPIScore = Convert.ToDecimal(ltl.Text);
+                FinalRating = FinalRating + (KPIScore * KPIWt);
+            }
+        }
+        if (CurrentStage == 4)
+        { ltlfinalScore.Text = "3";
+            EachKPI_Score = 3;
+        }
+        
+        else
+        { ltlfinalScore.Text = FinalRating.ToString(); }
+
+    }
     protected void btnAgree_Click(object sender, EventArgs e)
     {
         //btnYesDiscussed.Enabled = false;
@@ -387,6 +417,7 @@ public partial class pacman : System.Web.UI.Page
     }
     private void InsertTotblFinalKPI(int ForEmpID)
     {
+        //CurrentStage = 4;---------------------------------------check
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
         DataTable dt = my.GetData(strSQL);
@@ -413,13 +444,17 @@ public partial class pacman : System.Web.UI.Page
             {
                 
                 Decimal KPIScore = Convert.ToDecimal(ltl.Text);
-                FinalRating = KPIScore * KPIWt;
+                if (CurrentStage == 4)
+                { FinalRating = 3; }
                 
+                else
+                { FinalRating = KPIScore * KPIWt; }
+
                 SqlCommand cmd = new SqlCommand(strSQL);
                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
                 cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
                 cmd.Parameters.AddWithValue("@SkillsetId", Convert.ToDecimal(dr["SkillsetId"].ToString()));
-                cmd.Parameters.AddWithValue("@Metric", dr["Metric"].ToString());
+                cmd.Parameters.AddWithValue("@Metric", KPIname);
                 cmd.Parameters.AddWithValue("@DataLevel", dr["DataLevel"].ToString());
                 cmd.Parameters.AddWithValue("@Weightage", Convert.ToDecimal(dr["Weightage"].ToString()));
                 cmd.Parameters.AddWithValue("@Achieved", KPIScore);
@@ -478,7 +513,7 @@ public partial class pacman : System.Web.UI.Page
     }
    
     #region Analytics KPIs
-    public void fillltlAnalyticCoaching(int ForEmpID)
+    public void fillpnl_Coaching_and_Feedback(int ForEmpID)
     {
         AnalyticCoaching = 0;
         strSQL = "[WFMPMS].[getAnalyticCoachingScore]";
@@ -495,15 +530,25 @@ public partial class pacman : System.Web.UI.Page
                 {
                     if (sdr.HasRows)
                     {
+                        //AnalyticCoaching = Convert.ToInt32(sdr.GetValue(0));
                         AnalyticCoaching = Convert.ToInt32(sdr.GetValue(0));
+                        ltlCoachingFeedback.Text = "Coaching & Feedback &nbsp= &nbsp";
+                        ltl_Coaching_and_Feedback.Text = AnalyticCoaching.ToString();
+                    }
+                    else
+                    {
+                        int noVal = 0;
+                        ltlCoachingFeedback.Text = noVal.ToString();
+                        ltl_Coaching_and_Feedback.Text = noVal.ToString();
                     }
                 }
-                ltlCoachingFeedback.Text = "Coaching & Feedback &nbsp= &nbsp" + "<div class=\"pull-right header\">" + AnalyticCoaching + "</div>";
+                //ltlCoachingFeedback.Text = "Coaching & Feedback &nbsp= &nbsp";
+                //ltl_CoachingFeddback.Text = AnalyticCoaching.ToString();
             }
 
         }
     }
-    public void fillltlAnalyticTimeline(int ForEmpID)
+    public void fillpnl_On_Time_Delivery(int ForEmpID)
     {
         AnalyticTimeline = 0;
         strSQL = "[WFMPMS].[GetAnalyticTimelineScore]";
@@ -522,12 +567,24 @@ public partial class pacman : System.Web.UI.Page
                     {
                         string val = sdr.GetValue(0).ToString();
                         //AnalyticTimeline = Convert.ToInt32(sdr.GetValue(0));
+                        //if (val != null)
+                        //    ltlOntimeDelivery.Text = "On Time Delivery &nbsp= &nbsp" + "<div class=\"pull-right header\">" + val + "</div>";
+                        //else
+                        //{
+                        //    int noVal = 0;
+                        //    ltlOntimeDelivery.Text = noVal.ToString();
+                        //}
+
                         if (val != null)
-                            ltlOntimeDelivery.Text = "On Time Delivery &nbsp= &nbsp" + "<div class=\"pull-right header\">" + AnalyticTimeline + "</div>";
+                        {
+                            ltlOntimeDelivery.Text = "On Time Delivery &nbsp= &nbsp";
+                            ltl_On_time_Delivery.Text = val.ToString();
+                        }
                         else
                         {
                             int noVal = 0;
                             ltlOntimeDelivery.Text = noVal.ToString();
+                            ltl_On_time_Delivery.Text = noVal.ToString();
                         }
 
                     }
@@ -558,13 +615,26 @@ public partial class pacman : System.Web.UI.Page
                 SqlDataReader sdr = cmd.ExecuteReader();
                 while (sdr.Read())
                 {
+                    //if (sdr.HasRows)
+                    //{
+                    //    AbsenteeismRating = Convert.ToInt32(sdr.GetValue(0));
+                    //}
+
                     if (sdr.HasRows)
                     {
                         AbsenteeismRating = Convert.ToInt32(sdr.GetValue(0));
+                        ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
+                        ltl_Absenteeism.Text = AbsenteeismRating.ToString();
+                    }
+                    else
+                    {
+                        int noVal = 0;
+                        ltlAbsenteeism.Text = noVal.ToString();
+                        ltl_Absenteeism.Text = noVal.ToString();
                     }
                 }
-                ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
-                ltl_Absenteeism.Text = AbsenteeismRating.ToString();
+                //ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
+                //ltl_Absenteeism.Text = AbsenteeismRating.ToString();
             }
 
         }
@@ -584,15 +654,28 @@ public partial class pacman : System.Web.UI.Page
                 SqlDataReader sdr = cmd.ExecuteReader();
                 while (sdr.Read())
                 {
+                    //if (sdr.HasRows)
+                    //{
+                    //    Accuracy = Convert.ToInt32(sdr.GetValue(0));
+                    //    ltlAccuracy.Text = "Accuracy &nbsp= &nbsp" + "<div class=\"pull-right header\">" + Accuracy + "</div>";
+                    //}
+                    //else
+                    //{
+                    //    int noVal = 0;
+                    //    ltlAccuracy.Text = noVal.ToString();
+                    //}
+
                     if (sdr.HasRows)
                     {
                         Accuracy = Convert.ToInt32(sdr.GetValue(0));
-                        ltlAccuracy.Text = "Accuracy &nbsp= &nbsp" + "<div class=\"pull-right header\">" + Accuracy + "</div>";
+                        ltlAccuracy.Text = "Accuracy &nbsp= &nbsp";
+                        ltl_Accuracy.Text = Accuracy.ToString();
                     }
                     else
                     {
                         int noVal = 0;
                         ltlAccuracy.Text = noVal.ToString();
+                        ltl_Accuracy.Text = noVal.ToString();
                     }
                 }
                 //ltlAccuracy.Text = "Accuracy &nbsp= &nbsp" + "<div class=\"pull-right header\">" + Accuracy + "</div>";
@@ -615,12 +698,27 @@ public partial class pacman : System.Web.UI.Page
                 SqlDataReader sdr = cmd.ExecuteReader();
                 while (sdr.Read())
                 {
+                    //if (sdr.HasRows)
+                    //{
+                    //    AnalyticProject = Convert.ToInt32(sdr.GetValue(0));
+                    //}
+
                     if (sdr.HasRows)
                     {
                         AnalyticProject = Convert.ToInt32(sdr.GetValue(0));
+                        ltlProject.Text = "Projects &nbsp= &nbsp";
+                        ltl_Project.Text = AnalyticProject.ToString();
+                    }
+                    else
+                    {
+                        int noVal = 0;
+                        ltlProject.Text = noVal.ToString();
+                        ltl_Project.Text = noVal.ToString();
                     }
                 }
-                ltlAnalyticProject.Text = "Projects &nbsp= &nbsp" + "<div class=\"pull-right header\">" + AnalyticProject + "</div>";
+                //ltlAnalyticProject.Text = "Projects &nbsp= &nbsp" + "<div class=\"pull-right header\">" + AnalyticProject + "</div>";
+                //ltlProject.Text = "Projects &nbsp= &nbsp";
+                //ltl_Project.Text = AnalyticProject.ToString();
             }
 
         }
@@ -666,7 +764,7 @@ public partial class pacman : System.Web.UI.Page
             gvBTP.Rows[gvBTP.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
             gvBTP.Rows[gvBTP.Rows.Count - 1].Font.Bold = true;
             gvBTP.PreRender += gv_PreRender;
-            BTPRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count-1]["Rating"].ToString());
+            BTPRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
         }
         else
         {
@@ -920,5 +1018,152 @@ public partial class pacman : System.Web.UI.Page
     }
     #endregion
 
+
+
+    protected void btnDownload_Click(object sender, EventArgs e)
+    {
+       LinkButton  b = sender as LinkButton;
+
+        string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
+        strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
+        strSQL += " where EmpCode =  " + MyEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
+        strSQL += " order by B.id, B.Metrics ";
+
+        DataTable dt = my.GetData(strSQL);
+        string myPanelName = string.Empty;
+
+        //foreach (DataRow d in dt.Rows)
+        //{
+        //    // For Troubleshooting : Paras - Please remove when not needed.
+        //    //if (d["Metrics"].ToString().Replace("&", "").Replace(" ", "_") == "BTP")
+        //    //{
+        //    myPanelName = "pnl_" + d["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
+        //    Control c = Page.FindControlRecursive(myPanelName);
+        //    if (c != null)
+        //    {
+        //        Panel thePanel = c as Panel;
+        //        thePanel.Visible = true;
+        //        Type thisType = this.GetType();
+        //        MethodInfo theMethod = thisType.GetMethod("fill" + myPanelName);
+        //        try
+        //        {
+        //            theMethod.Invoke(this, new object[] { MyEmpID });
+        //        }
+        //        catch (Exception Ex)
+        //        {
+        //            Response.Write(Ex.Message.ToString());
+        //        }
+        //        finally
+        //        {
+        //            my.close_conn();
+        //        }
+        //    }
+        //}
+
+        //my = new Helper();
+        //string FileName = "Sitel " + ddlSite.SelectedItem.ToString() + " Roster ";
+
+        //string strSQL;
+        //if (rdoCustomDateSelection.Checked)
+        //{
+        //    if (ddlFromDate.Text.Length > 0 && ddlToDate.Text.Length > 0)
+        //    {
+        //        fromDate = Convert.ToDateTime(ddlFromDate.Text);
+        //        toDate = Convert.ToDateTime(ddlToDate.Text);
+        //        // Swap dates if From is After To date.
+        //        if (fromDate > toDate)
+        //        {
+        //            ddlFromDate.Text = toDate.ToString();
+        //            ddlToDate.Text = fromDate.ToString();
+        //            fromDate = toDate;
+        //            toDate = Convert.ToDateTime(ddlFromDate.Text);
+        //        }
+        //    }
+        //}
+        //else if (rdoWeekSelection.Checked)
+        //{
+        //    strSQL = "SELECT [WeekId],[FrDate],[ToDate] FROM [CWFM_Umang].[WFMP].[tblRstWeeks] ";
+        //    strSQL += " where [WeekId] = " + ddlWeekSelection.SelectedValue;
+        //    DataTable dt = my.GetData(strSQL);
+        //    fromDate = Convert.ToDateTime(dt.Rows[0]["FrDate"].ToString());
+        //    toDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
+        //    dt.Dispose();
+        //}
+        //else
+        //{
+
+        //}
+
+        //if (fromDate <= toDate)
+        //{
+        //    strSQL = "[WFMP].[Roster_GetAdminFormatRoster]";
+        //    SqlCommand cmd = new SqlCommand(strSQL);
+        //    cmd.CommandType = CommandType.StoredProcedure;
+        //    cmd.Parameters.AddWithValue("@FromDate", fromDate);
+        //    cmd.Parameters.AddWithValue("@ToDate", toDate);
+        //    DataTable d = my.GetDataTableViaProcedure(ref cmd);
+        //    d.Columns.Remove("ShiftID");
+        //    d.Columns.Remove("CountryID");
+        //    d.Columns.Remove("SiteID");
+        //    d.Columns.Remove("LOBID");
+        //    d.Columns.Remove("ResType");
+
+        //    string[] rowFields = { "ECN", "NAME", "PROCESS", "TL_ECN", "TEAM_LEADER" };
+        //    string[] columnFields = { "ShiftDate" };
+        //    Pivot pvt = new Pivot(d);
+        //    d = pvt.PivotData("ShiftCode", AggregateFunction.First, rowFields, columnFields);
+        //    DateTime myDate;
+        //    foreach (DataColumn dc in d.Columns)
+        //    {
+        //        if (DateTime.TryParse(dc.ColumnName, out myDate))
+        //        {
+        //            dc.ColumnName = myDate.ToString("ddd dd-MMM-yyyy");
+        //            //dc.ColumnName = myDate.ToString("(ddd) dd-MMM-yyyy");
+        //            //dc.ColumnName = myDate.ToString("ddd(dd)");
+        //        }
+        //    }
+
+
+        //    //// Use only if you wish to see what's getting sent to the csv download.
+        //    //gvRoster.DataSource = d;
+        //    //gvRoster.DataBind();
+
+        //    FileName += fromDate.ToString("dd-MMM-yyyy") + " to " + toDate.ToString("dd-MMM-yyyy") + ".csv";
+        //    //Get the physical path to the file.
+        //    string FilePath = Server.MapPath("Sitel//roster_downloads//" + FileName);
+        //    using (var textWriter = File.CreateText(FilePath))
+        //    {
+        //        using (var csv = new CsvWriter(textWriter))
+        //        {
+        //            // Write columns
+        //            foreach (DataColumn column in d.Columns)
+        //            {
+        //                csv.WriteField(column.ColumnName);
+        //            }
+        //            csv.NextRecord();
+
+        //            // Write row values
+        //            foreach (DataRow row in d.Rows)
+        //            {
+        //                for (var i = 0; i < d.Columns.Count; i++)
+        //                {
+        //                    csv.WriteField(row[i]);
+        //                }
+        //                csv.NextRecord();
+        //            }
+        //        }
+        //    }
+
+        //    //Send the CSV file as a Download.
+        //    Response.Clear();
+        //    Response.Buffer = true;
+        //    Response.AddHeader("content-disposition", "attachment;filename=" + FileName);
+        //    Response.Charset = "";
+        //    Response.ContentType = "application/text";
+        //    Response.Output.Write(File.ReadAllText(FilePath));
+        //    Response.Flush();
+        //    Response.End();
+        //}
+    }
 
 }
