@@ -241,7 +241,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </a>
-                     
+
                     <div class="navbar-custom-menu">
                         <asp:ContentPlaceHolder ID="headmenu" runat="server">
                             <ul class="nav navbar-nav">
@@ -308,11 +308,11 @@
                                 </li>
                             </ul>
                         </asp:ContentPlaceHolder>
-                       
+
                     </div>
                     <h3 style="color: white;">Development Environment</h3>
                 </nav>
-                
+
             </header>
             <!-- =============================================== -->
             <!-- Left side column. contains the sidebar -->
@@ -805,9 +805,9 @@
         }
 
         .content-wrapper {
-            /*min-height:100%;*/
-            /*height: auto;*/
-            overflow: hidden; /*hidden*/
+            //min-height:100%;
+            //height: auto;
+            //overflow: hidden;
         }
 
         .DataTables_filter > label,
@@ -816,6 +816,8 @@
             font-weight: normal;
             font-size: 12px;
         }
+
+        */
     </style>
     <asp:ContentPlaceHolder ID="below_footer" runat="server">
     </asp:ContentPlaceHolder>

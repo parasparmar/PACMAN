@@ -191,7 +191,7 @@
                                             <div class="box-header with-border">
                                                 <h4 class="box-title">
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                                                        <asp:Literal ID="ltlPrimaryKPI" runat="server" Text="Primary KPI : "></asp:Literal>
+                                                        <asp:Literal ID="ltlPrimaryKPI" runat="server" Text="Primary KPI = "></asp:Literal>
                                                         <asp:Literal ID="ltl_KPI" Text="0" runat="server"></asp:Literal>
                                                     </a>
                                                 </h4>
@@ -215,7 +215,7 @@
                                             <div class="box-header with-border">
                                                 <h4 class="box-title">
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">
-                                                        <asp:Literal ID="ltlBTP" runat="server" Text="BTP : Billed To Pay Ratio"></asp:Literal>
+                                                        <asp:Literal ID="ltlBTP" runat="server" Text="BTP : Billed To Pay Ratio = "></asp:Literal>
                                                         <asp:Literal ID="ltl_BTP" Text="0" runat="server"></asp:Literal>
                                                     </a>
                                                 </h4>
@@ -239,7 +239,7 @@
                                             <div class="box-header with-border">
                                                 <h4 class="box-title">
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree">
-                                                        <asp:Literal ID="ltlEI" runat="server" Text="Escalations & Initiatives : "></asp:Literal>
+                                                        <asp:Literal ID="ltlEI" runat="server" Text="Escalations & Initiatives = "></asp:Literal>
                                                         <asp:Literal ID="ltl_Escalations" Text="0" runat="server"></asp:Literal>
                                                     </a>
                                                 </h4>
@@ -259,12 +259,12 @@
                                         </asp:Panel>
                                         <!--Escalations & Initiatives-->
 
-                                        <!--Commom KPI for all(RTA, Scheduler, Planner, Analytics)-->
+                                        <!--Common KPI for all(RTA, Scheduler, Planner, Analytics)-->
                                         <asp:Panel ID="pnl_Absenteeism" CssClass="panel box box-primary" runat="server" Visible="false">
                                             <div class="box-header with-border">
                                                 <h4 class="box-title">
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour">
-                                                        <asp:Literal ID="ltlAbsenteeism" runat="server" Text="Absenteeism : "></asp:Literal>
+                                                        <asp:Literal ID="ltlAbsenteeism" runat="server" Text="Absenteeism = "></asp:Literal>
                                                         <asp:Literal ID="ltl_Absenteeism" Text="0" runat="server"></asp:Literal>
                                                     </a>
                                                 </h4>
@@ -290,7 +290,7 @@
                                             <div class="box-header with-border">
                                                 <h4 class="box-title">
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive">
-                                                        <asp:Literal ID="ltlOptimization" runat="server" Text="Real Time Optimization KPI : "></asp:Literal>
+                                                        <asp:Literal ID="ltlOptimization" runat="server" Text="Real Time Optimization KPI = "></asp:Literal>
                                                         <asp:Literal ID="ltl_Real_Time_Optimization" Text="0" runat="server"></asp:Literal>
                                                     </a>
                                                 </h4>
@@ -316,7 +316,7 @@
                                             <div class="box-header with-border">
                                                 <h4 class="box-title">
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseSix">
-                                                        <asp:Literal ID="ltlForecasting_Accuracy" runat="server" Text="Forecast Accuracy : "></asp:Literal>
+                                                        <asp:Literal ID="ltlForecasting_Accuracy" runat="server" Text="Forecast Accuracy = "></asp:Literal>
                                                         <asp:Literal ID="ltl_Forecasting_Accuracy" Text="0" runat="server"></asp:Literal>
 
                                                     </a>
@@ -341,7 +341,7 @@
                                             <div class="box-header with-border">
                                                 <h4 class="box-title">
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseSeven">
-                                                        <asp:Literal ID="ltlHeadcount_Accuracy" runat="server" Text="Headcount Accuracy"></asp:Literal>
+                                                        <asp:Literal ID="ltlHeadcount_Accuracy" runat="server" Text="Headcount Accuracy = "></asp:Literal>
                                                         <asp:Literal ID="ltl_Headcount_Accuracy" Text="0" runat="server"></asp:Literal>
                                                     </a>
                                                 </h4>
@@ -366,7 +366,7 @@
                                             <div class="box-header with-border">
                                                 <h4 class="box-title">
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseNine">
-                                                        <asp:Literal ID="ltlSchedulingAccuracy" runat="server" Text="Scheduling Accuracy"></asp:Literal>
+                                                        <asp:Literal ID="ltlSchedulingAccuracy" runat="server" Text="Scheduling Accuracy = "></asp:Literal>
                                                         <asp:Literal ID="ltl_Scheduling_Accuracy" Text="0" runat="server"></asp:Literal>
                                                     </a>
                                                 </h4>
@@ -390,7 +390,7 @@
                                             <div class="box-header with-border">
                                                 <h4 class="box-title">
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseEight">
-                                                        <asp:Literal ID="ltlIEX_Management" runat="server" Text="IEX Management"></asp:Literal>
+                                                        <asp:Literal ID="ltlIEX_Management" runat="server" Text="IEX Management = "></asp:Literal>
                                                         <asp:Literal ID="ltl_IEX_Management" Text="0" runat="server"></asp:Literal>
                                                     </a>
                                                 </h4>
@@ -398,6 +398,12 @@
                                             <div id="collapseEight" class="panel-collapse collapse">
                                                 <div class="box-body">
                                                     <asp:Panel ID="pnlIEX_Management" runat="server">
+                                                        <div class="btn-group pull-right">
+                                                            <asp:LinkButton ID="btnIEX_Management" runat="server" CssClass="btn btn-lg btn-primary"
+                                                                OnClick="btnDownload_Click"><i class="fa fa-download"></i>
+                                                            </asp:LinkButton>
+                                                            <label class="text-muted well well-sm no-shadow" title="Download Detailed Report">Download Detailed Report</label>
+                                                        </div>
                                                     </asp:Panel>
                                                 </div>
                                             </div>
@@ -405,64 +411,12 @@
                                         <!--IEX Management-->
 
                                         <!--Analytics KPI-->
-
-                                        <asp:Panel ID="pnl_Coaching_and_Feedback" CssClass="panel box box-primary" runat="server" Visible="false">
-                                            <div class="box-header with-border">
-                                                <h4 class="box-title">
-                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTen">
-                                                        <asp:Literal ID="ltlCoachingFeedback" runat="server" Text="Coaching & Feedback"></asp:Literal>
-                                                        <asp:Literal ID="ltl_Coaching_and_Feedback" Text="0" runat="server"></asp:Literal>
-                                                    </a>
-                                                </h4>
-                                            </div>
-                                            <div id="collapseTen" class="panel-collapse collapse">
-                                                <div class="box-body">
-                                                    <asp:Panel ID="pnlCoaching_Feedback" runat="server">
-
-                                                    </asp:Panel>
-                                                </div>
-                                            </div>
-                                        </asp:Panel>
-
-                                        <asp:Panel ID="pnl_Accuracy" CssClass="panel box box-primary" runat="server" Visible="false">
-                                            <div class="box-header with-border">
-                                                <h4 class="box-title">
-                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwelve">
-                                                        <asp:Literal ID="ltlAccuracy" runat="server" Text="Scheduling Accuracy"></asp:Literal>
-                                                        <asp:Literal ID="ltl_Accuracy" Text="0" runat="server"></asp:Literal>
-                                                    </a>
-                                                </h4>
-                                            </div>
-                                            <div id="collapseTwelve" class="panel-collapse collapse">
-                                                <div class="box-body">
-                                                    <asp:Panel ID="pnlAccuracy" runat="server">
-                                                    </asp:Panel>
-                                                </div>
-                                            </div>
-                                        </asp:Panel>
-
-                                        <asp:Panel ID="pnl_On_Time_Delivery" CssClass="panel box box-primary" runat="server" Visible="false">
-                                            <div class="box-header with-border">
-                                                <h4 class="box-title">
-                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseEleven">
-                                                        <asp:Literal ID="ltlOntimeDelivery" runat="server" Text="On Time Delivery"></asp:Literal>
-                                                        <asp:Literal ID="ltl_On_time_Delivery" Text="0" runat="server"></asp:Literal>
-                                                    </a>
-                                                </h4>
-                                            </div>
-                                            <div id="collapseEleven" class="panel-collapse collapse">
-                                                <div class="box-body">
-                                                    <asp:Panel ID="pnlOn_Time_Delivery" runat="server">
-                                                    </asp:Panel>
-                                                </div>
-                                            </div>
-                                        </asp:Panel>
-
+                                        <!--Projects-->
                                         <asp:Panel ID="pnl_Projects" CssClass="panel box box-primary" runat="server" Visible="false">
                                             <div class="box-header with-border">
                                                 <h4 class="box-title">
                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapseProject">
-                                                        <asp:Literal ID="ltlProject" runat="server" Text="Projects"></asp:Literal>
+                                                        <asp:Literal ID="ltlProject" runat="server" Text="Projects = "></asp:Literal>
                                                         <asp:Literal ID="ltl_Project" Text="0" runat="server"></asp:Literal>
                                                     </a>
                                                 </h4>
@@ -470,7 +424,84 @@
                                             <div id="collapseProject" class="panel-collapse collapse">
                                                 <div class="box-body">
                                                     <asp:Panel ID="pnlProjects" runat="server">
+                                                        <div class="btn-group pull-right">
+                                                            <asp:LinkButton ID="btnProjects" runat="server" CssClass="btn btn-lg btn-primary"
+                                                                OnClick="btnDownload_Click"><i class="fa fa-download"></i>
+                                                            </asp:LinkButton>
+                                                            <label class="text-muted well well-sm no-shadow" title="Download Detailed Report">Download Detailed Report</label>
+                                                        </div>
+                                                    </asp:Panel>
+                                                </div>
+                                            </div>
+                                        </asp:Panel>
 
+                                        <!--On Time Delivery-->
+                                        <asp:Panel ID="pnl_On_Time_Delivery" CssClass="panel box box-primary" runat="server" Visible="false">
+                                            <div class="box-header with-border">
+                                                <h4 class="box-title">
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseEleven">
+                                                        <asp:Literal ID="ltlOntimeDelivery" runat="server" Text="On Time Delivery = "></asp:Literal>
+                                                        <asp:Literal ID="ltl_On_time_Delivery" Text="0" runat="server"></asp:Literal>
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapseEleven" class="panel-collapse collapse">
+                                                <div class="box-body">
+                                                    <asp:Panel ID="pnlOn_Time_Delivery" runat="server">
+                                                        <div class="btn-group pull-right">
+                                                            <asp:LinkButton ID="btnOn_Time_Delivery" runat="server" CssClass="btn btn-lg btn-primary"
+                                                                OnClick="btnDownload_Click"><i class="fa fa-download"></i>
+                                                            </asp:LinkButton>
+                                                            <label class="text-muted well well-sm no-shadow" title="Download Detailed Report">Download Detailed Report</label>
+                                                        </div>
+                                                    </asp:Panel>
+                                                </div>
+                                            </div>
+                                        </asp:Panel>
+
+                                        <!--Accuracy-->
+                                        <asp:Panel ID="pnl_Accuracy" CssClass="panel box box-primary" runat="server" Visible="false">
+                                            <div class="box-header with-border">
+                                                <h4 class="box-title">
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwelve">
+                                                        <asp:Literal ID="ltlAccuracy" runat="server" Text="Scheduling Accuracy = "></asp:Literal>
+                                                        <asp:Literal ID="ltl_Accuracy" Text="0" runat="server"></asp:Literal>
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapseTwelve" class="panel-collapse collapse">
+                                                <div class="box-body">
+                                                    <asp:Panel ID="pnlAccuracy" runat="server">
+                                                        <div class="btn-group pull-right">
+                                                            <asp:LinkButton ID="btnAccuracy" runat="server" CssClass="btn btn-lg btn-primary"
+                                                                OnClick="btnDownload_Click"><i class="fa fa-download"></i>
+                                                            </asp:LinkButton>
+                                                            <label class="text-muted well well-sm no-shadow" title="Download Detailed Report">Download Detailed Report</label>
+                                                        </div>
+                                                    </asp:Panel>
+                                                </div>
+                                            </div>
+                                        </asp:Panel>
+
+                                        <!--Coaching and Feedback-->
+                                        <asp:Panel ID="pnl_Coaching_and_Feedback" CssClass="panel box box-primary" runat="server" Visible="false">
+                                            <div class="box-header with-border">
+                                                <h4 class="box-title">
+                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapseTen">
+                                                        <asp:Literal ID="ltlCoachingFeedback" runat="server" Text="Coaching & Feedback = "></asp:Literal>
+                                                        <asp:Literal ID="ltl_Coaching_and_Feedback" Text="0" runat="server"></asp:Literal>
+                                                    </a>
+                                                </h4>
+                                            </div>
+                                            <div id="collapseTen" class="panel-collapse collapse">
+                                                <div class="box-body">
+                                                    <asp:Panel ID="pnlCoaching_Feedback" runat="server">
+                                                        <div class="btn-group pull-right">
+                                                            <asp:LinkButton ID="btnCoaching_and_Feedback" runat="server" CssClass="btn btn-lg btn-primary"
+                                                                OnClick="btnDownload_Click"><i class="fa fa-download"></i>
+                                                            </asp:LinkButton>
+                                                            <label class="text-muted well well-sm no-shadow" title="Download Detailed Report">Download Detailed Report</label>
+                                                        </div>
                                                     </asp:Panel>
                                                 </div>
                                             </div>
