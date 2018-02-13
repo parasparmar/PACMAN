@@ -10,6 +10,7 @@ using System.Web.UI.WebControls;
 using System.Data.Sql;
 using System.Data.SqlClient;
 
+
 public partial class ExceptionTracker : System.Web.UI.Page
 {
     DataTable dtEmp;
@@ -292,7 +293,55 @@ public partial class ExceptionTracker : System.Web.UI.Page
 
     protected void gvPendingLog_RowDataBound(object sender, GridViewRowEventArgs e)
     {
+        GridView gv = (GridView)sender;
+        GridViewRow gvr = (GridViewRow)e.Row;
+        if (gvr.RowIndex >= 0)// && e.Row.RowIndex == gv.EditIndex
+        {
+            int status;
+            Button btnA = (Button)gvr.FindControlRecursive("btn_Approve");
+            Button btnD = (Button)gvr.FindControlRecursive("btn_Decline");
+            Button btnC = (Button)gvr.FindControlRecursive("btn_Cancel");
+            //btn.Text = "X";
 
+            string stat = gvr.Cells[15].Text.ToString();
+            if (stat == "&nbsp;")
+            {
+                status = 10;
+            }
+            else
+            {
+                status = Convert.ToInt32(stat);
+            }
+            //int dt = Convert.ToInt32(date);
+            //DateTime canceldate = Convert.ToDateTime(date);
+            //from_date
+            //string fdate = gvr.Cells[0].Text.ToString();
+            //DateTime fromdate = Convert.ToDateTime(fdate);
+            //DateTime today = DateTime.Today;
+            if (status == 1)//
+            {
+                //btn.CssClass = "btn btn-sm btn-danger disabled";
+                gvr.Cells[15].Text = "Approved";
+                btnC.Enabled = false;
+                btnD.Enabled = false;
+                btnA.Enabled = false;
+            }
+            else if (status == 0)
+            {
+                gvr.Cells[15].Text = "Declined";
+                btnC.Enabled = false;
+                btnD.Enabled = false;
+                btnA.Enabled = false;
+            }
+            else if (status == 2)
+            {
+                gvr.Cells[15].Text = "Cancelled";
+                btnC.Enabled = false;
+                btnD.Enabled = false;
+                btnA.Enabled = false;
+            }
+
+        }
     }
 
     protected void lbDownload_Click(object sender, EventArgs e)
@@ -306,5 +355,80 @@ public partial class ExceptionTracker : System.Web.UI.Page
         Response.WriteFile(filePath);
 
         Response.End();
+    }
+
+    protected void btn_Approve_Click(object sender, EventArgs e)
+    {
+        Button btn = (Button)sender;
+        GridViewRow row = (GridViewRow)btn.NamingContainer;
+
+        string ExceptionID = row.Cells[0].Text.ToString();
+        int status = 1;
+
+        SqlConnection con = new SqlConnection(my.getConnectionString());
+        con.Open();
+
+        String strSQL = "[WFMPMS].[UpdateExceptionTracker]";
+        SqlCommand cmd = new SqlCommand(strSQL, con);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@ID", ExceptionID);
+        cmd.Parameters.AddWithValue("@ActionedBy", MyEmpID);
+        cmd.Parameters.AddWithValue("@Status", status);
+        cmd.Connection = con;
+        cmd.ExecuteNonQuery();
+        con.Close();
+        row.Cells[12].Enabled = false;
+        row.Cells[13].Enabled = false;
+        row.Cells[14].Enabled = false;
+    }
+
+    protected void btn_Decline_Click(object sender, EventArgs e)
+    {
+        Button btn = (Button)sender;
+        GridViewRow row = (GridViewRow)btn.NamingContainer;
+
+        string ExceptionID = row.Cells[0].Text.ToString();
+        int status = 0;
+
+        SqlConnection con = new SqlConnection(my.getConnectionString());
+        con.Open();
+
+        String strSQL = "[WFMPMS].[UpdateExceptionTracker]";
+        SqlCommand cmd = new SqlCommand(strSQL, con);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@ID", ExceptionID);
+        cmd.Parameters.AddWithValue("@ActionedBy", MyEmpID);
+        cmd.Parameters.AddWithValue("@Status", status);
+        cmd.Connection = con;
+        cmd.ExecuteNonQuery();
+        con.Close();
+        row.Cells[12].Enabled = false;
+        row.Cells[13].Enabled = false;
+        row.Cells[14].Enabled = false;
+    }
+
+    protected void btn_Cancel_Click(object sender, EventArgs e)
+    {
+        Button btn = (Button)sender;
+        GridViewRow row = (GridViewRow)btn.NamingContainer;
+
+        string ExceptionID = row.Cells[0].Text.ToString();
+        int status = 2;
+
+        SqlConnection con = new SqlConnection(my.getConnectionString());
+        con.Open();
+
+        String strSQL = "[WFMPMS].[UpdateExceptionTracker]";
+        SqlCommand cmd = new SqlCommand(strSQL, con);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@ID", ExceptionID);
+        cmd.Parameters.AddWithValue("@ActionedBy", MyEmpID);
+        cmd.Parameters.AddWithValue("@Status", status);
+        cmd.Connection = con;
+        cmd.ExecuteNonQuery();
+        con.Close();
+        row.Cells[12].Enabled = false;
+        row.Cells[13].Enabled = false;
+        row.Cells[14].Enabled = false;
     }
 }

@@ -168,10 +168,12 @@
                         <asp:GridView ID="gvAllMyAccounts" runat="server" CssClass="table DataTable table-condensed table-bordered table-responsive"
                             AutoGenerateColumns="false" OnPreRender="gv_PreRender">
                             <Columns>
+
                                 <asp:BoundField DataField="Account" HeaderText="Client" />
                                 <asp:BoundField DataField="Skillset" HeaderText="My Role" />
                                 <asp:BoundField DataField="PrimaryKPI" HeaderText="Primary KPI" />
                                 <asp:BoundField DataField="InBO" HeaderText="Data in BO" />
+
                             </Columns>
                         </asp:GridView>
                     </div>

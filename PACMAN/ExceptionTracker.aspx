@@ -183,6 +183,7 @@
                         
                        <asp:GridView ID="gvPendingLog" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="false" ShowHeaderWhenEmpty="true" OnRowDataBound="gvPendingLog_RowDataBound">
                            <Columns>
+                               <asp:BoundField DataField="ID" HeaderText="ExceptionID"></asp:BoundField>
                                <asp:BoundField DataField="Account" HeaderText="Account"></asp:BoundField>
                                <asp:BoundField DataField="LOB_A" HeaderText="LOB" ></asp:BoundField>
                                <asp:BoundField DataField="KPI" HeaderText="KPI" ></asp:BoundField>
@@ -192,7 +193,7 @@
                                <asp:BoundField DataField="ToInterval" HeaderText="ToInterval" ></asp:BoundField>
                                <%--<asp:HyperLinkField DataNavigateUrlFields="Attachment" DataTextField="Attachment" HeaderText ="Attachment" />--%>
                                <%--<asp:BoundField DataField="Attachment" HeaderText="Attachment" ></asp:BoundField>--%>
-                               <asp:TemplateField>
+                               <asp:TemplateField HeaderText="Download">
                                    <ItemTemplate>
                                        <asp:LinkButton ID="lbDownload" Text="download" CommandArgument='<%# Eval("Attachment") %>' runat="server" OnClick="lbDownload_Click"></asp:LinkButton>
                                    </ItemTemplate>
@@ -200,9 +201,25 @@
                                <asp:BoundField DataField="notes" HeaderText="notes" ></asp:BoundField>
                                <asp:BoundField DataField="RaisedBy" HeaderText="RaisedBy" ></asp:BoundField>
                                <asp:BoundField DataField="RaisedOn" HeaderText="RaisedOn" ></asp:BoundField>
-                               <asp:ButtonField CommandName="Approve" Text="Approve" ShowHeader="True" HeaderText="Approved"></asp:ButtonField>
-                               <asp:ButtonField CommandName="Decline" Text="Decline" ShowHeader="True" HeaderText="Declined"></asp:ButtonField>
-                               <asp:ButtonField CommandName="Cancel" Text="Cancel" ShowHeader="True" HeaderText="Delete"></asp:ButtonField>
+                               <%--<asp:ButtonField CommandName="Approve" Text="Approve" ShowHeader="True" HeaderText="Approved" ></asp:ButtonField>--%>
+                               <asp:TemplateField HeaderText="Approve" HeaderStyle-CssClass="mid">
+                                  <ItemTemplate>
+                                     <asp:Button ID="btn_Approve" runat="server" CssClass="btn btn-xs btn-success" Text="Approve" OnClick="btn_Approve_Click"/>
+                                  </ItemTemplate>
+                               </asp:TemplateField>
+                               <asp:TemplateField HeaderText="Decline" HeaderStyle-CssClass="mid">
+                                  <ItemTemplate>
+                                     <asp:Button ID="btn_Decline" runat="server" CssClass="btn btn-xs btn-danger" Text="Decline" OnClick="btn_Decline_Click"/>
+                                  </ItemTemplate>
+                               </asp:TemplateField>
+                               <asp:TemplateField HeaderText="Cancel" HeaderStyle-CssClass="mid">
+                                  <ItemTemplate>
+                                     <asp:Button ID="btn_Cancel" runat="server" CssClass="btn btn-xs btn-warning" Text="Cancel" OnClick="btn_Cancel_Click"/>
+                                  </ItemTemplate>
+                               </asp:TemplateField>
+                               <asp:BoundField DataField="Status" HeaderText="Status" ></asp:BoundField>
+                               <%--<asp:ButtonField CommandName="Decline" Text="Decline" ShowHeader="True" HeaderText="Declined"></asp:ButtonField>
+                               <asp:ButtonField CommandName="Cancel" Text="Cancel" ShowHeader="True" HeaderText="Delete"></asp:ButtonField>--%>
                            </Columns>
                        </asp:GridView>
 
@@ -217,7 +234,7 @@
 
             <!-- /.col -->
 
-            <div class="col-md-12">
+<%--            <div class="col-md-12">
                 <div class="box box-primary">
                     <div class="box-header with-border">
                         <h3 class="box-title">Actioned Exception Log </h3>
@@ -247,7 +264,7 @@
                     </div>
                 </div>
 
-            </div>
+            </div>--%>
 
         </div>
         <!-- /.row -->
@@ -304,6 +321,11 @@
         function pluginsInitializer() {
             $('.select2').select2({
 
+            });
+
+            $("#gvPendingLog tbody tr").each(function () {
+                $(this).find("th:nth-child(1)").hide();
+                $(this).find("td:nth-child(1)").hide();
             });
 
         }

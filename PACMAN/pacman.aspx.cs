@@ -432,7 +432,7 @@ public partial class pacman : System.Web.UI.Page
         strSQL += " , B.DataLevel, B.Weight as Weightage, '' as Acheived, '' as Score";
         strSQL += " , getdate() as Date FROM[CWFM_Umang].[WFMPMS].[tblEmp2Account] A ";
         strSQL += " inner join[WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId ";
-        strSQL += " where EmpCode = " + ForEmpID + " and[Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
+        strSQL += " where EmpCode = "+ ForEmpID + " and[Active] = 1 and '"+ StartDate + "' between A.FromDate and A.ToDate ";
         strSQL += " order by B.Id, B.Metrics, B.Weight ";
 
         FinalRating = 0;
