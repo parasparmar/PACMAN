@@ -159,6 +159,14 @@
             <div class="nav-tabs-custom">
                 <!-- Tabs within a box -->
                 <ul class="nav nav-tabs pull-right">
+                    <li>
+                        <div class="btn-group pull-right">
+                            <asp:LinkButton ID="btnDownload" runat="server"
+                                CssClass="btn btn-lg btn-primary"
+                                OnClick="btnDownload_Click"><i class="fa fa-download"></i>
+                            </asp:LinkButton>                            
+                        </div>
+                    </li>
                     <li><a href="#all-my-accounts" data-toggle="tab">My Accounts</a></li>
                     <li class="active"><a href="#monthly-scorecard" data-toggle="tab">Overall Score</a></li>
                     <li class="pull-left header"><i class="fa fa-inbox"></i>My Performance Management Cycle</li>
@@ -178,6 +186,7 @@
                         </asp:GridView>
                     </div>
                     <div class="box-body tab-pane  active" id="monthly-scorecard" style="position: relative; height: auto;">
+                        
                         <!-- START ACCORDION & CAROUSEL-->
                         <div class="row">
                             <div class="col-md-12">

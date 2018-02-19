@@ -432,7 +432,7 @@ public partial class pacman : System.Web.UI.Page
         strSQL += " , B.DataLevel, B.Weight as Weightage, '' as Acheived, '' as Score";
         strSQL += " , getdate() as Date FROM[CWFM_Umang].[WFMPMS].[tblEmp2Account] A ";
         strSQL += " inner join[WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId ";
-        strSQL += " where EmpCode = "+ ForEmpID + " and[Active] = 1 and '"+ StartDate + "' between A.FromDate and A.ToDate ";
+        strSQL += " where EmpCode = " + ForEmpID + " and[Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
         strSQL += " order by B.Id, B.Metrics, B.Weight ";
 
         FinalRating = 0;
@@ -609,40 +609,38 @@ public partial class pacman : System.Web.UI.Page
 
         AbsenteeismRating = 0;
         strSQL = "[WFMPMS].[GetSelfAttendanceScore]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+        SqlCommand cmd = new SqlCommand(strSQL);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        cmd.Parameters.AddWithValue("@StartDate", StartDate);
+        cmd.Parameters.AddWithValue("@EndDate", EndDate);
+        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+
+        GridView gvAbsenteeism = new GridView();
+        gvAbsenteeism.ID = "gvAbsenteeism";
+        gvAbsenteeism.AutoGenerateColumns = true;
+
+        gvAbsenteeism.DataSource = dt;
+        gvAbsenteeism.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+
+        gvAbsenteeism.DataBind();
+        if (dt != null && dt.Rows.Count > 0)
         {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                SqlDataReader sdr = cmd.ExecuteReader();
-                while (sdr.Read())
-                {
-                    //if (sdr.HasRows)
-                    //{
-                    //    AbsenteeismRating = Convert.ToInt32(sdr.GetValue(0));
-                    //}
-
-                    if (sdr.HasRows)
-                    {
-                        AbsenteeismRating = Convert.ToInt32(sdr.GetValue(0));
-                        ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
-                        ltl_Absenteeism.Text = AbsenteeismRating.ToString();
-                    }
-                    else
-                    {
-                        int noVal = 0;
-                        ltlAbsenteeism.Text = noVal.ToString();
-                        ltl_Absenteeism.Text = noVal.ToString();
-                    }
-                }
-                //ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
-                //ltl_Absenteeism.Text = AbsenteeismRating.ToString();
-            }
-
+            gvAbsenteeism.Rows[gvAbsenteeism.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+            gvAbsenteeism.Rows[gvAbsenteeism.Rows.Count - 1].Font.Bold = true;
+            gvAbsenteeism.PreRender += gv_PreRender;
+            string absRating = dt.Rows[dt.Rows.Count - 1]["Rating"].ToString();
+            Decimal dcAbsRting = 5;
+            Decimal.TryParse(absRating, out dcAbsRting);
+            AbsenteeismRating = dcAbsRting;
         }
+        else
+        {
+            ltlBTP.Text = string.Empty;
+        }
+        ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
+        pnlAbsenteeism.Controls.Add(gvAbsenteeism);
+        ltl_Absenteeism.Text = AbsenteeismRating.ToString();
     }
     public void fillpnl_Accuracy(int ForEmpID)
     {
@@ -1029,16 +1027,23 @@ public partial class pacman : System.Web.UI.Page
     {
         LinkButton b = sender as LinkButton;
         string Metric = b.ID.ToString().Replace("btn", "");
+        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+        DataTable dt = my.GetData(strSQL);
+        StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
+        EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
+
         SqlCommand cmd = new SqlCommand();
         cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-        cmd.Parameters.AddWithValue("@StartDate", "20180101");
-        cmd.Parameters.AddWithValue("@EndDate", "20180131");
+        cmd.Parameters.AddWithValue("@StartDate", StartDate);
+        cmd.Parameters.AddWithValue("@EndDate", EndDate);
 
         switch (Metric)
         {
             case "Absenteeism":
                 strSQL = "WFMPMS.GetSelfAttendanceScore";
                 cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@DownloadDetailedReport", 1);
                 break;
             case "Accuracy":
                 strSQL = "WFMPMS.GetAnalyticAccuracyScore";
@@ -1048,7 +1053,7 @@ public partial class pacman : System.Web.UI.Page
                 // Manager KPIs
                 break;
             case "BTP":
-                strSQL = "SELECT* FROM [WFMPMS].[tblBTPResults] A inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID and B.EmpCode = @EmpCode where[Month] between @StartDate and @EndDate";
+                strSQL = "SELECT Distinct * FROM [WFMPMS].[tblBTPResults] A inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID and B.EmpCode = @EmpCode where[Month] between DATEADD(M,-1,@StartDate) and DATEADD(M,-1,@EndDate)";
                 break;
             case "Coaching_and_Feedback":
                 strSQL = "WFMPMS.getAnalyticCoachingScore";
@@ -1069,8 +1074,9 @@ public partial class pacman : System.Web.UI.Page
                 strSQL = "SELECT* FROM [WFMPMS].[tblHeadcountAccuracyResult] where [PlannerEmpCode] = @EmpCode and [Month] between @StartDate and @EndDate";
                 break;
             case "IEX_Management":
-                strSQL = "WFMPMS.GetIEXMgmtScore";
-                cmd.CommandType = CommandType.StoredProcedure;
+                strSQL = "SELECT EmpCode, Comments, ActionedBy, ActionedOn, Score as Rating, B.FromDate as StartDate, B.ToDate as EndDate ";
+                strSQL += " FROM[CWFM_Umang].[WFMPMS].[tblIEXManagementScore] A inner join WFMPMs.tblPacmanCycle B on A.PacmanCycle = B.ID ";
+                strSQL += " where[EmpCode] = @EmpCode and B.FromDate between @StartDate and @EndDate ";
                 break;
             case "KPI":
                 strSQL = "SELECT * FROM [WFMPMS].[tblKPIResults] where [Employee_ID] = @EmpCode and [Date] between @StartDate and @EndDate";
@@ -1090,10 +1096,13 @@ public partial class pacman : System.Web.UI.Page
                 // Manager KPIs
                 break;
             case "Scheduling_Accuracy":
-                strSQL = "WFMPMS.IEXSchedulingScore";
-                cmd.CommandType = CommandType.StoredProcedure;
+                strSQL = "SELECT * FROM [CWFM_Umang].[WFMPMS].[tblIEXSchedulingResult] A where Employee_ID=@EmpCode and A.Date between @StartDate and @EndDate";
+                break;
+            case "Download":
+                return;
                 break;
             default:
+                return;
                 break;
         }
 
@@ -1105,7 +1114,7 @@ public partial class pacman : System.Web.UI.Page
         //DataSet ds = new DataSet("Export_Details");
         //da.Fill(ds);
         Label MyName = (Label)PageExtensionMethods.FindControlRecursive(Master, "lblName");
-        string FileName = MyName.Text + "'s " + Metric + " for "+ StartDate.ToString("MMM yyyy") + " downloaded " + DateTime.Today.ToString("dd-MMM-yyyy HH-mm-ss") + ".csv";
+        string FileName = MyName.Text + "'s " + Metric + " for " + StartDate.ToString("MMM yyyy") + " downloaded " + DateTime.Now.ToString("dd-MMM-yyyy HH-mm-ss") + ".csv";
         DataTable d = new DataTable(FileName);
         SqlDataAdapter da = new SqlDataAdapter(cmd);
         da.Fill(d);

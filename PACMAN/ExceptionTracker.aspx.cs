@@ -68,7 +68,7 @@ public partial class ExceptionTracker : System.Web.UI.Page
             ddlExceptionAccount.DataSource = dt1;
             ddlExceptionAccount.DataTextField = "Account";
             //ddlExceptionAccount.DataValueField = "PrimaryClientID";
-            ddlExceptionAccount.DataValueField = "Account";
+            ddlExceptionAccount.DataValueField = "PrimaryClientID";
             ddlExceptionAccount.DataBind();
         }
         else
@@ -85,10 +85,11 @@ public partial class ExceptionTracker : System.Web.UI.Page
 
     private void fillddlLOB()
     {
-        string Account = ddlExceptionAccount.SelectedItem.Value.ToString();
+        string Account = ddlExceptionAccount.SelectedItem.Value.ToString().Replace("  "," ");
+
         string strSQL = "[WFMP].[fillAccountLOB]";
         SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.Parameters.AddWithValue("@AccountID", Account);
+        cmd.Parameters.AddWithValue("@Account", Account);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         ddlExceptionLOB.DataSource = dt;
         ddlExceptionLOB.DataTextField = "LOB_A";
@@ -101,7 +102,7 @@ public partial class ExceptionTracker : System.Web.UI.Page
     //    string Account = ddlAccount.SelectedItem.Value.ToString();
     //    string strSQL = "[WFMP].[fillSites]";
     //    SqlCommand cmd = new SqlCommand(strSQL);
-    //    //cmd.Parameters.AddWithValue("@AccountID", Account);
+    //    //cmd.Parameters.AddWithValue("@AccountName", Account);
     //    DataTable dt = my.GetDataTableViaProcedure(ref cmd);
     //    lbSites.DataSource = dt;
     //    lbSites.DataTextField = "Location";
@@ -124,7 +125,7 @@ public partial class ExceptionTracker : System.Web.UI.Page
     {
         string strSQL = "[WFMP].[fillMonth]";
         SqlCommand cmd = new SqlCommand(strSQL);
-        //cmd.Parameters.AddWithValue("@AccountID", Account);
+        //cmd.Parameters.AddWithValue("@AccountName", Account);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         ddlMonth.DataSource = dt;
         ddlMonth.DataTextField = "TextDescription";
@@ -136,7 +137,7 @@ public partial class ExceptionTracker : System.Web.UI.Page
     {
         string strSQL = "[WFMP].[fillInterval]";
         SqlCommand cmd = new SqlCommand(strSQL);
-        //cmd.Parameters.AddWithValue("@AccountID", Account);
+        //cmd.Parameters.AddWithValue("@AccountName", Account);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         ddlFromInterval.DataSource = dt;
         ddlFromInterval.DataTextField = "Interval";
@@ -225,7 +226,8 @@ public partial class ExceptionTracker : System.Web.UI.Page
         SqlDateTime sqldatenull;
         sqldatenull = SqlDateTime.Null;
         //if (!DateTime.TryParse(tbDate.Text.ToString(), out Date)) { tbDate.Text = "Not a Date"; }
-        string AccountID = ddlExceptionAccount.SelectedItem.Value.ToString();
+        string AccountId = ddlExceptionAccount.SelectedItem.Value.ToString();
+        string AccountName = ddlExceptionAccount.SelectedItem.Text.ToString();
         string lob = ddlExceptionLOB.SelectedItem.Value.ToString();
         string kpi = ddlExceptionKPI.SelectedItem.Value.ToString();
         string month = ddlMonth.SelectedItem.Value.ToString();
@@ -263,8 +265,8 @@ public partial class ExceptionTracker : System.Web.UI.Page
         // AttachExceptionMail.SaveAs(folderPath + Server.HtmlEncode(Path.GetFileName(AttachExceptionMail.FileName)));
         string Attachment = "Sitel/mails/" + fileName;
         string notes = txtException.Text.ToString();
-
-        cmd.Parameters.AddWithValue("@Account", AccountID);
+        cmd.Parameters.AddWithValue("@AccountId",AccountId);
+        cmd.Parameters.AddWithValue("@Account", AccountName);
         cmd.Parameters.AddWithValue("@LOB", lob);
         cmd.Parameters.AddWithValue("@KPI", kpi);
         cmd.Parameters.AddWithValue("@Month", Convert.ToInt32(month));        
