@@ -75,7 +75,7 @@ public partial class pacman : System.Web.UI.Page
             fillddlReviewPeriod();
             enableDisableButtons();
             getNamePacmanCycle();
-            DtOfAccountsIHandle = getDtOfAccountsIHandle();
+            //DtOfAccountsIHandle = getDtOfAccountsIHandle();
             showRelevantMetricPanels(MyEmpID);
 
 
@@ -109,69 +109,93 @@ public partial class pacman : System.Web.UI.Page
         string strSQL = "WFMPMS.GetAllAccountsIHandle";
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.Parameters.AddWithValue("@Employee_ID", MyEmpID);
-        StartDate = DateTime.Today.Date;
-        //cmd.Parameters.AddWithValue("@StartDate", StartDate);
+        
 
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        //dt.DefaultView.RowFilter = "InBO=1";
+        
+
         gvAllMyAccounts.DataSource = dt;
         gvAllMyAccounts.DataBind();
         return dt;
     }
     public void fillpnl_KPI(int ForEmpID)
     {
+        DtOfAccountsIHandle = getDtOfAccountsIHandle();
+        fillStartAndEndDates();
+        var myPrimaryKPIs = DtOfAccountsIHandle.AsEnumerable().Select(s => new { kpi = s.Field<string>("PrimaryKPI") }).Distinct().ToList();
 
-        string strSQL = "WFMPMS.getSLSummaryForPACMAN";
-        SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.CommandType = CommandType.StoredProcedure;
-        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-        cmd.Parameters.AddWithValue("@StartDate", StartDate);
-        cmd.Parameters.AddWithValue("@EndDate", EndDate);
+        DataSet dsKPIs = new DataSet();
 
-        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        if (dt != null)
+        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
         {
-            GridView gvPrimaryKPI = new GridView();
-            gvPrimaryKPI.ID = "gvPrimaryKPI";
-            gvPrimaryKPI.AutoGenerateColumns = true;
-            //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-            DataRow dr = dt.NewRow();
-
-            gvPrimaryKPI.DataSource = dt;
-            gvPrimaryKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-
-            gvPrimaryKPI.DataBind();
-            if (dt.Rows.Count > 0)
+            cn.Open();
+            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
             {
-                gvPrimaryKPI.Rows[dt.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                gvPrimaryKPI.Rows[dt.Rows.Count - 1].Font.Bold = true;
-                gvPrimaryKPI.PreRender += gv_PreRender;
-                bool slrating = false;
-                decimal dec_slrating;
-                slrating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_slrating);
-                if (slrating)
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd.Parameters.AddWithValue("@EndDate", EndDate);
+
+                foreach (var individualKPI in myPrimaryKPIs)
                 {
-                    SLRating = dec_slrating;
+                    cmd.CommandText = "WFMPMS.get" + individualKPI.kpi.ToString() + "SummaryForPACMAN";
+                    
+                    
+                    using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                    {
+                        DataTable dt = new DataTable();
+                        
+                        cmd.ExecuteNonQuery();
+                        da.Fill(dt);
+                        if (dt != null)
+                        {
+                            GridView gvPrimaryKPI = new GridView();
+                            gvPrimaryKPI.ID = "gv" + individualKPI.kpi;
+                            gvPrimaryKPI.AutoGenerateColumns = true;
+                            //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+                            gvPrimaryKPI.DataSource = dt;
+                            gvPrimaryKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+
+                            gvPrimaryKPI.DataBind();
+                            if (dt.Rows.Count > 0)
+                            {
+                                gvPrimaryKPI.Rows[dt.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                                gvPrimaryKPI.Rows[dt.Rows.Count - 1].Font.Bold = true;
+                                gvPrimaryKPI.PreRender += gv_PreRender;
+                                bool slrating = false;
+                                decimal dec_slrating;
+                                slrating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_slrating);
+                                if (slrating)
+                                {
+                                    SLRating += dec_slrating;
+                                }
+                                else
+                                {
+                                    SLRating += 0;
+                                }
+                                ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";
+                                ltl_KPI.Text = SLRating.ToString();
+                                pnlKPI.Controls.Add(gvPrimaryKPI);
+                            }
+                            else
+                            {
+                                ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
+                                ltl_KPI.Text = String.Empty;
+                            }
+
+                        }
+                        else
+                        {
+                            ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
+                            ltl_KPI.Text = String.Empty;
+                        }
+
+                    }
                 }
-                else
-                {
-                    SLRating = 0;
-                }
-                ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";
-                ltl_KPI.Text = SLRating.ToString();
-                pnlKPI.Controls.Add(gvPrimaryKPI);
-            }
-            else
-            {
-                ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
-                ltl_KPI.Text = String.Empty;
             }
 
-        }
-        else
-        {
-            ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
-            ltl_KPI.Text = String.Empty;
+
         }
 
 
@@ -179,6 +203,8 @@ public partial class pacman : System.Web.UI.Page
 
     private void showRelevantMetricPanels(int ForEmpID)
     {
+
+        fillStartAndEndDates();
         string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
         strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
         strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
@@ -200,6 +226,7 @@ public partial class pacman : System.Web.UI.Page
     }
     private void fillRelevantMetricsInPanels(int ForEmpID)
     {
+        fillStartAndEndDates();
         string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
         strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
         strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
@@ -317,17 +344,31 @@ public partial class pacman : System.Web.UI.Page
     }
     protected void ddlReviewPeriod_SelectedIndexChanged(object sender, EventArgs e)
     {
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
-        DataTable dt = my.GetData(strSQL);
-        StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
-        EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
+        fillStartAndEndDates();
         fillRelevantMetricsInPanels(MyEmpID);
         enableDisableButtons();
         getFinalRating(MyEmpID);
 
 
     }
+
+    private void fillStartAndEndDates()
+    {
+        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+        DataTable dt = my.GetData(strSQL);
+        if(dt!=null && dt.Rows.Count > 0)
+        {
+            StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
+            EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
+        } else
+        {
+            StartDate = new DateTime(DateTime.Today.Year, 1, 1);
+            EndDate = new DateTime(DateTime.Today.Year, 1, 31);
+        }
+        
+    }
+
     //protected void btnYesDiscussed_Click(object sender, EventArgs e)
     //{
     //    btnAgree.Enabled = true;
@@ -917,36 +958,36 @@ public partial class pacman : System.Web.UI.Page
     public void fillpnl_Real_Time_Optimization(int ForEmpID)
     {
 
-        string strSQL = "WFMPMS.getSLOptimizationSummaryForPACMAN";
+        //string strSQL = "WFMPMS.getSLOptimizationSummaryForPACMAN";
 
-        SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-        cmd.Parameters.AddWithValue("@StartDate", StartDate);
-        cmd.Parameters.AddWithValue("@EndDate", EndDate);
+        //SqlCommand cmd = new SqlCommand(strSQL);
+        //cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        //cmd.Parameters.AddWithValue("@StartDate", StartDate);
+        //cmd.Parameters.AddWithValue("@EndDate", EndDate);
 
-        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        if (dt != null && dt.Rows.Count > 0)
-        {
-            GridView gvOptimizationKPI = new GridView();
-            gvOptimizationKPI.AutoGenerateColumns = true;
+        //DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+        //if (dt != null && dt.Rows.Count > 0)
+        //{
+        //    GridView gvOptimizationKPI = new GridView();
+        //    gvOptimizationKPI.AutoGenerateColumns = true;
 
-            gvOptimizationKPI.DataSource = dt;
-            gvOptimizationKPI.DataBind();
-            gvOptimizationKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-            gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-            gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].Font.Bold = true;
-            OptimizationRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
-            ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
-            ltl_Real_Time_Optimization.Text = OptimizationRating.ToString();
-            pnlOptimization.Controls.Add(gvOptimizationKPI);
+        //    gvOptimizationKPI.DataSource = dt;
+        //    gvOptimizationKPI.DataBind();
+        //    gvOptimizationKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+        //    gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+        //    gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].Font.Bold = true;
+        //    OptimizationRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+        //    ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
+        //    ltl_Real_Time_Optimization.Text = OptimizationRating.ToString();
+        //    pnlOptimization.Controls.Add(gvOptimizationKPI);
 
-            gvOptimizationKPI.PreRender += gv_PreRender;
-        }
-        else
-        {
-            ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
-            ltl_Real_Time_Optimization.Text = String.Empty;
-        }
+        //    gvOptimizationKPI.PreRender += gv_PreRender;
+        //}
+        //else
+        //{
+        //    ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
+        //    ltl_Real_Time_Optimization.Text = String.Empty;
+        //}
 
 
     }

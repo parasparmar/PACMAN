@@ -39,7 +39,8 @@ public partial class index : System.Web.UI.Page
         DataTable dt = new DataTable();
         if (myID != "IDNotFound")
         {
-            myID = "akamb002"; //Anil Kamble
+            //myID = "rshar030"; //Raman.Sharma@sitel.com AT&T DTV for Answer_Rate
+            myID = "vchoh001"; //Vinod Chauhan
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
             cmd.Parameters.AddWithValue("@NT_ID", myID);
             

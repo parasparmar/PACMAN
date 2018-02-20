@@ -83,11 +83,11 @@ public partial class IntervalTracker : System.Web.UI.Page
         string Account = ddlAccount.SelectedItem.Value.ToString();
         string strSQL = "[WFMP].[fillAccountLOB]";
         SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.Parameters.AddWithValue("@AccountID", Account);
+        cmd.Parameters.AddWithValue("@Account", Account);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         ddlLOB.DataSource = dt;
-        ddlLOB.DataTextField = "LOB_A";
-        ddlLOB.DataValueField = "LOB_A";
+        ddlLOB.DataTextField = "LOB";
+        ddlLOB.DataValueField = "LOB";
         ddlLOB.DataBind();
     }
 

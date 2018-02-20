@@ -132,7 +132,11 @@
                             </asp:ListBox>--%>
                             <asp:FileUpload ID="AttachExceptionMail" runat="server"  accept=".msg" Width="100%" />
                                 <%--<asp:RequiredFieldValidator ID="RequiredFieldValidator8" runat="server" Display="Dynamic" ErrorMessage="Attach refrence Mail" ForeColor="Red" ControlToValidate="AttachIssueMail" ValidationGroup="downtime"></asp:RequiredFieldValidator>--%>
+                            <asp:RegularExpressionValidator ID="RegularExpressionValidatorAttachment" ValidationExpression="([a-zA-Z0-9\s_\\.\-:])+(.msg)$"
 
+    ControlToValidate="AttachExceptionMail" runat="server" ForeColor="Red" ErrorMessage="Please select a valid mail file."
+
+    Display="Dynamic" />
                         </div>
                         <!-- /.input group -->
                     </div>

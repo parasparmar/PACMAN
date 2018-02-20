@@ -85,15 +85,15 @@ public partial class ExceptionTracker : System.Web.UI.Page
 
     private void fillddlLOB()
     {
-        string Account = ddlExceptionAccount.SelectedItem.Value.ToString().Replace("  "," ");
+        string AccountId = ddlExceptionAccount.SelectedValue.ToString();
 
         string strSQL = "[WFMP].[fillAccountLOB]";
         SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.Parameters.AddWithValue("@Account", Account);
+        cmd.Parameters.AddWithValue("@Account", AccountId);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         ddlExceptionLOB.DataSource = dt;
-        ddlExceptionLOB.DataTextField = "LOB_A";
-        ddlExceptionLOB.DataValueField = "LOB_A";
+        ddlExceptionLOB.DataTextField = "LOB";
+        ddlExceptionLOB.DataValueField = "LOB";
         ddlExceptionLOB.DataBind();
     }
 
@@ -178,7 +178,6 @@ public partial class ExceptionTracker : System.Web.UI.Page
         List<ListItem> files = new List<ListItem>();
 
         foreach (string filePath in filePaths)
-
         {
 
             files.Add(new ListItem(Path.GetFileName(filePath), filePath));
@@ -382,6 +381,7 @@ public partial class ExceptionTracker : System.Web.UI.Page
         row.Cells[12].Enabled = false;
         row.Cells[13].Enabled = false;
         row.Cells[14].Enabled = false;
+        fillgvPendingLog();
     }
 
     protected void btn_Decline_Click(object sender, EventArgs e)
@@ -407,6 +407,7 @@ public partial class ExceptionTracker : System.Web.UI.Page
         row.Cells[12].Enabled = false;
         row.Cells[13].Enabled = false;
         row.Cells[14].Enabled = false;
+        fillgvPendingLog();
     }
 
     protected void btn_Cancel_Click(object sender, EventArgs e)
@@ -432,5 +433,6 @@ public partial class ExceptionTracker : System.Web.UI.Page
         row.Cells[12].Enabled = false;
         row.Cells[13].Enabled = false;
         row.Cells[14].Enabled = false;
+        fillgvPendingLog();
     }
 }
