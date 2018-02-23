@@ -65,16 +65,21 @@ public partial class profile : System.Web.UI.Page
 
             lblSite.Text = dr["SiteID"].ToString();
             /////---------------Personal Section 
-            string myGender = dr["Gender"].ToString().Length > 0 ? dr["Gender"].ToString() : "Not Specified";
-            tbGender.Items.FindByText(myGender).Selected = true;
+            if (dr["Gender"] != null && dr["Gender"].ToString().Length > 0) { tbGender.Items.FindByText(dr["Gender"].ToString()).Selected = true; }
+
 
             tbDate_of_Birth.Text = dr["Date_of_Birth"].ToString().Length == 0 ? string.Empty : Convert.ToDateTime(dr["Date_of_Birth"].ToString()).ToString("dd-MMM-yyyy");
 
-            string myQualification = dr["Qualification"].ToString().Length > 0 ? dr["Qualification"].ToString() : "Not Specified";
-            tbQualification.Items.FindByText(myQualification).Selected = true;
+            if (dr["Qualification"] != null && dr["Qualification"].ToString().Length > 0)
+            {
+                tbQualification.Items.FindByText(dr["Qualification"].ToString()).Selected = true;
+            }
 
-            string myMaritalStatus = dr["MaritalStatus"].ToString().Length > 0 ? dr["MaritalStatus"].ToString() : "Not Specified";
-            tbMaritalStatus.Items.FindByText(myMaritalStatus).Selected = true;
+
+            if (dr["MaritalStatus"] != null && dr["MaritalStatus"].ToString().Length > 0)
+            {
+                tbMaritalStatus.Items.FindByText(dr["MaritalStatus"].ToString()).Selected = true;
+            }
 
             tbAnniversaryDate.Text = dr["AnniversaryDate"].ToString().Length == 0 ? string.Empty : Convert.ToDateTime(dr["AnniversaryDate"].ToString()).ToString("dd-MMM-yyyy");
             tbContact_Number.Text = dr["Contact_Number"].ToString();

@@ -228,9 +228,9 @@
                 <!-- Logo -->
                 <a href="Index.aspx" class="logo">
                     <!-- mini logo for sidebar mini 50x50 pixels -->
-                    <span class="logo-mini"><b>TA</b></span>
+                    <span class="logo-mini"><b>IA</b></span>
                     <!-- logo for regular state and mobile devices -->
-                    <span class="logo-lg">Team <b>Anatomy</b></span>
+                    <span class="logo-lg">IA<b>ccess</b></span>
                 </a>
                 <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top">
@@ -310,7 +310,7 @@
                         </asp:ContentPlaceHolder>
 
                     </div>
-                    <h3 style="color: white;">Development Environment</h3>
+                    <%--<h3 style="color: white;">Development Environment</h3>--%>
                 </nav>
 
             </header>
@@ -337,7 +337,7 @@
                         <!-- sidebar menu: : style can be found in sidebar.less -->
                         <ul class="sidebar-menu" data-widget="tree">
                             <%--<li class="header">MAIN NAVIGATION</li>--%>
-                            <%--<li>
+                            <li>
                                 <a href="profile.aspx">
                                     <i class="fa fa-user-plus"></i><span>My Profile</span>
                                 </a>
@@ -381,22 +381,12 @@
                                 <a href="myroster.aspx">
                                     <i class="fa fa-calendar-plus-o"></i><span>My Roster</span>
                                 </a>
-                            </li>--%>
-                            <li>
-                                <a href="profile.aspx">
-                                    <i class="fa fa-user-plus"></i><span>My Profile</span>
-                                </a>
-                            </li>
+                            </li>                            
                             <li>
                                 <a href="pacman.aspx">
                                     <i class="fa fa-user"></i><span>My PACMAN</span>
                                 </a>
                             </li>
-                            <%--<li>
-                                <a href="CoachingFeedback.aspx">
-                                    <i class="fa fa-user-plus"></i><span>Coaching & Feedback</span>
-                                </a>
-                            </li>--%>
                             <li>
                                 <a href="EscalationsInitiatives.aspx">
                                     <i class="fa fa-line-chart"></i><span>Escalations & Initiatives</span>

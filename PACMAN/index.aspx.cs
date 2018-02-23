@@ -40,7 +40,7 @@ public partial class index : System.Web.UI.Page
         if (myID != "IDNotFound")
         {
             //myID = "rshar030"; //Raman.Sharma@sitel.com AT&T DTV for Answer_Rate
-            myID = "vchoh001"; //Vinod Chauhan
+            //myID = "vchoh001"; //Vinod Chauhan
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
             cmd.Parameters.AddWithValue("@NT_ID", myID);
             
@@ -51,7 +51,7 @@ public partial class index : System.Web.UI.Page
                 {
 
                     Session["dtEmp"] = dt;
-                    Response.Redirect("pacman.aspx", false);
+                    Response.Redirect("profile.aspx", false);
                 }
                 else
                 {

@@ -109,10 +109,10 @@ public partial class pacman : System.Web.UI.Page
         string strSQL = "WFMPMS.GetAllAccountsIHandle";
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.Parameters.AddWithValue("@Employee_ID", MyEmpID);
-        
+
 
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        
+
 
         gvAllMyAccounts.DataSource = dt;
         gvAllMyAccounts.DataBind();
@@ -123,7 +123,7 @@ public partial class pacman : System.Web.UI.Page
         DtOfAccountsIHandle = getDtOfAccountsIHandle();
         fillStartAndEndDates();
         var myPrimaryKPIs = DtOfAccountsIHandle.AsEnumerable().Select(s => new { kpi = s.Field<string>("PrimaryKPI") }).Distinct().ToList();
-
+        ltl_KPI.Text = String.Empty;
         DataSet dsKPIs = new DataSet();
 
         using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
@@ -139,12 +139,12 @@ public partial class pacman : System.Web.UI.Page
                 foreach (var individualKPI in myPrimaryKPIs)
                 {
                     cmd.CommandText = "WFMPMS.get" + individualKPI.kpi.ToString() + "SummaryForPACMAN";
-                    
-                    
+
+
                     using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                     {
                         DataTable dt = new DataTable();
-                        
+
                         cmd.ExecuteNonQuery();
                         da.Fill(dt);
                         if (dt != null)
@@ -181,7 +181,7 @@ public partial class pacman : System.Web.UI.Page
                             else
                             {
                                 ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
-                                ltl_KPI.Text = String.Empty;
+                                
                             }
 
                         }
@@ -194,11 +194,7 @@ public partial class pacman : System.Web.UI.Page
                     }
                 }
             }
-
-
         }
-
-
     }
 
     private void showRelevantMetricPanels(int ForEmpID)
@@ -261,8 +257,7 @@ public partial class pacman : System.Web.UI.Page
                     my.close_conn();
                 }
             }
-        }
-        //}
+        }        
     }
     private void getNamePacmanCycle()
     {
@@ -357,16 +352,17 @@ public partial class pacman : System.Web.UI.Page
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
         DataTable dt = my.GetData(strSQL);
-        if(dt!=null && dt.Rows.Count > 0)
+        if (dt != null && dt.Rows.Count > 0)
         {
             StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
             EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
-        } else
+        }
+        else
         {
             StartDate = new DateTime(DateTime.Today.Year, 1, 1);
             EndDate = new DateTime(DateTime.Today.Year, 1, 31);
         }
-        
+
     }
 
     //protected void btnYesDiscussed_Click(object sender, EventArgs e)
