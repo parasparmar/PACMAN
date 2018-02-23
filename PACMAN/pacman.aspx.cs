@@ -592,6 +592,7 @@ public partial class pacman : System.Web.UI.Page
     }
     public void fillpnl_On_Time_Delivery(int ForEmpID)
     {
+        fillStartAndEndDates();
         AnalyticTimeline = 0;
         strSQL = "[WFMPMS].[GetAnalyticTimelineScore]";
         using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
