@@ -37,12 +37,12 @@ public partial class profile : System.Web.UI.Page
         //try
         //{
         dtEmp = Session["dtEmp"] as DataTable;
-        //Critical** This line refreshes the data received from the session.
-        dtEmp = my.GetData("WFMP.getEmployeeData '" + dtEmp.Rows[0]["ntName"] + "'");
-        Session["dtEmp"] = dtEmp;
-
-        if (dtEmp.Rows.Count > 0)
+        if (dtEmp != null && dtEmp.Rows.Count > 0)
         {
+            //Critical** This line refreshes the data received from the session.
+            dtEmp = my.GetData("WFMP.getEmployeeData '" + dtEmp.Rows[0]["ntName"] + "'");
+            Session["dtEmp"] = dtEmp;
+
             DataRow dr = dtEmp.Rows[0];
             lblNTID.Text = dr["ntName"].ToString();
             lblEmployee_ID.Text = dr["Employee_ID"].ToString();
@@ -159,11 +159,15 @@ public partial class profile : System.Web.UI.Page
             //    tbSkill_Set_3.Items.Add(i);
 
             //}
+
         }
         else
         {
             Response.Redirect(ViewState["PreviousPageUrl"] != null ? ViewState["PreviousPageUrl"].ToString() : "SomeOtherPage.aspx");
         }
+
+
+
 
 
 
