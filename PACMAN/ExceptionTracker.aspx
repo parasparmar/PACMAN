@@ -1,4 +1,7 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="ExceptionTracker.aspx.cs" Inherits="ExceptionTracker" %><%--CodeFile="IntervalTracker.aspx.cs" Inherits="IntervalTracker"--%>
+﻿
+
+
+<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="ExceptionTracker.aspx.cs" Inherits="ExceptionTracker" %><%--CodeFile="IntervalTracker.aspx.cs" Inherits="IntervalTracker"--%>
 
 
 <asp:Content ID="Content4" ContentPlaceHolderID="pageheader" runat="Server">
@@ -29,7 +32,7 @@
                         <div class="form-group">
                             <label>Select Account</label>
                             <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-calendar-check-o"></i></span>
+                                <span class="input-group-addon"><i class="fa fa-circle"></i></span>
                                 <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlExceptionAccount" runat="server" OnSelectedIndexChanged="ddlExceptionAccount_SelectedIndexChanged" AutoPostBack="true">
                                 </asp:DropDownList>
                             </div>
@@ -40,7 +43,7 @@
                         <div class="form-group">
                             <label>Select LOB</label>
                             <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-calendar-check-o"></i></span>
+                                <span class="input-group-addon"><i class="fa fa-circle"></i></span>
                                 <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlExceptionLOB" runat="server">
                                 </asp:DropDownList>
                             </div>
@@ -51,7 +54,7 @@
                         <div class="form-group">
                             <label>Select KPI</label>
                             <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <span class="input-group-addon"><i class="fa fa-circle"></i></span>
                                 <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlExceptionKPI" runat="server">
                                 </asp:DropDownList>
                             </div>
@@ -67,7 +70,7 @@
                         <div class="form-group">
                             <label>Month</label>
                             <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                                <span class="input-group-addon"><i class="fa fa-circle"></i></span>
                                 <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlMonth" runat="server">
                                             
                                 </asp:DropDownList>
@@ -82,7 +85,7 @@
                             <label>Date</label>
                             <asp:CheckBox ID="cbDate" runat="server"  OnCheckedChanged="cbDate_CheckedChanged" AutoPostBack="true"/>
                             <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                <span class="input-group-addon"><i class="fa fa-circle"></i></span>
                                 <asp:TextBox ID="tbDate" CssClass="form-control datepicker" runat="server" Enabled="false"></asp:TextBox>
                                 <%--<asp:TextBox runat="server" ID="txtIssue" CssClass="form-control select" TextMode="MultiLine" Rows="2"/>--%><%----%>
                                 <%--<asp:RequiredFieldValidator ID="RequiredFieldValidator4" runat="server" Display="Dynamic" ErrorMessage="Issue Description is required" ForeColor="Red" ControlToValidate="txtIssue" ValidationGroup="downtime"></asp:RequiredFieldValidator>--%>
@@ -97,7 +100,7 @@
                             <label>Intervals</label>
                             <asp:CheckBox ID="cbInterval" runat="server" AutoPostBack="true" OnCheckedChanged="cbInterval_CheckedChanged"/>
                             <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                                <span class="input-group-addon"><i class="fa fa-circle"></i></span>
                                 <div class="row">
                                     <div class="col-lg-6">
                                 <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlFromInterval" runat="server" AutoPostBack="true" Enabled="false">
@@ -131,7 +134,7 @@
                             <%--<asp:ListBox  ItemType="text" CssClass="form-control select" ID="lbSites" SelectionMode="Multiple" runat="server">
                             </asp:ListBox>--%>
                             <asp:FileUpload ID="AttachExceptionMail" runat="server"  accept=".msg" Width="100%" />
-                                <%--<asp:RequiredFieldValidator ID="RequiredFieldValidator8" runat="server" Display="Dynamic" ErrorMessage="Attach refrence Mail" ForeColor="Red" ControlToValidate="AttachIssueMail" ValidationGroup="downtime"></asp:RequiredFieldValidator>--%>
+                                <asp:RequiredFieldValidator ID="RequiredFieldValidator8" runat="server" Display="Dynamic" ErrorMessage="Attach refrence Mail" ForeColor="Red" ControlToValidate="AttachExceptionMail" ValidationGroup="downtime"></asp:RequiredFieldValidator><%--ValidationGroup="downtime"--%>
                             <asp:RegularExpressionValidator ID="RegularExpressionValidatorAttachment" ValidationExpression="([a-zA-Z0-9\s_\\.\-:])+(.msg)$"
 
     ControlToValidate="AttachExceptionMail" runat="server" ForeColor="Red" ErrorMessage="Please select a valid mail file."
@@ -146,7 +149,7 @@
                         <div class="form-group">
                             <label>Notes</label>
                             <div class="input-group">
-                                <span class="input-group-addon"><i class="fa fa-user"></i></span>
+                                <span class="input-group-addon"><i class="fa fa-circle"></i></span>
                                 <asp:TextBox runat="server" ID="txtException" CssClass="form-control select" TextMode="MultiLine" Rows="2"/>
                                 <%--<asp:RequiredFieldValidator ID="RequiredFieldValidator7" runat="server" Display="Dynamic" ErrorMessage="Sitel Ticket is Required" ForeColor="Red" ControlToValidate="txtSitelTicket" ValidationGroup="downtime"></asp:RequiredFieldValidator>--%>
 
@@ -159,7 +162,7 @@
                <%-- <div class="pull-right" >--%>
 <div class="row" style="margin-top:6%;">
     <div class="col-lg-6">
-        <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="btn btn-primary" OnClick="btnSave_Click" Width="100%" />                   
+        <asp:Button ID="btnSave" runat="server" Text="Save" CssClass="btn btn-primary" OnClick="btnSave_Click" Width="100%" ValidationGroup="downtime"/>                   
                     </div><%--&nbsp--%>
     <div class="col-lg-6">
                    <asp:Button ID="btnDiscardEsc" runat="server" Text="Discard" CssClass="btn btn-default"  Width="100%" />     
@@ -181,14 +184,16 @@
             <div class="col-md-12">
                 <div class="box box-primary">
                     <div class="box-header with-border">
-                        <h3 class="box-title">Unactioned Exception Log </h3>
+                        <h3 class="box-title">Exception Log </h3>
                     </div>
-                    <div class="box-body">
+                    <div class="box-body" style="overflow-x:scroll">
                         
-                       <asp:GridView ID="gvPendingLog" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="false" ShowHeaderWhenEmpty="true" OnRowDataBound="gvPendingLog_RowDataBound">
+                       <asp:GridView ID="gvPendingLog" runat="server" CssClass="table table-bordered table-hover ExceptionlogDataTable"
+                           AutoGenerateColumns="false" ShowHeaderWhenEmpty="true"
+                           OnRowDataBound="gvPendingLog_RowDataBound" OnPreRender="gv_PreRender"> <%----%>
                            <Columns>
                                <asp:BoundField DataField="ID" HeaderText="ExceptionID"></asp:BoundField>
-                               <asp:BoundField DataField="Account" HeaderText="Account"></asp:BoundField>
+                               <asp:BoundField DataField="Account" HeaderText="Account" ></asp:BoundField>
                                <asp:BoundField DataField="LOB_A" HeaderText="LOB" ></asp:BoundField>
                                <asp:BoundField DataField="KPI" HeaderText="KPI" ></asp:BoundField>
                                <asp:BoundField DataField="TextDescription" HeaderText="Month" ></asp:BoundField>
@@ -196,32 +201,33 @@
                                <asp:BoundField DataField="FromInterval" HeaderText="FromInterval"></asp:BoundField>
                                <asp:BoundField DataField="ToInterval" HeaderText="ToInterval" ></asp:BoundField>
                                <%--<asp:HyperLinkField DataNavigateUrlFields="Attachment" DataTextField="Attachment" HeaderText ="Attachment" />--%>
-                               <%--<asp:BoundField DataField="Attachment" HeaderText="Attachment" ></asp:BoundField>--%>
-                               <asp:TemplateField HeaderText="Download">
+                               <%--<asp:BoundField DataField="Attachment" HeaderText="Attachment" ></asp:BoundField>--%>                     
+                               <asp:TemplateField HeaderText="Attcahment" >
                                    <ItemTemplate>
                                        <asp:LinkButton ID="lbDownload" Text="download" CommandArgument='<%# Eval("Attachment") %>' runat="server" OnClick="lbDownload_Click"></asp:LinkButton>
                                    </ItemTemplate>
                                </asp:TemplateField>
-                               <asp:BoundField DataField="notes" HeaderText="notes" ></asp:BoundField>
-                               <asp:BoundField DataField="RaisedBy" HeaderText="RaisedBy" ></asp:BoundField>
+                               <asp:BoundField DataField="notes" HeaderText="notes"></asp:BoundField>
+                               <asp:BoundField DataField="RaisedBy" HeaderText="RaisedBy"></asp:BoundField>
                                <asp:BoundField DataField="RaisedOn" HeaderText="RaisedOn" ></asp:BoundField>
                                <%--<asp:ButtonField CommandName="Approve" Text="Approve" ShowHeader="True" HeaderText="Approved" ></asp:ButtonField>--%>
-                               <asp:TemplateField HeaderText="Approve" HeaderStyle-CssClass="mid">
+                               <asp:TemplateField HeaderText="Approve" HeaderStyle-CssClass="mid" >
                                   <ItemTemplate>
                                      <asp:Button ID="btn_Approve" runat="server" CssClass="btn btn-xs btn-success" Text="Approve" OnClick="btn_Approve_Click"/>
                                   </ItemTemplate>
                                </asp:TemplateField>
-                               <asp:TemplateField HeaderText="Decline" HeaderStyle-CssClass="mid">
+                               <asp:TemplateField HeaderText="Decline" HeaderStyle-CssClass="mid" >
                                   <ItemTemplate>
                                      <asp:Button ID="btn_Decline" runat="server" CssClass="btn btn-xs btn-danger" Text="Decline" OnClick="btn_Decline_Click"/>
                                   </ItemTemplate>
                                </asp:TemplateField>
-                               <asp:TemplateField HeaderText="Cancel" HeaderStyle-CssClass="mid">
+                               <asp:TemplateField HeaderText="Cancel" HeaderStyle-CssClass="mid" >
                                   <ItemTemplate>
                                      <asp:Button ID="btn_Cancel" runat="server" CssClass="btn btn-xs btn-warning" Text="Cancel" OnClick="btn_Cancel_Click"/>
                                   </ItemTemplate>
                                </asp:TemplateField>
                                <asp:BoundField DataField="Status" HeaderText="Status" ></asp:BoundField>
+                               <asp:BoundField DataField="Employee_ID" HeaderText="Employee_ID" ></asp:BoundField>
                                <%--<asp:ButtonField CommandName="Decline" Text="Decline" ShowHeader="True" HeaderText="Declined"></asp:ButtonField>
                                <asp:ButtonField CommandName="Cancel" Text="Cancel" ShowHeader="True" HeaderText="Delete"></asp:ButtonField>--%>
                            </Columns>
@@ -330,6 +336,8 @@
             $("#gvPendingLog tbody tr").each(function () {
                 $(this).find("th:nth-child(1)").hide();
                 $(this).find("td:nth-child(1)").hide();
+                $(this).find("th:nth-child(17)").hide();
+                $(this).find("td:nth-child(17)").hide();
             });
 
         }
@@ -349,7 +357,29 @@
             });
         };
 
+        $(function () {
+            $('.ExceptionlogDataTable').DataTable({
+                "sPaginationType": "full_numbers",
+                "lengthMenu": [5, 10, 25, 50, 75, 100],
+                "aaSortingFixed": [[0, 'asc']],
+                "bSort": true,
+                dom: 'Bfrltip',
+                "columnDefs": [{ "orderable": false, "targets": 0 }],
+                buttons: [
+                    { extend: 'copyHtml5', text: 'Copy Data' },
+                    { extend: 'excelHtml5', text: 'Export to Excel' },
+                    { extend: 'csvHtml5', text: 'Export to CSV' },
+                    { extend: 'pdfHtml5', text: 'Export to PDF' },
+                ],
+                "columnDefs": [{
+                    "targets": [0,16], //Comma separated values
+                    "visible": false,
+                    "searchable": false
+                }
+                ],
 
+            });
+        });
     </script>
 
 </asp:Content>

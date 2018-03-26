@@ -18,8 +18,8 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
     int MyEmpID;
     string reportee { get; set; }
     string pacmancycle { get; set; }
-  
 
+    EmailSender Email = new EmailSender();
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -145,6 +145,20 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         lblEscalationScoreBottom.Text = scoreEsc;
     }
 
+
+    protected void lbDownload_Click(object sender, EventArgs e)
+    {
+        string filePath = (sender as LinkButton).CommandArgument;
+
+        Response.ContentType = ContentType;
+
+        Response.AppendHeader("Content-Disposition", "attachment; filename=" + Path.GetFileName(filePath));
+
+        Response.WriteFile(filePath);
+
+        Response.End();
+    }
+
     private void fillgvInitiativelog()
     {
         reportee = ddlSelectEmployee.SelectedItem.Value.ToString();//int report = 835064;
@@ -263,6 +277,17 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         }
         fillgvEscalationlog();
         getTotalScore();
+
+        Email.InitiatorEmpId = MyEmpID;//918031;
+        Email.RecipientsEmpId = reportee;//931040.ToString();
+        //Email.BCCsEmpId = 918031.ToString();
+        //Email.CCsEmpId = MyEmpID.ToString();
+        Email.Subject = "Escalation raised";
+        Email.Body = "<strong>Hi, </strong>";
+        Email.Body += "<P>"+ dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has raised escalation '" + description + "' against you on " +DateTime.Now+"<p>";
+        Email.Body += "<p>Please visit dashboard on <a href='http://iaccess/TA//EscalationsInitiatives.aspx'>Escalations and Initiatives page</a> .<p>";
+        //Email.Attachment = Attachment;
+        Email.Send();
         clearfields();
     }
 
@@ -308,6 +333,18 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         }
         fillgvInitiativelog();
         getTotalScore();
+
+        Email.InitiatorEmpId = MyEmpID;//918031;
+        Email.RecipientsEmpId = reportee;//931040.ToString();
+        //Email.BCCsEmpId = 918031.ToString();
+        //Email.CCsEmpId = MyEmpID.ToString();
+        Email.Subject = "Initiave Recorded";
+        Email.Body = "<strong>Hi, </strong>";
+        Email.Body += "<P>" + dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has recorded your initiative '" + description + "' on" + DateTime.Now+"<p>";
+        Email.Body += "<p>Please visit dashboard on <a href='http://iaccess/PACMAN//EscalationsInitiatives.aspx'>Escalations and Initiatives page</a> .<p>";
+        //Email.Attachment = Attachment;
+        Email.Send();
+
         clearfields();
     }
 
@@ -355,5 +392,19 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
     {
         txtEscalation.Text = string.Empty;//.InnerText 
         rbEscalation.ClearSelection();
+    }
+
+    protected void gv_PreRender(object sender, EventArgs e)
+    {
+        GridView gv = (GridView)sender;
+        if (gv.Rows.Count > 0)
+        {
+            gv.UseAccessibleHeader = true;
+            gv.HeaderRow.TableSection = TableRowSection.TableHeader;
+            gv.HeaderStyle.BorderStyle = BorderStyle.None;
+            gv.BorderStyle = BorderStyle.None;
+            gv.BorderWidth = Unit.Pixel(1);
+            gv.FooterRow.TableSection = TableRowSection.TableFooter;
+        }
     }
 }

@@ -20,6 +20,9 @@ public partial class ExceptionTracker : System.Web.UI.Page
     string reportee { get; set; }
     //string pacmancycle { get; set; }
 
+    EmailSender Email = new EmailSender();
+
+
     protected void Page_Load(object sender, EventArgs e)
     {
         my = new Helper();
@@ -43,6 +46,13 @@ public partial class ExceptionTracker : System.Web.UI.Page
 
         Literal title = (Literal)PageExtensionMethods.FindControlRecursive(Master, "ltlPageTitle");
         title.Text = "Exception Tracker";
+
+        if (Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString()) <= 75)
+        { btnSave.Enabled = true; }
+        else
+        { btnSave.Enabled = false; }
+
+        
 
         if (!IsPostBack)
         {
@@ -97,19 +107,6 @@ public partial class ExceptionTracker : System.Web.UI.Page
         ddlExceptionLOB.DataBind();
     }
 
-    //private void filllbSites()
-    //{
-    //    string Account = ddlAccount.SelectedItem.Value.ToString();
-    //    string strSQL = "[WFMP].[fillSites]";
-    //    SqlCommand cmd = new SqlCommand(strSQL);
-    //    //cmd.Parameters.AddWithValue("@AccountName", Account);
-    //    DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-    //    lbSites.DataSource = dt;
-    //    lbSites.DataTextField = "Location";
-    //    lbSites.DataValueField = "Location";
-    //    lbSites.DataBind();
-    //}
-
     private void fillKPI()
     {
         string strSQL = "[WFMP].[fillKPI]";
@@ -120,6 +117,7 @@ public partial class ExceptionTracker : System.Web.UI.Page
         ddlExceptionKPI.DataValueField = "Metrics";
         ddlExceptionKPI.DataBind();
     }
+
 
     private void fillMonth()
     {
@@ -183,9 +181,9 @@ public partial class ExceptionTracker : System.Web.UI.Page
             files.Add(new ListItem(Path.GetFileName(filePath), filePath));
 
         }
-        gvPendingLog.DataSource = dt3; 
+        gvPendingLog.DataSource = dt3;
         gvPendingLog.DataBind();
-        
+
     }
 
 
@@ -258,24 +256,37 @@ public partial class ExceptionTracker : System.Web.UI.Page
             cmd.Parameters.AddWithValue("@FromInterval", sqldatenull);
             cmd.Parameters.AddWithValue("@ToInterval", sqldatenull);
         }
-       // string folderPath = Server.MapPath("~/Sitel/mails/");
+        // string folderPath = Server.MapPath("~/Sitel/mails/");
         string fileName = Path.GetFileName(AttachExceptionMail.FileName);
         //string filename1 = fileName.Replace(" ", String.Empty);
         // AttachExceptionMail.SaveAs(folderPath + Server.HtmlEncode(Path.GetFileName(AttachExceptionMail.FileName)));
         string Attachment = "Sitel/mails/" + fileName;
         string notes = txtException.Text.ToString();
-        cmd.Parameters.AddWithValue("@AccountId",AccountId);
+        cmd.Parameters.AddWithValue("@AccountId", AccountId);
         cmd.Parameters.AddWithValue("@Account", AccountName);
         cmd.Parameters.AddWithValue("@LOB", lob);
         cmd.Parameters.AddWithValue("@KPI", kpi);
-        cmd.Parameters.AddWithValue("@Month", Convert.ToInt32(month));        
+        cmd.Parameters.AddWithValue("@Month", Convert.ToInt32(month));
         cmd.Parameters.AddWithValue("@Attachment", Attachment);
         cmd.Parameters.AddWithValue("@Notes", notes);
         cmd.Parameters.AddWithValue("@RaisedBy", MyEmpID);
         cmd.Connection = con;
         cmd.ExecuteNonQuery();
         con.Close();
+
+        Email.InitiatorEmpId = MyEmpID;//918031;
+        Email.RecipientsEmpId = 798904.ToString();//931040.ToString();
+        //Email.BCCsEmpId = 918031.ToString();
+        //Email.CCsEmpId = MyEmpID.ToString();
+        Email.Subject = "Exception raised";
+        Email.Body = "<strong>Hi </strong> Chetan,";
+        Email.Body += "<P>" + dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has raised exception for account:" + AccountName + ", LOB:" + lob + ", KPI:" + kpi + " for reason '" + notes + " on " + DateTime.Now + ". <p>";
+        Email.Body += "<p>Please action on dashboard on <a href='http://iaccess/PACMAN//ExceptionTracker.aspx'>Exception Tracker page</a> .<p>";
+        //Email.Attachment = Attachment;
+        //Email.Send();
+
         clearfields();
+        fillgvPendingLog();
     }
     private void clearfields()
     {
@@ -302,7 +313,18 @@ public partial class ExceptionTracker : System.Web.UI.Page
             Button btnA = (Button)gvr.FindControlRecursive("btn_Approve");
             Button btnD = (Button)gvr.FindControlRecursive("btn_Decline");
             Button btnC = (Button)gvr.FindControlRecursive("btn_Cancel");
-            //btn.Text = "X";
+
+            if (Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString()) <= 65)
+            {
+
+                btnA.Enabled = true;
+                btnD.Enabled = true;
+            }
+            else
+            {
+                btnD.Enabled = false;
+                btnA.Enabled = false;
+            }
 
             string stat = gvr.Cells[15].Text.ToString();
             if (stat == "&nbsp;")
@@ -364,6 +386,11 @@ public partial class ExceptionTracker : System.Web.UI.Page
         GridViewRow row = (GridViewRow)btn.NamingContainer;
 
         string ExceptionID = row.Cells[0].Text.ToString();
+        int EmployeeID = Convert.ToInt32(row.Cells[16].Text.ToString());
+        string AccountName = row.Cells[1].Text.ToString();
+        string lob = row.Cells[2].Text.ToString();
+        string kpi = row.Cells[3].Text.ToString();
+        string notes = row.Cells[4].Text.ToString();
         int status = 1;
 
         SqlConnection con = new SqlConnection(my.getConnectionString());
@@ -382,6 +409,16 @@ public partial class ExceptionTracker : System.Web.UI.Page
         row.Cells[13].Enabled = false;
         row.Cells[14].Enabled = false;
         fillgvPendingLog();
+
+        Email.InitiatorEmpId = 798904;// 918031;
+        Email.RecipientsEmpId = EmployeeID.ToString(); //931040.ToString();//
+        //Email.BCCsEmpId = 918031.ToString();
+        //Email.CCsEmpId = MyEmpID.ToString();
+        Email.Subject = "Exception approved";
+        Email.Body = "<strong>Hi, </strong>";
+        Email.Body += "<p>Exception approved for ACCOUNT:" + AccountName + ", LOB:" + lob + ", KPI:" + kpi + " for reason '" + notes + " on " + DateTime.Now + "<p>";
+        //Email.Attachment = Attachment;
+        // Email.Send();
     }
 
     protected void btn_Decline_Click(object sender, EventArgs e)
@@ -390,6 +427,11 @@ public partial class ExceptionTracker : System.Web.UI.Page
         GridViewRow row = (GridViewRow)btn.NamingContainer;
 
         string ExceptionID = row.Cells[0].Text.ToString();
+        int EmployeeID = Convert.ToInt32(row.Cells[16].Text.ToString());
+        string AccountName = row.Cells[1].Text.ToString();
+        string lob = row.Cells[2].Text.ToString();
+        string kpi = row.Cells[3].Text.ToString();
+        string notes = row.Cells[4].Text.ToString();
         int status = 0;
 
         SqlConnection con = new SqlConnection(my.getConnectionString());
@@ -408,6 +450,15 @@ public partial class ExceptionTracker : System.Web.UI.Page
         row.Cells[13].Enabled = false;
         row.Cells[14].Enabled = false;
         fillgvPendingLog();
+
+        Email.InitiatorEmpId = 798904;// 918031;
+        Email.RecipientsEmpId = EmployeeID.ToString(); //931040.ToString();//
+        //Email.BCCsEmpId = 918031.ToString();
+        //Email.CCsEmpId = MyEmpID.ToString();
+        Email.Subject = "Exception declined";
+        Email.Body = "Exception declined for ACCOUNT:" + AccountName + ", LOB:" + lob + ", KPI:" + kpi + " for reason '" + notes + " on " + DateTime.Now;
+        //Email.Attachment = Attachment;
+        //Email.Send();
     }
 
     protected void btn_Cancel_Click(object sender, EventArgs e)
@@ -434,5 +485,19 @@ public partial class ExceptionTracker : System.Web.UI.Page
         row.Cells[13].Enabled = false;
         row.Cells[14].Enabled = false;
         fillgvPendingLog();
+    }
+
+    protected void gv_PreRender(object sender, EventArgs e)
+    {
+        GridView gv = (GridView)sender;
+        if (gv.Rows.Count > 0)
+        {
+            gv.UseAccessibleHeader = true;
+            gv.HeaderRow.TableSection = TableRowSection.TableHeader;
+            gv.HeaderStyle.BorderStyle = BorderStyle.None;
+            gv.BorderStyle = BorderStyle.None;
+            gv.BorderWidth = Unit.Pixel(1);
+            gv.FooterRow.TableSection = TableRowSection.TableFooter;
+        }
     }
 }

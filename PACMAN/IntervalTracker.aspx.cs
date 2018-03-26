@@ -196,7 +196,47 @@ public partial class IntervalTracker : System.Web.UI.Page
         strSQL = "[WFMP].[GetIntervalTracker]";
         SqlCommand cmd = new SqlCommand(strSQL);
         DataTable dt3 = my.GetDataTableViaProcedure(ref cmd);
+
+        string[] filePaths = Directory.GetFiles(Server.MapPath("Sitel/mails/"));
+        //string[] filePaths1 = Directory.GetFiles("Sitel/mails/");
+        List<ListItem> files = new List<ListItem>();
+
+        foreach (string filePath in filePaths)
+        {
+
+            files.Add(new ListItem(Path.GetFileName(filePath), filePath));
+
+        }
+
         gvDowntimeLog.DataSource = dt3;
         gvDowntimeLog.DataBind();
+
+    }
+
+    protected void lbDownload_Click(object sender, EventArgs e)
+    {
+        string filePath = (sender as LinkButton).CommandArgument;
+
+        Response.ContentType = ContentType;
+
+        Response.AppendHeader("Content-Disposition", "attachment; filename=" + Path.GetFileName(filePath));
+
+        Response.WriteFile(filePath);
+
+        Response.End();
+    }
+
+    protected void gv_PreRender(object sender, EventArgs e)
+    {
+        GridView gv = (GridView)sender;
+        if (gv.Rows.Count > 0)
+        {
+            gv.UseAccessibleHeader = true;
+            gv.HeaderRow.TableSection = TableRowSection.TableHeader;
+            gv.HeaderStyle.BorderStyle = BorderStyle.None;
+            gv.BorderStyle = BorderStyle.None;
+            gv.BorderWidth = Unit.Pixel(1);
+            gv.FooterRow.TableSection = TableRowSection.TableFooter;
+        }
     }
 }

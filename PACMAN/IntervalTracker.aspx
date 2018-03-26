@@ -163,6 +163,11 @@
                             </asp:ListBox>--%>
                             <asp:FileUpload ID="AttachIssueMail" runat="server"  accept=".msg" />
                                 <asp:RequiredFieldValidator ID="RequiredFieldValidator8" runat="server" Display="Dynamic" ErrorMessage="Attach refrence Mail" ForeColor="Red" ControlToValidate="AttachIssueMail" ValidationGroup="downtime"></asp:RequiredFieldValidator>
+                             <asp:RegularExpressionValidator ID="RegularExpressionValidatorAttachment" ValidationExpression="([a-zA-Z0-9\s_\\.\-:])+(.msg)$"
+
+    ControlToValidate="AttachIssueMail" runat="server" ForeColor="Red" ErrorMessage="Please select a valid mail file."
+
+    Display="Dynamic" />
 
                         </div>
                         <!-- /.input group -->
@@ -200,7 +205,7 @@
                     <!-- /.box-header -->
                     <div class="box-body">
                         
-                       <asp:GridView ID="gvDowntimeLog" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="false" ShowHeaderWhenEmpty="true">
+                       <asp:GridView ID="gvDowntimeLog" runat="server" CssClass="table table-bordered table-hover DataTable" AutoGenerateColumns="false" ShowHeaderWhenEmpty="true" OnPreRender="gv_PreRender"><%--OnPreRender="gv_PreRender"--%>
                            <Columns>
                                <asp:BoundField DataField="Date" HeaderText="Date" SortExpression="Date"></asp:BoundField>
                                <asp:BoundField DataField="Interval" HeaderText="Interval" SortExpression="Interval"></asp:BoundField>
@@ -211,6 +216,11 @@
                                <asp:BoundField DataField="IncidentType" HeaderText="IncidentType" SortExpression="IncidentType"></asp:BoundField>
                                <asp:BoundField DataField="ClientTicket" HeaderText="ClientTicket" SortExpression="ClientTicket"></asp:BoundField>
                                <asp:BoundField DataField="SitelTicket" HeaderText="SitelTicket" SortExpression="SitelTicket"></asp:BoundField>
+                               <asp:TemplateField HeaderText="Attachment">
+                                   <ItemTemplate>
+                                       <asp:LinkButton ID="lbDownload" Text="download" CommandArgument='<%# Eval("Attachment") %>' runat="server" OnClick="lbDownload_Click"></asp:LinkButton>
+                                   </ItemTemplate>
+                               </asp:TemplateField>
                                <asp:BoundField DataField="Name" HeaderText="Issued By" SortExpression="ActionBy"></asp:BoundField>
                                <asp:BoundField DataField="ActionOn" HeaderText="Issued On" SortExpression="ActionOn"></asp:BoundField>
                            </Columns>

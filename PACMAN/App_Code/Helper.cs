@@ -19,7 +19,7 @@ public class Helper
         xString = xEDCryptor.DeCrypt(xString);
         return xString;
     }
-    public void open_db()
+    public SqlConnection open_db()
     {
 
         cn = new SqlConnection(getConnectionString());
@@ -28,6 +28,7 @@ public class Helper
             if (cn.State == ConnectionState.Closed || cn.State == ConnectionState.Broken)
             {
                 cn.Open();
+                return cn;
             }
         }
         catch (Exception e)
@@ -35,6 +36,7 @@ public class Helper
             Console.WriteLine("{0} Exception Caught", e);
             Log.thisException(e);
         }
+        return null;
     }
     public void close_conn()
     {
@@ -94,14 +96,26 @@ public class Helper
     }
     public DataTable GetData(string sql)
     {
-        open_db();
+        
         DataTable dt = new DataTable();
-        using (SqlDataAdapter da = new SqlDataAdapter(new SqlCommand(sql, cn)))
+        using (SqlCommand cmd = new SqlCommand(sql))
         {
-            da.SelectCommand.CommandTimeout = 60;
-            DataSet ds = new DataSet();
-            da.Fill(ds);
-            dt = ds.Tables[0];
+            cmd.Connection = open_db();
+            var r = cmd.ExecuteReader();
+            dt.Load(r);
+        }
+        close_conn();
+        return dt;
+    }
+
+    public DataTable GetData(ref SqlCommand cmd)
+    {
+        cmd.Connection = open_db();
+        DataTable dt = new DataTable();
+        using (cmd)
+        {
+            var r = cmd.ExecuteReader();
+            dt.Load(r);
         }
         close_conn();
         return dt;
@@ -234,7 +248,7 @@ public class Helper
         var the_result = cmd.ExecuteScalar();
         int result = 0;
         close_conn();
-        
+
         if (Int32.TryParse(the_result.ToString(), out result))
         {
             return result;
@@ -244,6 +258,15 @@ public class Helper
             return 0;
         };
 
+    }
+
+    public string getFirstResult(string strSQL)
+    {
+        open_db();
+        SqlCommand cmd = new SqlCommand(strSQL, cn);
+        var the_result = Convert.ToString(cmd.ExecuteScalar());
+        close_conn();
+        return the_result;
     }
     public void fill_dropdown(Control drp_name, string sp_name, string datatextfield, string datavaluefield, string defaultitem, string parameters, string tran_type)
     {
@@ -339,4 +362,135 @@ public class Helper
 
     }
 
+
+
+}
+
+public class EmailSender
+{
+    
+    private string[] _recipientsEmailAddresses { get; set; }
+    public int InitiatorEmpId { get; set; }
+    public string RecipientsEmpId { get; set; }
+    public string CCsEmpId { get; set; }
+    public string BCCsEmpId { get; set; }
+    public string Subject { get; set; }
+    public string Body { get; set; }
+    private string MailFormat = "html";
+    private string From { get; set; }
+    private int EmailType { get; set; }
+    Helper my = new Helper();
+    public EmailSender()
+    {
+        
+
+    }
+
+    public string getFullNameFromEmpID(int EmpID)
+    {
+        string myName = string.Empty;
+        string strSQL = "Select A.First_Name+' '+A.Middle_Name+' '+A.Last_Name as Name from WFMP.tblMaster A where A.Employee_ID = " + EmpID;
+
+        myName = my.getFirstResult(strSQL);
+        if (myName.Length > 0)
+        {
+            myName = myName.Replace("  ", " ");
+            return myName;
+        }
+        else
+        {
+            return string.Empty;
+        }
+    }
+
+    public string EmailFromEmpID(int EmpID)
+    {
+        string emailID = string.Empty;
+        string strSQL = "Select A.Email_Office from WFMP.tblmaster A where A.Employee_ID = " + EmpID;
+
+        emailID = my.getFirstResult(strSQL);
+        if ((emailID.Contains("@") && emailID.Contains(".")))
+        {
+            return emailID;
+        }
+        else
+        {
+            return string.Empty;
+        }
+
+
+    }
+
+    private string convertAndReplaceDelimitedEmpIDs2EmailIds(string semicolonseperatedempids)
+    {
+        string[] _recipients = semicolonseperatedempids.Split(';');
+        string emailIDsToBereturned = string.Empty;
+        if (semicolonseperatedempids != null && semicolonseperatedempids.Length > 0)
+        {
+            for (int i = 0; i < _recipients.Length; i++)
+            {
+                emailIDsToBereturned += ";" + EmailFromEmpID(Convert.ToInt32(_recipients[i]));
+
+            }
+        }
+        if (emailIDsToBereturned.IndexOf(";") == 0)
+        {
+            return emailIDsToBereturned.Remove(0, 1);
+        }
+        else
+        {
+            return emailIDsToBereturned;
+        }
+
+
+    }
+
+    public int Send()
+    {
+        int sentId = 0;
+        string errorMessage = string.Empty;
+        if (InitiatorEmpId != 0 && RecipientsEmpId != null && Subject != null & Body != null)
+        //if (InitiatorEmpId != 0 && Subject != null & Body != null)
+        {
+            RecipientsEmpId = convertAndReplaceDelimitedEmpIDs2EmailIds(RecipientsEmpId);
+            string InitiatorEmailID = "Support_IAccess@sitel.com";//EmailFromEmpID(InitiatorEmpId);
+            string signature = "<br> <p>Regards, <br> IAccess Support Team <br> PS: This is an automated triggered email. Please do not reply.</p>";
+            if (CCsEmpId != null && CCsEmpId.Length > 0) { CCsEmpId = convertAndReplaceDelimitedEmpIDs2EmailIds(CCsEmpId); }
+            if (BCCsEmpId != null && BCCsEmpId.Length > 0) { BCCsEmpId = convertAndReplaceDelimitedEmpIDs2EmailIds(BCCsEmpId); }
+            try
+            {
+                using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+                {
+                    cn.Open();
+                    using (SqlCommand cmd = new SqlCommand("Common.dbo.SendEMailDB", cn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@xEmailType", emailtype.Development);
+                        cmd.Parameters.AddWithValue("@xrecipients", RecipientsEmpId);
+                        cmd.Parameters.AddWithValue("@xcopy_recipients", CCsEmpId);
+                        //cmd.Parameters.AddWithValue("@xblind_copy_recipients", BccEmailID);
+                        cmd.Parameters.AddWithValue("@xsubject", Subject);
+                        cmd.Parameters.AddWithValue("@xbody", Body + signature);
+                        cmd.Parameters.AddWithValue("@xbody_format", MailFormat);
+                        cmd.Parameters.AddWithValue("@xfrom_address", InitiatorEmailID);
+                        sentId = cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                errorMessage = ex.Message;
+                sentId = 0;
+                return sentId;
+            }
+        }
+        return sentId;
+    }
+
+    public enum emailtype
+    {
+        Production = 1,
+        UAT = 2,
+        Development = 3
+    }
 }

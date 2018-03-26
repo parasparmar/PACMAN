@@ -29,10 +29,13 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     private decimal OptimizationRating { get; set; }
     private decimal EIRating { get; set; }
     private decimal AbsenteeismRating { get; set; }
+    private decimal SelfAbsenteeismRating { get; set; }
+    private decimal TeamAbsenteeismRating { get; set; }
     private decimal BTPRating { get; set; }
     public string lblPacmanCycle { get; set; }
     public DataTable DtOfAccountsIHandle { get; set; }
     private int IEXMgmt { get; set; }
+    private int Revenue { get; set; }
     private int AnalyticProject { get; set; }
     private int AnalyticTimeline { get; set; }
     private int Accuracy { get; set; }
@@ -101,7 +104,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             }
 
             DtOfAccountsIHandle = getDtOfAccountsIHandle();
-            showRelevantMetricPanels(MyEmpID);
+            ////////////////////////////////////////////////////////////////////show relevant metrics
             if (Convert.ToInt32(ltl_IEX_Management.Text) != 0)
             {
                 btnIEXMgmtScoreSubmit.Enabled = false;
@@ -117,7 +120,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
         }
     }
-
     private DataTable getDtOfAccountsIHandle()
     {
         string strSQL = "WFMPMS.GetAllAccountsIHandle";
@@ -133,7 +135,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
         return dt;
     }
-
     private void getFinalRating(int ForEmpID)
     {
         ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
@@ -161,8 +162,27 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ltlfinalScore.Text = FinalRating.ToString();
 
     }
+    private void hideMetricPanels()
+    {
+        string strSQL1 = "Select distinct Metrics from [WFMPMS].[tblDsgn2KPIWtg]";
+        DataTable dt1 = my.GetData(strSQL1);
+        string myPanelName1 = string.Empty;
+
+        foreach (DataRow d in dt1.Rows)
+        {
+            myPanelName1 = "pnl_" + d["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
+            Control c = Page.FindControlRecursive(myPanelName1);
+            if (c != null)
+            {
+                Panel thePanel = c as Panel;
+                thePanel.Visible = false;
+            }
+        }
+    }
     private void showRelevantMetricPanels(int ForEmpID)
     {
+        hideMetricPanels();
+
         string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
         strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
         strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
@@ -182,7 +202,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             }
         }
     }
-
     private void fillddlReviewPeriod()
     {
         string strSQL = "WFMPMS.[GetPacmanCycleforPacmanDiscussion]";
@@ -195,7 +214,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ddlReviewPeriod.DataBind();
         ddlReviewPeriod.SelectedIndex = 0;
     }
-
     private void fillddlStage()
     {
         string strSQL = "[WFMPMS].[GetReviewStage]";
@@ -206,7 +224,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ddlStage.DataValueField = "Id";
         ddlStage.DataBind();
     }
-
     protected void ddlStage_SelectedIndexChanged(object sender, EventArgs e)
     {
         fillddlReportee();
@@ -229,7 +246,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             // btnNotDiscussed.Enabled = true;
         }
     }
-
     protected void ddlReviewPeriod_SelectedIndexChanged(object sender, EventArgs e)
     {
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
@@ -246,7 +262,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         }
 
     }
-
     private void fillddlReportee()
     {
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
@@ -262,12 +277,13 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ddlReportee.DataTextField = "Name";
         ddlReportee.DataValueField = "EmpCode";
         ddlReportee.DataBind();
-        fillRelevantMetricsInPanels(MyEmpID);
+        showRelevantMetricPanels(ForEmpID);
+        fillRelevantMetricsInPanels(ForEmpID);//////////////////////////////////////////
         getFinalRating(MyEmpID);
     }
-
     private void fillRelevantMetricsInPanels(int ForEmpID)
     {
+        hideMetricPanels();
         string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
         strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
         strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
@@ -386,7 +402,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
         fillddlReportee();
     }
-
     private void InsertTotblFinalKPI(int ForEmpID)
     {
         int IsSPI = Convert.ToInt32(ddlSPI.SelectedValue.ToString());
@@ -436,13 +451,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             }
         }
     }
-
     private void clearIEXMgmtScorefields()
     {
         ddlIEXMgmtScore.ClearSelection();
         txtIEXMgmtComments.Text = string.Empty;
     }
-
     public void fillpnl_KPI(int ForEmpID)
     {
 
@@ -501,7 +514,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
 
     }
-
     protected void btnIEXMgmtScoreSubmit_Click(object sender, EventArgs e)
     {
         SqlConnection con = new SqlConnection(my.getConnectionString());
@@ -526,7 +538,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ltlIEX_Management.Text = "IEX Management &nbsp= &nbsp" + "<div class=\"pull-right header\">" + score + "</div>";
         clearIEXMgmtScorefields();
     }
-
     protected void ddlReportee_SelectedIndexChanged(object sender, EventArgs e)
     {
         ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
@@ -542,7 +553,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             btnIEXMgmtScoreSubmit.Enabled = false;
         }
     }
-
     protected void btnAnalyticProjectScoreSubmit_Click(object sender, EventArgs e)
     {
         SqlConnection con = new SqlConnection(my.getConnectionString());
@@ -568,13 +578,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         clearAnalyticProjectScorefields();
 
     }
-
     private void clearAnalyticProjectScorefields()
     {
         ddlAnalyticProject.ClearSelection();
         txtAnalyticProject.Text = string.Empty;
     }
-
     protected void btnCoachingScoreSubmit_Click(object sender, EventArgs e)
     {
         SqlConnection con = new SqlConnection(my.getConnectionString());
@@ -599,13 +607,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ltlCoachingFeedback.Text = "Coaching & Feedback &nbsp= &nbsp" + "<div class=\"pull-right header\">" + scoreCoaching + "</div>";
         clearAnalyticCoachingScorefields();
     }
-
     private void clearAnalyticCoachingScorefields()
     {
         ddlCoaching.ClearSelection();
         txtCoachingComments.Text = string.Empty;
     }
-
     private void fillltlfinalScore(int ForEmpID)
     {
         int FinalScore = 0;
@@ -633,7 +639,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             }
         }
     }
-
     protected void gv_PreRender(object sender, EventArgs e)
     {
         GridView gv = (GridView)sender;
@@ -646,7 +651,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             gv.BorderWidth = Unit.Pixel(1);
         }
     }
-
     #region Analytics KPIs
     public void fillpnl_Coaching_and_Feedback(int ForEmpID)
     {
@@ -735,36 +739,73 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     {
 
 
+        //AbsenteeismRating = 0;
+        //strSQL = "[WFMPMS].[GetSelfAttendanceScore]";
+        //using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+        //{
+        //    cn.Open();
+        //    using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+        //    {
+        //        cmd.CommandType = CommandType.StoredProcedure;
+        //        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        //        cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+        //        SqlDataReader sdr = cmd.ExecuteReader();
+        //        while (sdr.Read())
+        //        {
+        //            if (sdr.HasRows)
+        //            {
+        //                AbsenteeismRating = Convert.ToInt32(sdr.GetValue(0));
+        //                ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
+        //                ltl_Absenteeism.Text = AbsenteeismRating.ToString();
+        //            }
+        //            else
+        //            {
+        //                int noVal = 0;
+        //                ltlAbsenteeism.Text = noVal.ToString();
+        //                ltl_Absenteeism.Text = noVal.ToString();
+        //            }
+        //        }
+
+        //    }
+
+        //}
+
+
+
         AbsenteeismRating = 0;
         strSQL = "[WFMPMS].[GetSelfAttendanceScore]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+        SqlCommand cmd = new SqlCommand(strSQL);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        cmd.Parameters.AddWithValue("@StartDate", StartDate);
+        cmd.Parameters.AddWithValue("@EndDate", EndDate);
+        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+
+        GridView gvAbsenteeism = new GridView();
+        gvAbsenteeism.ID = "gvAbsenteeism";
+        gvAbsenteeism.AutoGenerateColumns = true;
+
+        gvAbsenteeism.DataSource = dt;
+        gvAbsenteeism.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+
+        gvAbsenteeism.DataBind();
+        if (dt != null && dt.Rows.Count > 0)
         {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                SqlDataReader sdr = cmd.ExecuteReader();
-                while (sdr.Read())
-                {
-                    if (sdr.HasRows)
-                    {
-                        AbsenteeismRating = Convert.ToInt32(sdr.GetValue(0));
-                        ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
-                        ltl_Absenteeism.Text = AbsenteeismRating.ToString();
-                    }
-                    else
-                    {
-                        int noVal = 0;
-                        ltlAbsenteeism.Text = noVal.ToString();
-                        ltl_Absenteeism.Text = noVal.ToString();
-                    }
-                }
-
-            }
-
+            gvAbsenteeism.Rows[gvAbsenteeism.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+            gvAbsenteeism.Rows[gvAbsenteeism.Rows.Count - 1].Font.Bold = true;
+            gvAbsenteeism.PreRender += gv_PreRender;
+            string absRating = dt.Rows[dt.Rows.Count - 1]["Rating"].ToString();
+            Decimal dcAbsRting = 5;
+            Decimal.TryParse(absRating, out dcAbsRting);
+            AbsenteeismRating = dcAbsRting;
         }
+        else
+        {
+            ltlBTP.Text = string.Empty;
+        }
+        ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
+        pnlAbsenteeism.Controls.Add(gvAbsenteeism);
+        ltl_Absenteeism.Text = AbsenteeismRating.ToString();
     }
     public void fillpnl_Accuracy(int ForEmpID)
     {
@@ -839,9 +880,108 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     {
         // Not in Scope - not defined.
     }
-    public void fillpnl_Revenue_Cost_optimization(int ForEmpID)
+    public void fillpnl_Team_Absenteeism(int ForEmpID)
     {
-        // Not in Scope - not defined. 
+        string metric = "Absenteeism";
+        string strSQL1 = "[WFMPMS].[GetManagerKPI]";
+
+        SqlCommand cmd1 = new SqlCommand(strSQL1);
+        cmd1.CommandType = CommandType.StoredProcedure;
+        cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        cmd1.Parameters.AddWithValue("@StartDate", StartDate);
+        cmd1.Parameters.AddWithValue("@EndDate", EndDate);
+        cmd1.Parameters.AddWithValue("@Metric", metric);
+
+        DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
+        if (dt1 != null)
+        {
+            GridView gvTeamAbsenteeism = new GridView();
+            gvTeamAbsenteeism.ID = "gvTeamAbsenteeism";
+            gvTeamAbsenteeism.AutoGenerateColumns = true;
+            //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+            DataRow dr1 = dt1.NewRow();
+
+            gvTeamAbsenteeism.DataSource = dt1;
+            gvTeamAbsenteeism.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+            gvTeamAbsenteeism.DataBind();
+            if (dt1.Rows.Count > 0)
+            {
+                gvTeamAbsenteeism.Rows[gvTeamAbsenteeism.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                gvTeamAbsenteeism.Rows[gvTeamAbsenteeism.Rows.Count - 1].Font.Bold = true;
+                gvTeamAbsenteeism.PreRender += gv_PreRender;
+                //SLRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+                TeamAbsenteeismRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+                ltlTeam_Absenteeism.Text = "Team Absenteeism = ";
+                pnlTeam_Absenteeism.Controls.Add(gvTeamAbsenteeism);
+                ltl_Team_Absenteeism.Text = BTPRating.ToString();
+            }
+        }
+    }
+    public void fillpnl_Self_Absenteeism(int ForEmpID)
+    {
+        SelfAbsenteeismRating = 0;
+        strSQL = "[WFMPMS].[GetSelfAttendanceScore]";
+        SqlCommand cmd = new SqlCommand(strSQL);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        cmd.Parameters.AddWithValue("@StartDate", StartDate);
+        cmd.Parameters.AddWithValue("@EndDate", EndDate);
+        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+
+        GridView gvSelfAbsenteeism = new GridView();
+        gvSelfAbsenteeism.ID = "gvSelfAbsenteeism";
+        gvSelfAbsenteeism.AutoGenerateColumns = true;
+
+        gvSelfAbsenteeism.DataSource = dt;
+        gvSelfAbsenteeism.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+
+        gvSelfAbsenteeism.DataBind();
+        if (dt != null && dt.Rows.Count > 0)
+        {
+            gvSelfAbsenteeism.Rows[gvSelfAbsenteeism.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+            gvSelfAbsenteeism.Rows[gvSelfAbsenteeism.Rows.Count - 1].Font.Bold = true;
+            gvSelfAbsenteeism.PreRender += gv_PreRender;
+            string absRating = dt.Rows[dt.Rows.Count - 1]["Rating"].ToString();
+            Decimal dcAbsRting = 5;
+            Decimal.TryParse(absRating, out dcAbsRting);
+            SelfAbsenteeismRating = dcAbsRting;
+        }
+        else
+        {
+            ltlSelf_Absenteeism.Text = string.Empty;
+        }
+        ltlSelf_Absenteeism.Text = "Self-Attendance &nbsp= &nbsp";
+        pnlSelf_Absenteeism.Controls.Add(gvSelfAbsenteeism);
+        ltl_Self_Absenteeism.Text = AbsenteeismRating.ToString();
+    }
+    //fillpnl_Revenue_and_Cost_optimization - post correction
+    //fillpnl_Revenue_Cost_optimization - earlier
+    public void fillpnl_Revenue_and_Cost_optimization(int ForEmpID)
+    {
+        Revenue = 0;
+        //strSQL = "[WFMPMS].[GetIEXMgmtScore]";
+        //using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+        //{
+        //    cn.Open();
+        //    using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+        //    {
+        //        cmd.CommandType = CommandType.StoredProcedure;
+        //        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        //        cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+        //        SqlDataReader sdr = cmd.ExecuteReader();
+        //        while (sdr.Read())
+        //        {
+        //            if (sdr.HasRows)
+        //            {
+        //                IEXMgmt = Convert.ToInt32(sdr.GetValue(0));
+        //            }
+        //        }
+        ltlRevenue_and_Cost_optimization.Text = "Revenue & Cost Optimization &nbsp= &nbsp";
+        ltl_Revenue_and_Cost_optimization.Text = Revenue.ToString();
+        //    }
+
+        //}
     }
     #endregion
     #region Planning
@@ -964,7 +1104,19 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 gvForecastingAccuracy.Rows[gvForecastingAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
                 gvForecastingAccuracy.Rows[gvForecastingAccuracy.Rows.Count - 1].Font.Bold = true;
                 gvForecastingAccuracy.PreRender += gv_PreRender;
-                ForecastingAccuracy = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+                //ForecastingAccuracy = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+                bool farating = false;
+                decimal dec_farating;
+                farating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_farating);
+                if (farating)
+                {
+                    ForecastingAccuracy = dec_farating;
+                }
+                else
+                {
+                    ForecastingAccuracy = 0;
+                }
+
                 ltl_Forecasting_Accuracy.Text = ForecastingAccuracy.ToString();
             }
 
@@ -1120,7 +1272,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         }
     }
     #endregion
-
     protected void btnDownload_Click(object sender, EventArgs e)
     {
         LinkButton b = sender as LinkButton;
@@ -1240,5 +1391,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         Response.Flush();
         Response.End();
     }
+    protected void btnRevenue_and_Cost_optimization_Click(object sender, EventArgs e)
+    {
 
+    }
 }

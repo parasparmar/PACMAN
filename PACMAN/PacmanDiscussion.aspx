@@ -136,7 +136,6 @@
     <div class="box">
         <div class="box-body">
             <div class="form-group">
-
                 <div class="col-lg-3">
                     <div class="form-group">
                         <label>Select Pacman Cycle</label>
@@ -149,9 +148,7 @@
                         </div>
                         <!-- /.input group -->
                     </div>
-
                 </div>
-
 
                 <div class="col-lg-3">
                     <div class="form-group">
@@ -608,6 +605,118 @@
                                                                 <div class="col-md-2">
                                                                     <asp:Button ID="btnCoachingScoreSubmit" runat="server" Text="submit" CssClass="btn btn-primary" OnClick="btnIEXMgmtScoreSubmit_Click" />
                                                                 </div>
+                                                            </div>
+                                                        </asp:Panel>
+                                                    </div>
+                                                </div>
+                                            </asp:Panel>
+
+                                            <!--Manager exclusive KPI-->
+
+                                            <!--Attrition-->
+                                            <asp:Panel ID="pnl_Attrition" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseAtt">
+                                                            <asp:Literal ID="ltlAttrition" runat="server" Text="Attrition = "></asp:Literal>
+                                                            <asp:Literal ID="ltl_Attrition" Text="0" runat="server"></asp:Literal>
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseAtt" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlAttrition" runat="server">
+                                                            <div class="btn-group pull-right">
+                                                                <asp:LinkButton ID="btnAttrition" runat="server" CssClass="btn btn-lg btn-primary"
+                                                                    OnClick="btnDownload_Click"><i class="fa fa-download"></i>
+                                                                </asp:LinkButton>
+                                                                <label class="text-muted well well-sm no-shadow" title="Download Detailed Report">Download Detailed Report</label>
+                                                            </div>
+                                                        </asp:Panel>
+                                                    </div>
+                                                </div>
+                                            </asp:Panel>
+
+                                            <!--Revenue & Cost Optimization TODO: Put a dropdown Just like IEX Mgmt-->
+                                            <asp:Panel ID="pnl_Revenue_and_Cost_optimization" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseRev">
+                                                            <asp:Literal ID="ltlRevenue_and_Cost_optimization" runat="server" Text="Revenue & Cost Optimization = "></asp:Literal>
+                                                            <asp:Literal ID="ltl_Revenue_and_Cost_optimization" Text="0" runat="server"></asp:Literal>
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseRev" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlRevenue_and_Cost_optimization" runat="server">
+                                                            <div class="row">
+                                                                <div class="col-md-4">
+                                                                    <asp:Literal ID="ltlRevenue_and_Cost_optimization1" runat="server" Text="Select rating"></asp:Literal>
+                                                                    <asp:DropDownList ID="ddlRevenue_and_Cost_optimization" runat="server" CssClass="form-control select">
+                                                                        <asp:ListItem Value="5" Text="5" runat="server"></asp:ListItem>
+                                                                        <asp:ListItem Value="4" Text="4" runat="server"></asp:ListItem>
+                                                                        <asp:ListItem Value="3" Text="3" runat="server"></asp:ListItem>
+                                                                        <asp:ListItem Value="2" Text="2" runat="server"></asp:ListItem>
+                                                                        <asp:ListItem Value="1" Text="1" runat="server"></asp:ListItem>
+                                                                        <asp:ListItem Value="0" Text="0" runat="server"></asp:ListItem>
+                                                                    </asp:DropDownList>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <asp:Label ID="lblRevenue_and_Cost_optimization" runat="server">Please enter comments</asp:Label>
+                                                                    <asp:TextBox ID="tbRevenue_and_Cost_optimization" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2"></asp:TextBox>
+                                                                </div>
+                                                                <div class="col-md-2">
+                                                                    <asp:Button ID="btnRevenue_and_Cost_optimization" runat="server" Text="submit" CssClass="btn btn-primary" OnClick="btnRevenue_and_Cost_optimization_Click" />
+                                                                </div>
+                                                            </div>
+                                                        </asp:Panel>
+                                                    </div>
+                                                </div>
+                                            </asp:Panel>
+
+                                            <!--Self Absenteeism-->
+                                            <asp:Panel ID="pnl_Self_Absenteeism" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseSA">
+                                                            <asp:Literal ID="ltlSelf_Absenteeism" runat="server" Text="Self Absenteeism = "></asp:Literal>
+                                                            <asp:Literal ID="ltl_Self_Absenteeism" Text="0" runat="server"></asp:Literal>
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseSA" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlSelf_Absenteeism" runat="server">
+                                                            <div class="btn-group pull-right">
+                                                                <asp:LinkButton ID="btnSelf_Absenteeism" runat="server" CssClass="btn btn-lg btn-primary"
+                                                                    OnClick="btnDownload_Click"><i class="fa fa-download"></i>
+                                                                </asp:LinkButton>
+                                                                <label class="text-muted well well-sm no-shadow" title="Download Detailed Report">Download Detailed Report</label>
+                                                            </div>
+                                                        </asp:Panel>
+                                                    </div>
+                                                </div>
+                                            </asp:Panel>
+
+                                            <!--Team Absenteeism-->
+                                            <asp:Panel ID="pnl_Team_Absenteeism" CssClass="panel box box-primary" runat="server" Visible="false">
+                                                <div class="box-header with-border">
+                                                    <h4 class="box-title">
+                                                        <a data-toggle="collapse" data-parent="#accordion" href="#collapseTA">
+                                                            <asp:Literal ID="ltlTeam_Absenteeism" runat="server" Text="Team Absenteeism = "></asp:Literal>
+                                                            <asp:Literal ID="ltl_Team_Absenteeism" Text="0" runat="server"></asp:Literal>
+                                                        </a>
+                                                    </h4>
+                                                </div>
+                                                <div id="collapseTA" class="panel-collapse collapse">
+                                                    <div class="box-body">
+                                                        <asp:Panel ID="pnlTeam_Absenteeism" runat="server">
+                                                            <div class="btn-group pull-right">
+                                                                <asp:LinkButton ID="btnTeam_Absenteeism" runat="server" CssClass="btn btn-lg btn-primary"
+                                                                    OnClick="btnDownload_Click"><i class="fa fa-download"></i>
+                                                                </asp:LinkButton>
+                                                                <label class="text-muted well well-sm no-shadow" title="Download Detailed Report">Download Detailed Report</label>
                                                             </div>
                                                         </asp:Panel>
                                                     </div>

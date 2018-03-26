@@ -1,9 +1,9 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="EscalationsInitiatives.aspx.cs" Inherits="EscalationsInitiatives" %>
 
 <asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" runat="Server">
-    <link href="Sitel/plugins/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet" />
+   <%-- <link href="Sitel/plugins/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet" />
     <!-- iCheck for checkboxes and radio inputs -->
-    <link rel="stylesheet" href="AdminLTE/plugins/iCheck/all.css">
+    <link rel="stylesheet" href="AdminLTE/plugins/iCheck/all.css">--%>
     <style>
         .border-between > [class*='col-']:before {
             background: #e3e3e3;
@@ -130,6 +130,11 @@
                     <div class="pull-left" style="margin-top: 1%">
                         <asp:FileUpload ID="FileUploadAttachMailEsc" runat="server"  accept=".msg" />
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator6" runat="server" Display="Dynamic" ErrorMessage="Escalation Mail required" ForeColor="Red" ControlToValidate="FileUploadAttachMailEsc" ValidationGroup="Escalation"></asp:RequiredFieldValidator>
+                        <asp:RegularExpressionValidator ID="RegularExpressionValidatorAttachment" ValidationExpression="([a-zA-Z0-9\s_\\.\-:])+(.msg)$"
+
+    ControlToValidate="FileUploadAttachMailEsc" runat="server" ForeColor="Red" ErrorMessage="Please select a valid mail file."
+
+    Display="Dynamic" />
 
                     </div>
 
@@ -151,10 +156,15 @@
                         <!-- /.box-header -->
                         <div class="box-body table-responsive no-padding">
 
-                            <asp:GridView ID="gvEscalationlog" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="false" ShowHeaderWhenEmpty="true">
+                            <asp:GridView ID="gvEscalationlog" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="false" ShowHeaderWhenEmpty="true" ><%--OnPreRender="gv_PreRender"--%>
                                 <Columns>
                                     <asp:BoundField DataField="Category" HeaderText="Escalation Category"></asp:BoundField>
                                     <asp:BoundField DataField="Description" HeaderText="Description"></asp:BoundField>
+                                    <asp:TemplateField HeaderText="Attachment">
+                                   <ItemTemplate>
+                                       <asp:LinkButton ID="lbDownload" Text="download" CommandArgument='<%# Eval("Attachment") %>' runat="server" OnClick="lbDownload_Click"></asp:LinkButton>
+                                   </ItemTemplate>
+                               </asp:TemplateField>
                                     <asp:BoundField DataField="Wtg" HeaderText="Penalty"></asp:BoundField>
                                 </Columns>
                                 <EmptyDataTemplate>No Record Available</EmptyDataTemplate>
@@ -201,7 +211,11 @@
                     <div class="pull-left" style="margin-top: 1%">
                         <asp:FileUpload ID="FileUploadAttachMailIni" runat="server"  accept=".msg" />
                         <asp:RequiredFieldValidator ID="RequiredFieldValidator5" runat="server" Display="Dynamic" ErrorMessage="Select a category" ForeColor="Red" ControlToValidate="FileUploadAttachMailIni" ValidationGroup="Initiative"></asp:RequiredFieldValidator>
+                        <asp:RegularExpressionValidator ID="RegularExpressionValidator3" ValidationExpression="([a-zA-Z0-9\s_\\.\-:])+(.msg)$"
 
+    ControlToValidate="FileUploadAttachMailIni" runat="server" ForeColor="Red" ErrorMessage="Please select a valid mail file."
+
+    Display="Dynamic" />
                     </div>
 
                     <div class="pull-right">
@@ -220,10 +234,15 @@
                         </div>
                         <!-- /.box-header -->
                         <div class="box-body table-responsive no-padding">
-                            <asp:GridView ID="gvInitiativeLog" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="false" ShowHeaderWhenEmpty="true">
+                            <asp:GridView ID="gvInitiativeLog" runat="server" CssClass="table table-bordered table-hover " AutoGenerateColumns="false" ShowHeaderWhenEmpty="true" ><%--OnPreRender="gv_PreRender"DataTable--%>
                                 <Columns>
                                     <asp:BoundField DataField="Category" HeaderText="Initiative Category"></asp:BoundField>
                                     <asp:BoundField DataField="Description" HeaderText="Description"></asp:BoundField>
+                                    <asp:TemplateField HeaderText="Attachment">
+                                   <ItemTemplate>
+                                       <asp:LinkButton ID="lbDownload" Text="download" CommandArgument='<%# Eval("Attachment") %>' runat="server" OnClick="lbDownload_Click"></asp:LinkButton>
+                                   </ItemTemplate>
+                               </asp:TemplateField>
                                     <asp:BoundField DataField="Wtg" HeaderText="Points"></asp:BoundField>
                                 </Columns>
                                 <EmptyDataTemplate>No Record Available</EmptyDataTemplate>
@@ -276,50 +295,50 @@
     <script src="Sitel/plugins/bootstrap-toggle/js/bootstrap-toggle.min.js"></script>
     <script>
         //Date picker
-        $(document).ready(function () {
-            Sys.WebForms.PageRequestManager.getInstance().add_endRequest(EndRequestHandler);
+        //$(document).ready(function () {
+        //    Sys.WebForms.PageRequestManager.getInstance().add_endRequest(EndRequestHandler);
 
-            function EndRequestHandler(sender, args) {
-                $('#tbEffectiveDate').datepicker({ dateFormat: 'dd-mm-yy' });
-            }
+        //    function EndRequestHandler(sender, args) {
+        //        $('#tbEffectiveDate').datepicker({ dateFormat: 'dd-mm-yy' });
+        //    }
 
-            //$.ajax({
-            //    url: "MailUploadHandler.ashx",
-            //    type: "POST",
-            //    data: data,
-            //    contentType: false,
-            //    processData: false,
-            //    success: function (result) {
-            //        alert(result);
-            //        location.reload();
-            //    },
-            //    error: function (err) { alert(err.statusText) }
-            //});
+        //    //$.ajax({
+        //    //    url: "MailUploadHandler.ashx",
+        //    //    type: "POST",
+        //    //    data: data,
+        //    //    contentType: false,
+        //    //    processData: false,
+        //    //    success: function (result) {
+        //    //        alert(result);
+        //    //        location.reload();
+        //    //    },
+        //    //    error: function (err) { alert(err.statusText) }
+        //    //});
 
-        });
+        //});
     </script>
     <script>
-        function pluginsInitializer() {
-            $('.select2').select2({
+        //function pluginsInitializer() {
+        //    $('.select2').select2({
 
-            });
+        //    });
 
-        }
+        //}
 
 
-        $(function () {
-            pluginsInitializer();
-        });
+        //$(function () {
+        //    pluginsInitializer();
+        //});
 
-        //On UpdatePanel Refresh
-        var prm = Sys.WebForms.PageRequestManager.getInstance();
-        if (prm != null) {
-            prm.add_endRequest(function (sender, e) {
-                if (sender._postBackSettings.panelsToUpdate != null) {
-                    pluginsInitializer();
-                }
-            });
-        };
+        ////On UpdatePanel Refresh
+        //var prm = Sys.WebForms.PageRequestManager.getInstance();
+        //if (prm != null) {
+        //    prm.add_endRequest(function (sender, e) {
+        //        if (sender._postBackSettings.panelsToUpdate != null) {
+        //            pluginsInitializer();
+        //        }
+        //    });
+        //};
 
 
     </script>
