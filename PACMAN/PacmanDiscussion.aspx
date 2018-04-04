@@ -420,7 +420,7 @@
                                                     <div class="box-body">
                                                         <asp:Panel ID="pnlSchedulingAccuracy" runat="server">
                                                             <div class="btn-group pull-right">
-                                                                <asp:LinkButton ID="btnSchedulingAccuracy" runat="server" CssClass="btn btn-lg btn-primary"
+                                                                <asp:LinkButton ID="btnScheduling_Accuracy" runat="server" CssClass="btn btn-lg btn-primary"
                                                                     OnClick="btnDownload_Click"><i class="fa fa-download"></i>
                                                                 </asp:LinkButton>
                                                                 <label class="text-muted well well-sm no-shadow" title="Download Detailed Report">Download Detailed Report</label>
