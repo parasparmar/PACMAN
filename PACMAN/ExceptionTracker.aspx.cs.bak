@@ -86,7 +86,6 @@ public partial class ExceptionTracker : System.Web.UI.Page
             //ddlAccount.DataSource = dt1;
             ddlExceptionAccount.DataTextField = "No-Account";
             //ddlAccount.DataValueField = "PrimaryClientID"; 
-            Page.ClientScript.RegisterStartupScript(this.GetType(), "toastr_message", "toastr.warning('Currently no accounts are mapped to you. For more support kindly contact iAccess team.')", true);
         }
     }
     protected void ddlExceptionAccount_SelectedIndexChanged(object sender, EventArgs e)
@@ -182,9 +181,9 @@ public partial class ExceptionTracker : System.Web.UI.Page
             files.Add(new ListItem(Path.GetFileName(filePath), filePath));
 
         }
-        gvPendingLog.DataSource = dt3; 
+        gvPendingLog.DataSource = dt3;
         gvPendingLog.DataBind();
-        
+
     }
 
 
@@ -284,7 +283,7 @@ public partial class ExceptionTracker : System.Web.UI.Page
         Email.Body += "<P>" + dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has raised exception for account:" + AccountName + ", LOB:" + lob + ", KPI:" + kpi + " for reason '" + notes + " on " + DateTime.Now + ". <p>";
         Email.Body += "<p>Please action on dashboard on <a href='http://iaccess/PACMAN//ExceptionTracker.aspx'>Exception Tracker page</a> .<p>";
         //Email.Attachment = Attachment;
-        Email.Send();
+        //Email.Send();
 
         clearfields();
         fillgvPendingLog();
@@ -419,7 +418,7 @@ public partial class ExceptionTracker : System.Web.UI.Page
         Email.Body = "<strong>Hi, </strong>";
         Email.Body += "<p>Exception approved for ACCOUNT:" + AccountName + ", LOB:" + lob + ", KPI:" + kpi + " for reason '" + notes + " on " + DateTime.Now + "<p>";
         //Email.Attachment = Attachment;
-        Email.Send();
+        // Email.Send();
     }
 
     protected void btn_Decline_Click(object sender, EventArgs e)
@@ -459,7 +458,7 @@ public partial class ExceptionTracker : System.Web.UI.Page
         Email.Subject = "Exception declined";
         Email.Body = "Exception declined for ACCOUNT:" + AccountName + ", LOB:" + lob + ", KPI:" + kpi + " for reason '" + notes + " on " + DateTime.Now;
         //Email.Attachment = Attachment;
-        Email.Send();
+        //Email.Send();
     }
 
     protected void btn_Cancel_Click(object sender, EventArgs e)

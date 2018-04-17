@@ -40,10 +40,14 @@ public partial class index : System.Web.UI.Page
         if (myID != "IDNotFound")
         {
             //
-            //myID = "nchan016";
-            //myID = "akamb002";
-            //myID = "vshir001";
-            myID = "utiwa002";
+            //myID = "nchan016"; //Planner
+            //myID = "akamb002"; //Planner
+            //myID = "vshir001"; //Prashant Goradia pgora001
+            //myID = "vchoh001"; //Prashant Goradia pgora001
+
+	    //myID = "utiwa002";
+	    //myID = "vfern016";
+
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
             cmd.Parameters.AddWithValue("@NT_ID", myID);
             
@@ -54,7 +58,7 @@ public partial class index : System.Web.UI.Page
                 {
 
                     Session["dtEmp"] = dt;
-                    Response.Redirect("pacman.aspx", false);
+                    Response.Redirect("coaching.aspx", false);
                 }
                 else
                 {

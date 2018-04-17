@@ -46,7 +46,7 @@ public class Helper
             cn.Dispose();
         }
     }
-    public int ExecuteDMLCommand(ref SqlCommand cmd, string sql_string, string operation)
+    public int ExecuteDMLCommand(ref SqlCommand cmd, string sql_string="", string operation="E")
     {
         open_db();
         int returnValue = 0;

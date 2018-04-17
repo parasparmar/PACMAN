@@ -113,10 +113,11 @@
                             <label>Select Incident Type</label>
                             <div class="input-group">
                                 <span class="input-group-addon"><i class="fa fa-user"></i></span>
-                                <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlIncident" runat="server" AutoPostBack="true">
+                                <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlIncident" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlIncident_SelectedIndexChanged">
                                     <asp:ListItem Enabled="true" Selected="True" Text="Select Incident Type" Value="0"></asp:ListItem>
                                 <asp:ListItem Enabled="true" Text="Client External" Value="1"></asp:ListItem>
                                 <asp:ListItem Enabled="true" Text="Sitel Internal" Value="2"></asp:ListItem>
+                                    <asp:ListItem Enabled="true" Text="Others" Value="3"></asp:ListItem>
                                 </asp:DropDownList>
                                 <asp:RequiredFieldValidator ID="RequiredFieldValidator5" runat="server" Display="Dynamic" ErrorMessage="Select Incident Type" ForeColor="Red" ControlToValidate="ddlIncident" ValidationGroup="downtime"></asp:RequiredFieldValidator>
 

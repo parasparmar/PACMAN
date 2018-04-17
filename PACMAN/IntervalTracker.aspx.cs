@@ -76,6 +76,7 @@ public partial class IntervalTracker : System.Web.UI.Page
     protected void ddlAccount_SelectedIndexChanged(object sender, EventArgs e)
     {
         fillddlLOB();
+        filllbSites();
     }
 
     private void fillddlLOB()
@@ -96,11 +97,11 @@ public partial class IntervalTracker : System.Web.UI.Page
         string Account = ddlAccount.SelectedItem.Value.ToString();
         string strSQL = "[WFMP].[fillSites]";
         SqlCommand cmd = new SqlCommand(strSQL);
-        //cmd.Parameters.AddWithValue("@AccountID", Account);
+        cmd.Parameters.AddWithValue("@AccountID", Account);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         lbSites.DataSource = dt;
-        lbSites.DataTextField = "Location";
-        lbSites.DataValueField = "Location";
+        lbSites.DataTextField = "site";
+        lbSites.DataValueField = "site";
         lbSites.DataBind();
     }
 
@@ -237,6 +238,16 @@ public partial class IntervalTracker : System.Web.UI.Page
             gv.BorderStyle = BorderStyle.None;
             gv.BorderWidth = Unit.Pixel(1);
             gv.FooterRow.TableSection = TableRowSection.TableFooter;
+        }
+    }
+
+    protected void ddlIncident_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (ddlIncident.SelectedItem.Value == "3") {
+            txtClientTicket.Text = "0";
+            txtSitelTicket.Text = "0";
+            txtClientTicket.Enabled = false;
+            txtSitelTicket.Enabled = false;
         }
     }
 }
