@@ -100,37 +100,32 @@
         <div class="box-body">
             <h3>Communication</h3>
             <div class="form-group">
+                <asp:HiddenField ID="hfCommunication" runat="server" Value="" />
                 <asp:TextBox ID="tbCommunication" TextMode="multiline" Rows="4" runat="server" CssClass="form-control textarea" placeholder="Enter Communication..."></asp:TextBox>
                 <asp:RequiredFieldValidator ID="regexCommunication" runat="server" Display="Dynamic" ErrorMessage="Please input Communication Coaching" ForeColor="Orange" ControlToValidate="tbCommunication" ValidationGroup="Communication"></asp:RequiredFieldValidator>                
                 <input id="tbCommunicationValidator" disabled="" class="form-control pull-right" type="text" style="width: 150px" placeholder="Word Count : 0">
             </div>
             <h3>Knowledge</h3>
             <div class="form-group">
+                <asp:HiddenField ID="hfKnowledge" runat="server" Value="" />
                 <asp:TextBox ID="tbKnowledge" TextMode="multiline" Rows="4" runat="server" CssClass="form-control textarea" placeholder="Enter Knowledge..."></asp:TextBox>
                 <asp:RequiredFieldValidator ID="regexKnowledge" runat="server" Display="Dynamic" ErrorMessage="Knowledge Description required" ForeColor="Red" ControlToValidate="tbKnowledge" ValidationGroup="Knowledge"></asp:RequiredFieldValidator>                
                 <input id="tbKnowledgeValidator" disabled="" class="form-control pull-right" type="text" style="width: 150px" placeholder="Word Count : 0">
             </div>
             <h3>Accuracy</h3>
             <div class="form-group">
+                <asp:HiddenField ID="hfAccuracy" runat="server" Value="" />
                 <asp:TextBox ID="tbAccuracy" TextMode="multiline" Rows="4" runat="server" CssClass="form-control textarea" placeholder="Enter Accuracy..."></asp:TextBox>
                 <asp:RequiredFieldValidator ID="RequiredFieldValidator4" runat="server" Display="Dynamic" ErrorMessage="Accuracy Description required" ForeColor="Red" ControlToValidate="tbAccuracy" ValidationGroup="Accuracy"></asp:RequiredFieldValidator>                
                 <input id="tbAccuracyValidator" disabled="" class="form-control pull-right" type="text" style="width: 150px" placeholder="Word Count : 0">
             </div>
             <h3>Timeliness</h3>
             <div class="form-group">
+                <asp:HiddenField ID="hfTimeliness" runat="server" Value="" />
                 <asp:TextBox ID="tbTimeliness" TextMode="multiline" Rows="4" runat="server" CssClass="form-control textarea" placeholder="Enter Timeliness advice..."></asp:TextBox>
                 <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" Display="Dynamic" ErrorMessage="Timeliness Description required" ForeColor="Red" ControlToValidate="tbTimeliness" ValidationGroup="Timeliness"></asp:RequiredFieldValidator>                
                 <input id="tbTimelinessValidator" disabled="" class="form-control pull-right" type="text" style="width: 150px" placeholder="Word Count : 0">
             </div>
-            <div class="pull-left" style="margin-top: 1%">
-                <asp:FileUpload ID="FileUploadAttachMailEsc" runat="server" accept=".msg" />
-                <asp:RequiredFieldValidator ID="RequiredFieldValidator6" runat="server" Display="Dynamic" ErrorMessage="Coaching Mail required" ForeColor="Red" ControlToValidate="FileUploadAttachMailEsc" ValidationGroup="Coaching"></asp:RequiredFieldValidator>
-                <asp:RegularExpressionValidator ID="RegularExpressionValidatorAttachment" ValidationExpression="([a-zA-Z0-9\s_\\.\-:])+(.msg)$"
-                    ControlToValidate="FileUploadAttachMailEsc" runat="server" ForeColor="Red" ErrorMessage="Please select a valid mail file."
-                    Display="Dynamic" />
-            </div>
-
-
             <!-- /.box -->
         </div>
         <div class="box-footer">
@@ -145,7 +140,7 @@
     <div class="box box-solid box-primary">
         <div class="box-header">
             <i class="fa fa-book"></i>
-            <h3 class="box-title">Previous Coaching</h3>
+            <h3 class="box-title"><asp:Literal ID="ltlPreviousCoachingInputs" runat="server" Text="Previous Coaching"></asp:Literal></h3>
             <div class="box-tools pull-right">
                 <button class="btn btn-box-tool" type="button" data-widget="collapse">
                     <i class="fa fa-minus"></i>
@@ -155,14 +150,27 @@
         </div>
         <!-- /.box-header -->
         <div class="box-body table-responsive no-padding">
-            <asp:GridView ID="gvCoachinglog" runat="server" CssClass="table table-bordered table-hover" AutoGenerateColumns="false" ShowHeaderWhenEmpty="true">
+            <asp:GridView ID="gvCoachingLog" runat="server" CssClass="table table-bordered table-hover"
+                AutoGenerateColumns="false" ShowHeaderWhenEmpty="true" DataKeyNames="EmpCode" OnRowCommand="gvCoachingLog_RowCommand" >
                 <Columns>
-                    <asp:BoundField DataField="Category" HeaderText="Coaching Category"></asp:BoundField>
-                    <asp:BoundField DataField="Description" HeaderText="Description"></asp:BoundField>
-                    <asp:BoundField DataField="Wtg" HeaderText="Penalty"></asp:BoundField>
+                    <asp:TemplateField>
+                        <ItemTemplate>
+                            <asp:Button runat="server" ID="btnBatchID" Text='<%#Eval("BatchID") %>' CssClass="btn btn-flat btn-primary" />
+                        </ItemTemplate>
+                    </asp:TemplateField>
+                    
+                    <asp:BoundField DataField="ID" HeaderText="ID"></asp:BoundField>
+                    <asp:BoundField DataField="EmpCode" HeaderText="EmpCode"></asp:BoundField>
+                    <asp:BoundField DataField="Category" HeaderText="Coaching Area"></asp:BoundField>
+                    <asp:BoundField DataField="Description" ItemStyle-Width="40%" HeaderText="Coaching Inputs"></asp:BoundField>
+                    <asp:BoundField DataField="UpdatedOn" HeaderText="On" DataFormatString="{0:dd-MMM-yyyy hh:mm}"></asp:BoundField>
+                    <asp:BoundField DataField="UpdatedBy" HeaderText="By"></asp:BoundField>
+                    
+                    <%--ID,EmpCode,Category,Description,UpdatedOn,UpdatedBy,Active--%>
                 </Columns>
-                <EmptyDataTemplate>No Record Available</EmptyDataTemplate>
+                <EmptyDataTemplate>No Records Available</EmptyDataTemplate>
             </asp:GridView>
+            <asp:HiddenField ID="hfMode" Value="Insert" runat="server" />
         </div>
         <!-- /.box-body -->
     </div>
