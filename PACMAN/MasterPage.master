@@ -230,7 +230,7 @@
                     <!-- mini logo for sidebar mini 50x50 pixels -->
                     <span class="logo-mini"><b>IA</b></span>
                     <!-- logo for regular state and mobile devices -->
-                    <span class="logo-lg">IA<b>ccess</b></span>
+                    <span class="logo-lg">i<b>A</b>ccess</span>
                 </a>
                 <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top">
@@ -246,32 +246,13 @@
                         <asp:ContentPlaceHolder ID="headmenu" runat="server">
                             <ul class="nav navbar-nav">
                                 <!-- Tasks: style can be found in dropdown.less -->
-                                <li class="dropdown tasks-menu">
-                                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                                        <i class="fa fa-user-secret"></i>
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li class="header">Please choose a Role</li>
-                                        <li>
-                                            <ul class="menu">
-                                                <asp:Repeater ID="rptrImpersonator" runat="server">
-                                                    <ItemTemplate>
-                                                        <li>
-                                                            <!-- Task item -->
-                                                            <a href="index.aspx?q=<%#Eval("Skillset")%>">
-                                                                <h3>
-                                                                    <asp:Literal ID="lblRole" runat="server" Text='<%#Eval("Skillset") %>' />
-                                                                    <%--<small class="pull-right"><%#Eval("Skillset") %></small>--%>
-                                                                </h3>
-                                                            </a>
-                                                        </li>
-                                                        <!-- end task item -->
-                                                    </ItemTemplate>
-                                                </asp:Repeater>
-                                            </ul>
-                                        </li>
-                                    </ul>
-                                </li>
+
+                                <asp:Panel ID="pnlImpersonator" runat="server" CssClass="col-md-3 col-xs-8 col-lg-2" Style="width: 250px">
+                                    <asp:DropDownList ID="ddlImpersonator" runat="server" Visible="false" CssClass="form-control" Style="width: 100%" OnSelectedIndexChanged="ddlImpersonator_SelectedIndexChanged">
+                                    </asp:DropDownList>
+                                </asp:Panel>
+
+
                                 <!-- User Account: style can be found in dropdown.less -->
                                 <li class="dropdown user user-menu">
                                     <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -340,7 +321,7 @@
                                 <a href="../IA/index.aspx">
                                     <i class="fa fa-home"></i><span>iAccess</span>
                                 </a>
-                            </li>             
+                            </li>
                             <li>
                                 <a href="pacman.aspx">
                                     <i class="fa fa-user"></i><span>My PACMAN</span>
@@ -356,7 +337,6 @@
                                     <i class="fa fa-file-text"></i><span>PACMAN Discussion</span>
                                 </a>
                             </li>
-                            
                             <li>
                                 <a href="IntervalTracker.aspx">
                                     <i class="fa fa-sliders"></i><span>Interval Tracker</span>
@@ -367,15 +347,11 @@
                                     <i class="fa fa-exclamation-circle"></i><span>Exception Tracker</span>
                                 </a>
                             </li>
-<li>
+                            <li>
                                 <a href="Coaching.aspx">
                                     <i class="fa fa-graduation-cap"></i><span>Coaching</span>
                                 </a>
                             </li>
-
-
-
-
                         </ul>
                     </section>
                     <!-- /.sidebar -->

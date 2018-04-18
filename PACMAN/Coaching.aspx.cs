@@ -17,6 +17,7 @@ public partial class Coaching : System.Web.UI.Page
     string strSQL;
     private int MyEmpID { get; set; }
     private int CoachedEmployee { get; set; }
+    private string CoachedEmployeesName { get; set; }
     private string myRole = "Coach";
     EmailSender Email = new EmailSender();
     readonly string[] Category = { "Communication", "Knowledge", "Accuracy", "Timeliness" };
@@ -49,7 +50,7 @@ public partial class Coaching : System.Web.UI.Page
         }
         else
         {
-            clearAllCoachingInputsPostBack();
+            //clearAllCoachingInputsPostBack();
         }
 
     }
@@ -92,6 +93,8 @@ public partial class Coaching : System.Web.UI.Page
         ddlSelectEmployee.DataTextField = "Name";
         ddlSelectEmployee.DataValueField = "Employee_ID";
         ddlSelectEmployee.DataBind();
+        ddlSelectEmployee.SelectedIndex = 0;
+        ddlSelectEmployee_SelectedIndexChanged(ddlSelectEmployee, new EventArgs());
     }
     protected void gv_PreRender(object sender, EventArgs e)
     {
@@ -110,53 +113,67 @@ public partial class Coaching : System.Web.UI.Page
     {
         int CoachedEmployee = Convert.ToInt32(ddlSelectEmployee.SelectedValue.ToString());
         string strSQL = "WFMPMS.Coaching_Save2DB";
-        
+
         for (int i = 0; i < Category.Length; i++)
         {
-            TextBox tb = Page.FindControlRecursive("tb" + Category[i].ToString()) as TextBox;            
+            TextBox tb = Page.FindControlRecursive("tb" + Category[i].ToString()) as TextBox;
             HiddenField hf = Page.FindControlRecursive("hf" + Category[i].ToString()) as HiddenField;
-
+            int ID;
             if (tb != null)
             {
                 SqlCommand cmd = new SqlCommand(strSQL);
-                int ID = hf.Value != null ? Convert.ToInt32(hf.Value) : 0;
+
                 if (hfMode.Value.ToString() == "Insert")
                 {
                     cmd.Parameters.AddWithValue("@Mode", "Insert");
                 }
-                else if (hfMode.Value.ToString() == "Update" && ID > 0)
+                else if (hfMode.Value.ToString() == "Update")
                 {
                     cmd.Parameters.AddWithValue("@Mode", "Update");
-                    cmd.Parameters.AddWithValue("@ID", ID);                    
+                    ID = hf.Value != null || hf.Value != "" ? Convert.ToInt32(hf.Value) : 0;
+                    cmd.Parameters.AddWithValue("@ID", ID);
                 }
-                cmd.Parameters.AddWithValue("@EmpCode", CoachedEmployee);
+                cmd.Parameters.AddWithValue("@CoachedEmployee", CoachedEmployee);
                 cmd.Parameters.AddWithValue("@Category", Category[i]);
-                cmd.Parameters.AddWithValue("@Description", tb.Text.ToString());                
-                cmd.Parameters.AddWithValue("@UpdatedBy", MyEmpID);                                
-                my.ExecuteDMLCommand(ref cmd, strSQL, "E");
+                cmd.Parameters.AddWithValue("@Description", tb.Text);
+                cmd.Parameters.AddWithValue("@UpdatedBy", MyEmpID);
+                my.ExecuteDMLCommand(ref cmd, strSQL, "S");
                 cmd.Dispose();
             }
         }
+        clearAllCoachingInputsPostBack();
+        fillgvCoachingLog();
     }
     protected void btnDiscard_Click(object sender, EventArgs e)
     {
-
+        clearAllCoachingInputsPostBack();
     }
     protected void ddlSelectEmployee_SelectedIndexChanged(object sender, EventArgs e)
     {
-        string CoachedEmployeesName = ddlSelectEmployee.SelectedItem.Text;
+        clearAllCoachingInputsPostBack();
+        CoachedEmployeesName = ddlSelectEmployee.SelectedItem.Text;
         CoachedEmployee = Convert.ToInt32(ddlSelectEmployee.SelectedValue);
-        ltlCoachingInputs.Text = "Coaching Inputs for " + CoachedEmployeesName;
+        ltlCoachingInputs.Text = "Coaching Inputs for " + CoachedEmployeesName + " : Enter New Inputs.";
         ltlPreviousCoachingInputs.Text = "Previous Coaching Inputs for " + CoachedEmployeesName;
+
         fillgvCoachingLog();
     }
     private void clearAllCoachingInputsPostBack()
     {
+        hfMode.Value = "Insert";
         for (int i = 0; i < Category.Length; i++)
         {
             TextBox tbDescription = Page.FindControlRecursive("tb" + Category[i].ToString()) as TextBox;
             tbDescription.Text = string.Empty;
+
+            HiddenField hf = Page.FindControlRecursive("hf" + Category[i].ToString()) as HiddenField;
+            hf.Value = "";
+            pnlCoachingInputs.CssClass = pnlCoachingInputs.CssClass.Replace("info", "primary");
+
+            CoachedEmployeesName = ddlSelectEmployee.SelectedItem.Text;
+            ltlCoachingInputs.Text = "Coaching Inputs for " + CoachedEmployeesName + " : Enter New Inputs.";
         }
+
     }
     protected void gvCoachingLog_RowCommand(object sender, GridViewCommandEventArgs e)
     {
@@ -166,6 +183,9 @@ public partial class Coaching : System.Web.UI.Page
         {
             BatchID = Convert.ToInt32(btnBatchID.Text);
             hfMode.Value = "Update";
+            pnlCoachingInputs.CssClass = pnlCoachingInputs.CssClass.Replace("primary", "info");
+            CoachedEmployeesName = ddlSelectEmployee.SelectedItem.Text;
+            ltlCoachingInputs.Text = "Coaching Inputs for " + CoachedEmployeesName + " : Editing Entry " + BatchID;
             fillCoachingInputs(BatchID);
         }
 
@@ -181,6 +201,7 @@ public partial class Coaching : System.Web.UI.Page
         else if (myRole == "Coach" && BatchID > 0)
         {
             strSQL += " from WFMPMS.tblCoaching where Empcode=" + CoachedEmployee + " and BatchID = " + BatchID + " and active = 1";
+            pnlCoachingInputs.CssClass = pnlCoachingInputs.CssClass.Replace("primary", "info");
         }
         else
         {
@@ -199,5 +220,14 @@ public partial class Coaching : System.Web.UI.Page
                 hf.Value = drow[drow.Length - 1].Field<int>("ID").ToString();
             }
         }
+    }
+
+    protected void gvCoachingLog_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        //if (e.Row.RowType == DataControlRowType.DataRow)
+        //{
+        //    e.Row.Attributes["onmouseover"] = "this.style.backgroundColor='light-gray';";
+        //    e.Row.Attributes["onmouseout"] = "this.style.backgroundColor='white';";
+        //}
     }
 }

@@ -85,7 +85,7 @@
         </div>
     </div>
 
-    <div class="box box-solid box-primary">
+    <asp:Panel ID="pnlCoachingInputs" runat="server" CssClass="box box-solid box-primary">
         <div class="box-header">
             <i class="fa fa-pencil"></i>
             <h3 class="box-title"><asp:Literal ID="ltlCoachingInputs" runat="server" Text="Coaching Inputs"></asp:Literal></h3>
@@ -135,7 +135,7 @@
             </div>
 
         </div>
-    </div>
+    </asp:Panel>
 
     <div class="box box-solid box-primary">
         <div class="box-header">
@@ -150,10 +150,10 @@
         </div>
         <!-- /.box-header -->
         <div class="box-body table-responsive no-padding">
-            <asp:GridView ID="gvCoachingLog" runat="server" CssClass="table table-bordered table-hover"
-                AutoGenerateColumns="false" ShowHeaderWhenEmpty="true" DataKeyNames="EmpCode" OnRowCommand="gvCoachingLog_RowCommand" >
+            <asp:GridView ID="gvCoachingLog" runat="server" CssClass="table table-bordered table-hover table-condensed table-striped"
+                AutoGenerateColumns="false" ShowHeaderWhenEmpty="true" DataKeyNames="EmpCode" OnRowCommand="gvCoachingLog_RowCommand" OnRowDataBound="gvCoachingLog_RowDataBound" >
                 <Columns>
-                    <asp:TemplateField>
+                    <asp:TemplateField HeaderText="Edit">
                         <ItemTemplate>
                             <asp:Button runat="server" ID="btnBatchID" Text='<%#Eval("BatchID") %>' CssClass="btn btn-flat btn-primary" />
                         </ItemTemplate>
@@ -165,8 +165,6 @@
                     <asp:BoundField DataField="Description" ItemStyle-Width="40%" HeaderText="Coaching Inputs"></asp:BoundField>
                     <asp:BoundField DataField="UpdatedOn" HeaderText="On" DataFormatString="{0:dd-MMM-yyyy hh:mm}"></asp:BoundField>
                     <asp:BoundField DataField="UpdatedBy" HeaderText="By"></asp:BoundField>
-                    
-                    <%--ID,EmpCode,Category,Description,UpdatedOn,UpdatedBy,Active--%>
                 </Columns>
                 <EmptyDataTemplate>No Records Available</EmptyDataTemplate>
             </asp:GridView>
@@ -188,7 +186,7 @@
             // instance, using default configuration.
             //CKEDITOR.replace('editor1')
             //bootstrap WYSIHTML5 - text editor
-            // $('textarea[class*="textarea"]').wysihtml5();
+            //$('textarea[class*="textarea"]').wysihtml5();
         })
     </script>
 </asp:Content>
