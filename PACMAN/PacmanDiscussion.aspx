@@ -512,7 +512,7 @@
                                                                     <asp:TextBox ID="txtAnalyticProject" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2"></asp:TextBox>
                                                                 </div>
                                                                 <div class="col-md-2">
-                                                                    <asp:Button ID="btnAnalyticProjectScoreSubmit" runat="server" Text="submit" CssClass="btn btn-primary" OnClick="btnIEXMgmtScoreSubmit_Click" />
+                                                                    <asp:Button ID="btnAnalyticProjectScoreSubmit" runat="server" Text="submit" CssClass="btn btn-primary" OnClick="btnAnalyticProjectScoreSubmit_Click"/>
                                                                 </div>
                                                             </div>
                                                         </asp:Panel>
@@ -603,7 +603,7 @@
                                                                     <asp:TextBox ID="txtCoachingComments" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2"></asp:TextBox>
                                                                 </div>
                                                                 <div class="col-md-2">
-                                                                    <asp:Button ID="btnCoachingScoreSubmit" runat="server" Text="submit" CssClass="btn btn-primary" OnClick="btnIEXMgmtScoreSubmit_Click" />
+                                                                    <asp:Button ID="btnCoachingScoreSubmit" runat="server" Text="submit" CssClass="btn btn-primary" OnClick="btnCoachingScoreSubmit_Click" />
                                                                 </div>
                                                             </div>
                                                         </asp:Panel>

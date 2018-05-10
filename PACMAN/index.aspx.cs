@@ -41,16 +41,18 @@ public partial class index : System.Web.UI.Page
         {
             //
             //myID = "nchan016"; //Planner
-            //myID = "akamb002"; //Planner
-            //myID = "vshir001"; //Prashant Goradia pgora001
-            //myID = "vchoh001"; //Prashant Goradia pgora001
+            //myID = "nrodr05"; //Planner
+            //myID = "vshir001"; 
+            //myID = "vchoh001";
 
-	    //myID = "utiwa002";
-	    //myID = "vfern016";
+            //myID = "utiwa002";
+            //myID = "vfern016";
 
-            //myID = "vshir001"; //Prashant Goradia pgora001
-            //myID = "gsing017"; //Prashant Goradia pgora001
-            //myID = "utiwa002"; //Prashant Goradia pgora001
+            //myID = "vshir001"; 
+            //myID = "gsing017"; 
+            //myID = "fjaya001";
+            myID = "smerc021";
+            //myID = "aansa008"; //
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
             cmd.Parameters.AddWithValue("@NT_ID", myID);
             
@@ -61,7 +63,7 @@ public partial class index : System.Web.UI.Page
                 {
 
                     Session["dtEmp"] = dt;
-                    Response.Redirect("coaching.aspx", false);
+                    Response.Redirect("pacman.aspx", false);
                 }
                 else
                 {

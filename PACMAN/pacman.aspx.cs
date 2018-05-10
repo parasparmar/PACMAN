@@ -24,6 +24,7 @@ public partial class pacman : System.Web.UI.Page
     private DateTime EndDate { get; set; }
     private int PacmanCycle { get; set; }
     private decimal SLRating { get; set; }
+    private decimal OPRating { get; set; }
     private decimal OptimizationRating { get; set; }
     private decimal EIRating { get; set; }
     private decimal AbsenteeismRating { get; set; }
@@ -34,7 +35,7 @@ public partial class pacman : System.Web.UI.Page
     public DataTable DtOfAccountsIHandle { get; set; }
     private int IEXMgmt { get; set; }
     private int Revenue { get; set; }
-    private int AttritionRating { get; set; }  
+    private int AttritionRating { get; set; }
     private int AnalyticProject { get; set; }
     private int AnalyticCoaching { get; set; }
     private int AnalyticTimeline { get; set; }
@@ -129,61 +130,453 @@ public partial class pacman : System.Web.UI.Page
     }
     public void fillpnl_KPI(int ForEmpID)
     {
-        string metric = "KPI";
+        /*
+         * 0. Am I a manager or not. If so, WFMPMS.GetManagerKPI gets my rating directly.
+         * 1. Get a list of my accounts.
+         * 2. For these accounts what skillsets do i profess.
+         * 3. If I am assigned more than 1 distinct skillsets (Planning, Scheduling or RTA) I'm out of scope.
+         * 4. If I have one and only one distinct skillset assigned for all accounts I can proceed further.
+         * 5. If my skillset is RTA, For each individual KPI run the WFMPMS.get<KPI>SummaryForPACMAN procedure exactly once.
+         * 6. Merge the above datatables into one. Calculate the merged score as my Primary KPI Score.
+         * 7. If I profess the planning or scheduling skillset, then just run the WFMPMS.getSLSummaryForPACMAN
+         * contd. because that procedure contains the intelligence needed to pull data from KPI dashboard 
+         * contd. for that month for all Accounts and KPIs.
+         */
+
         if (IsManager == 1)
         {
-            string strSQL = "[WFMPMS].[GetManagerKPI]";
+            //0. Am I a manager or not. If so, WFMPMS.GetManagerKPI gets my rating directly.
+            fillpnl_KPI_forManagers(ForEmpID);
+        }
+        else if (IsManager == 0)
+        {
+            fillStartAndEndDates();
+            //* 1. Get a list of my accounts.
+            DtOfAccountsIHandle = getDtOfAccountsIHandle();
 
+            //* 2. For these accounts what skillsets do i profess.
+            var myPrimaryKPIs = DtOfAccountsIHandle.AsEnumerable()
+                .Where(s => s.Field<string>("PrimaryKPI") != null)
+                .Select(s => new { kpi = s.Field<string>("PrimaryKPI") })
+                .Distinct();
+
+            //3.If I am assigned more than 1 distinct skillsets(Planning, Scheduling or RTA) I'm out of scope.
+            var mySkillsets = DtOfAccountsIHandle.AsEnumerable()
+                .Select(t => t.Field<int>("SkillsetId")).Distinct();
+            DataSet ds = new DataSet("KPI");
+
+
+            //*4.If I have one and only one distinct skillset assigned for all accounts I can proceed further.
+            if (mySkillsets.Count() == 1)
+            {
+                SqlCommand cmd = new SqlCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd.Parameters.AddWithValue("@EndDate", EndDate);
+
+                DataTable dt = new DataTable();
+                GridView gvPrimaryKPI = new GridView();
+                if (mySkillsets.FirstOrDefault() == 2 || mySkillsets.FirstOrDefault() == 3)
+                {
+                    cmd.CommandText = "WFMPMS.getSLSummaryForPACMAN";
+                    dt = my.GetDataTableViaProcedure(ref cmd);
+                }
+                else if (mySkillsets.FirstOrDefault() == 4)
+                {
+                    foreach (var individualKPI in myPrimaryKPIs)
+                    {
+                        cmd.CommandText = "WFMPMS.get" + individualKPI.kpi.ToString() + "SummaryForPACMAN";
+                        DataTable dtTemp = my.GetDataTableViaProcedure(ref cmd);
+                        //dtTemp.TableName = individualKPI.kpi.ToString();
+                        //ds.Tables.Add(dtTemp);
+                        dt.Merge(dtTemp);
+                        // ToDo: At this point, start merging the grand totals into each other.
+                    }
+
+                    //var g = from s in dt.AsEnumerable()
+                    //        group s by new { accCol = s["AccountId"], ratingCol = s["Rating"] } into groupby
+                    //        select new { rating = groupby.Key, occurence = groupby.Sum(r=>r.Field<int>("Occurence")) };
+                    
+                    //foreach(var row in g)
+                    //{
+
+                    //}
+
+                    
+                    if (dt != null) { populateGvPrimaryKPI(dt); }
+                }
+                else
+                {
+                    ltlPrimaryKPI.Text = "Multiple Roles found. The total KPI score for this employee will lead to an invalid condition (greater than 5)";
+                    ltl_KPI.Text = String.Empty;
+                }
+
+
+            }
+
+        }
+    }
+
+        private void populateGvPrimaryKPI(DataTable dt)
+        {
+            if (dt != null)
+            {
+                GridView gvPrimaryKPI = new GridView();
+                gvPrimaryKPI.ID = "gvPrimaryKPI";
+                gvPrimaryKPI.AutoGenerateColumns = true;
+                gvPrimaryKPI.DataSource = dt;
+                gvPrimaryKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+
+                gvPrimaryKPI.DataBind();
+                if (dt != null && dt.Rows.Count > 0)
+                {
+                    gvPrimaryKPI.Rows[dt.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                    gvPrimaryKPI.Rows[dt.Rows.Count - 1].Font.Bold = true;
+                    gvPrimaryKPI.PreRender += gv_PreRender;
+                    bool slrating = false;
+                    decimal dec_slrating;
+                    slrating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_slrating);
+                    if (slrating)
+                    {
+                        SLRating += dec_slrating;
+                    }
+                    else
+                    {
+                        SLRating += 0;
+                    }
+                    ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";
+                    ltl_KPI.Text = Math.Round(SLRating, 2).ToString();
+                    pnlKPI.Controls.Add(gvPrimaryKPI);
+                }
+                else
+                {
+                    ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
+                    ltl_KPI.Text = String.Empty;
+                }
+
+            }
+            else
+            {
+                ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
+                ltl_KPI.Text = String.Empty;
+            }
+        }
+
+        private void fillpnl_KPI_forManagers(int ForEmpID, string metric = "KPI")
+        {
+            string strSQL = "WFMPMS.GetManagerKPI";
             SqlCommand cmd = new SqlCommand(strSQL);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
             cmd.Parameters.AddWithValue("@StartDate", StartDate);
             cmd.Parameters.AddWithValue("@EndDate", EndDate);
             cmd.Parameters.AddWithValue("@Metric", metric);
-
             DataTable dt1 = my.GetDataTableViaProcedure(ref cmd);
             if (dt1 != null)
             {
-                GridView gvPrimaryKPI = new GridView();
-                gvPrimaryKPI.ID = "gvPrimaryKPI";
-                gvPrimaryKPI.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                populateGvPrimaryKPI(dt1);
+            }
 
-                DataRow dr1 = dt1.NewRow();
+        }
 
-                gvPrimaryKPI.DataSource = dt1;
-                gvPrimaryKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                gvPrimaryKPI.DataBind();
-                if (dt1.Rows.Count > 0)
+        private void showRelevantMetricPanels(int ForEmpID)
+        {
+
+            fillStartAndEndDates();
+            string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
+            strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
+            strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
+            strSQL += " order by B.id, B.Metrics ";
+
+            DataTable dt = my.GetData(strSQL);
+            string myPanelName = string.Empty;
+
+            foreach (DataRow d in dt.Rows)
+            {
+                myPanelName = "pnl_" + d["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
+                Control c = Page.FindControlRecursive(myPanelName);
+                if (c != null)
                 {
-                    gvPrimaryKPI.Rows[gvPrimaryKPI.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                    gvPrimaryKPI.Rows[gvPrimaryKPI.Rows.Count - 1].Font.Bold = true;
-                    gvPrimaryKPI.PreRender += gv_PreRender;
-                    SLRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-                    ltl_KPI.Text = SLRating.ToString();
+                    Panel thePanel = c as Panel;
+                    thePanel.Visible = true;
                 }
+            }
+        }
+        private void fillRelevantMetricsInPanels(int ForEmpID)
+        {
+            fillStartAndEndDates();
+            string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
+            strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
+            strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
+            strSQL += " order by B.id, B.Metrics ";
 
+            DataTable dt = my.GetData(strSQL);
+            string myPanelName = string.Empty;
 
-                pnlKPI.Controls.Add(gvPrimaryKPI);
+            foreach (DataRow d in dt.Rows)
+            {
+                // For Troubleshooting : Paras - Please remove when not needed.
+                //if (d["Metrics"].ToString().Replace("&", "").Replace(" ", "_") == "BTP")
+                //{
+                myPanelName = "pnl_" + d["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
+                Control c = Page.FindControlRecursive(myPanelName);
+                if (c != null)
+                {
+                    Panel thePanel = c as Panel;
+                    thePanel.Visible = true;
+                    Type thisType = this.GetType();
+                    MethodInfo theMethod = thisType.GetMethod("fill" + myPanelName);
+                    try
+                    {
+                        theMethod.Invoke(this, new object[] { MyEmpID });
+                    }
+                    catch (Exception Ex)
+                    {
+                        Response.Write(Ex.Message.ToString() + "Something's wrong with " + myPanelName);
+                    }
+                    finally
+                    {
+                        my.close_conn();
+                    }
+                }
+            }
+
+        }
+        private void getNamePacmanCycle()
+        {
+            //lblPC.Text = ddlReviewPeriod.SelectedItem.Text.ToString();
+            string Name;
+            strSQL = "[WFMPMS].[GetName]";
+            using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+            {
+                cn.Open();
+                using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+                    Name = cmd.ExecuteScalar().ToString();
+                }
+            }
+            //lblName.Text = Name;
+        }
+        private void enableDisableButtons()
+        {
+            //int CurrentStage;
+            PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+            strSQL = "[WFMPMS].[GetPacmanStage]";
+            using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+            {
+                cn.Open();
+                using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+                    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                    //CurrentStage = Convert.ToInt32(cmd.ExecuteScalar());
+                    //CurrentStage = 4;
+                    if (CurrentStage == 0 || CurrentStage == 2 || CurrentStage == 5)
+                    {
+                        //btnYesDiscussed.Enabled = false;
+                        //btnNotDiscussed.Enabled = false;
+                        btnAgree.Enabled = false;
+                        // Please remove the below true in production..........
+                        //btnAgree.Enabled = true;
+                    }
+                    else if (CurrentStage == 3)
+                    {
+                        //btnYesDiscussed.Enabled = true;
+                        //btnNotDiscussed.Enabled = true;
+                        btnAgree.Enabled = true;
+                    }
+                    else if (CurrentStage == 4)
+                    {
+                        //btnYesDiscussed.Enabled = false;
+                        //btnNotDiscussed.Enabled = false;
+                        btnAgree.Enabled = true;
+                    }
+
+                }
+            }
+        }
+        private void fillddlReviewPeriod()
+        {
+            string strSQL = "WFMPMS.fillPacmanCycleSelectionDropdownList";
+            SqlCommand cmd = new SqlCommand(strSQL);
+            cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+
+            ddlReviewPeriod.DataSource = dt;
+
+            ddlReviewPeriod.DataTextField = "TextDescription";
+            ddlReviewPeriod.DataValueField = "Id";
+            ddlReviewPeriod.DataBind();
+            //ddlReviewPeriod.Items.Add(new ListItem("----Select-----", "0"));
+
+            ddlReviewPeriod.SelectedIndex = 0;
+
+        }
+        private void fillddlReviewPeriodOnPageLoad()
+        {
+            ddlReviewPeriod.SelectedValue = CurrrentPacManCycle.ToString();
+            ddlReviewPeriod_SelectedIndexChanged(this, new EventArgs());
+        }
+        protected void ddlReviewPeriod_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            fillStartAndEndDates();
+            fillRelevantMetricsInPanels(MyEmpID);
+            enableDisableButtons();
+            getFinalRating(MyEmpID);
+        }
+        private void fillStartAndEndDates()
+        {
+            PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+            string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+            DataTable dt = my.GetData(strSQL);
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
+                EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
             }
             else
             {
-                ltlPrimaryKPI.Text = "KPI &nbsp= &nbsp" + "No Data found";
+                StartDate = new DateTime(DateTime.Today.Year, 1, 1);
+                EndDate = new DateTime(DateTime.Today.Year, 1, 31);
             }
+
         }
-        else if (IsManager == 0)
+
+
+
+        private void getFinalRating(int ForEmpID)
         {
 
-            DtOfAccountsIHandle = getDtOfAccountsIHandle();
-            fillStartAndEndDates();
-            var TheKPIs = from s in DtOfAccountsIHandle.AsEnumerable()
-                          where s.Field<string>("PrimaryKPI") != null
-                          select new { kpi = s.Field<string>("PrimaryKPI") };
-            var myPrimaryKPIs = TheKPIs.Distinct();
+
+            string strSQL = @"SELECT Distinct B.id, B.Metrics, B.Weight FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  
+        inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId
+        where EmpCode =  @ForEmpID and [Active] = 1 and @StartDate between A.FromDate and A.ToDate 
+        order by B.id, B.Metrics, B.Weight";
+            SqlCommand cmd = new SqlCommand(strSQL);
+            cmd.Parameters.AddWithValue("@ForEmpID", ForEmpID);
+            cmd.Parameters.AddWithValue("@StartDate", StartDate);
+
+            FinalRating = 0;
+            DataTable dtWeights = my.GetData(ref cmd);
+            foreach (DataRow dr in dtWeights.Rows)
+            {
+                Decimal KPIWt = Convert.ToDecimal(dr["Weight"].ToString());
+                string KPIname = dr["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
+                Literal ltl = (Literal)Page.FindControlRecursive("ltl_" + KPIname);
+
+                if (ltl != null)
+                {
+                    ltl.Text = (ltl.Text == "") ? "0" : ltl.Text;
+                    Decimal KPIScore = Convert.ToDecimal(ltl.Text);
+                    FinalRating = FinalRating + (KPIScore * KPIWt);
+                }
+            }
+            if (CurrentStage == 4)
+            {
+                ltlfinalScore.Text = "3";
+                EachKPI_Score = 3;
+            }
+
+            else
+            {
+                ltlfinalScore.Text = Math.Round(FinalRating, 2).ToString();
+            }
+
+        }
+        protected void btnAgree_Click(object sender, EventArgs e)
+        {
+            //btnYesDiscussed.Enabled = false;
+            //btnNotDiscussed.Enabled = false;
+            btnAgree.Enabled = false;
+
+            SqlConnection con = new SqlConnection(my.getConnectionString());
+            con.Open();
+
+            String strSQL = "[WFMPMS].[InsertPacmanStage]";
+            SqlCommand cmd = new SqlCommand(strSQL, con);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
+            int Stage = 5;
+            int PreviousStage = 3;
+            PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
+            cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+            cmd.Parameters.AddWithValue("@Stage", Stage);
+            cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+            cmd.Parameters.AddWithValue("@ActionBy", MyEmpID);
+            cmd.Parameters.AddWithValue("@PreviousStage", PreviousStage);
+
+            cmd.Connection = con;
+            cmd.ExecuteNonQuery();
+            con.Close();
+            InsertTotblFinalKPI(MyEmpID);
+            enableDisableButtons();
+        }
+        private void InsertTotblFinalKPI(int ForEmpID)
+        {
+            //CurrentStage = 4;---------------------------------------check
+            PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+            string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+            DataTable dt = my.GetData(strSQL);
+            StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
+
+            strSQL = " SELECT Distinct B.Id, A.EmpCode,'' as PacmanCycle,B.SkillsetId, B.Metrics as Metric ";
+            strSQL += " , B.DataLevel, B.Weight as Weightage, '' as Acheived, '' as Score";
+            strSQL += " , getdate() as Date FROM[CWFM_Umang].[WFMPMS].[tblEmp2Account] A ";
+            strSQL += " inner join[WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId ";
+            strSQL += " where EmpCode = " + ForEmpID + " and[Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
+            strSQL += " order by B.Id, B.Metrics, B.Weight ";
+
+            FinalRating = 0;
+            DataTable dtWeights = my.GetData(strSQL);
+            strSQL = "[WFMPMS].[InsertFinalKPI]";
+
+            foreach (DataRow dr in dtWeights.Rows)
+            {
+                Decimal KPIWt = Convert.ToDecimal(dr["Weightage"].ToString());
+                string KPIname = dr["Metric"].ToString().Replace("&", "").Replace(" ", "_");
+                Literal ltl = (Literal)Page.FindControlRecursive("ltl_" + KPIname);
+
+                if (ltl != null)
+                {
+
+                    Decimal KPIScore = Convert.ToDecimal(ltl.Text);
+                    if (CurrentStage == 4)
+                    { FinalRating = 3; }
+
+                    else
+                    { FinalRating = KPIScore * KPIWt; }
+
+                    SqlCommand cmd = new SqlCommand(strSQL);
+                    cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                    cmd.Parameters.AddWithValue("@SkillsetId", Convert.ToDecimal(dr["SkillsetId"].ToString()));
+                    cmd.Parameters.AddWithValue("@Metric", KPIname);
+                    cmd.Parameters.AddWithValue("@DataLevel", dr["DataLevel"].ToString());
+                    cmd.Parameters.AddWithValue("@Weightage", Convert.ToDecimal(dr["Weightage"].ToString()));
+                    cmd.Parameters.AddWithValue("@Achieved", KPIScore);
+                    cmd.Parameters.AddWithValue("@Score", FinalRating);
+                    my.ExecuteDMLCommand(ref cmd, strSQL, "S");
+                    cmd.Dispose();
+
+                }
+            }
 
 
-            DataSet dsKPIs = new DataSet();
 
+
+
+            //my.ExecuteDMLCommand(ref cmd, strSQL, "");
+
+        }
+        public void fillltlfinalScore(int ForEmpID)
+        {
+            int FinalScore = 0;
+            strSQL = "[WFMPMS].[getPacmanFinalScore]";
             using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
             {
                 cn.Open();
@@ -191,744 +584,285 @@ public partial class pacman : System.Web.UI.Page
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                    cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    cmd.Parameters.AddWithValue("@EndDate", EndDate);
-
-                    foreach (var individualKPI in myPrimaryKPIs)
+                    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                    SqlDataReader sdr = cmd.ExecuteReader();
+                    while (sdr.Read())
                     {
-                        cmd.CommandText = "WFMPMS.get" + individualKPI.kpi.ToString() + "SummaryForPACMAN";
-
-
-                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
+                        if (sdr.HasRows)
                         {
-                            DataTable dt = new DataTable();
-
-                            cmd.ExecuteNonQuery();
-                            da.Fill(dt);
-                            if (dt != null)
-                            {
-                                GridView gvPrimaryKPI = new GridView();
-                                gvPrimaryKPI.ID = "gv" + individualKPI.kpi;
-                                gvPrimaryKPI.AutoGenerateColumns = true;
-                                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-
-                                gvPrimaryKPI.DataSource = dt;
-                                gvPrimaryKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-
-                                gvPrimaryKPI.DataBind();
-                                if (dt.Rows.Count > 0)
-                                {
-                                    gvPrimaryKPI.Rows[dt.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                                    gvPrimaryKPI.Rows[dt.Rows.Count - 1].Font.Bold = true;
-                                    gvPrimaryKPI.PreRender += gv_PreRender;
-                                    bool slrating = false;
-                                    decimal dec_slrating;
-                                    slrating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_slrating);
-                                    if (slrating)
-                                    {
-                                        SLRating += dec_slrating;
-                                    }
-                                    else
-                                    {
-                                        SLRating += 0;
-                                    }
-                                    ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";
-                                    ltl_KPI.Text = Math.Round(SLRating,2).ToString();
-                                    pnlKPI.Controls.Add(gvPrimaryKPI);
-                                }
-                                else
-                                {
-                                    ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
-                                    ltl_KPI.Text = String.Empty;
-                                }
-
-                            }
-                            else
-                            {
-                                ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
-                                ltl_KPI.Text = String.Empty;
-                            }
-
+                            FinalScore = Convert.ToInt32(sdr.GetValue(0));
+                            ltlfinalScore.Text = FinalScore.ToString();
                         }
+                        else
+                        { ltlfinalScore.Text = "Pacman discussion not completed"; }
                     }
-                }
 
-
-            }
-        }
-
-    }
-    private void showRelevantMetricPanels(int ForEmpID)
-    {
-
-        fillStartAndEndDates();
-        string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
-        strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
-        strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
-        strSQL += " order by B.id, B.Metrics ";
-
-        DataTable dt = my.GetData(strSQL);
-        string myPanelName = string.Empty;
-
-        foreach (DataRow d in dt.Rows)
-        {
-            myPanelName = "pnl_" + d["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
-            Control c = Page.FindControlRecursive(myPanelName);
-            if (c != null)
-            {
-                Panel thePanel = c as Panel;
-                thePanel.Visible = true;
-            }
-        }
-    }
-    private void fillRelevantMetricsInPanels(int ForEmpID)
-    {
-        fillStartAndEndDates();
-        string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
-        strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
-        strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
-        strSQL += " order by B.id, B.Metrics ";
-
-        DataTable dt = my.GetData(strSQL);
-        string myPanelName = string.Empty;
-
-        foreach (DataRow d in dt.Rows)
-        {
-            // For Troubleshooting : Paras - Please remove when not needed.
-            //if (d["Metrics"].ToString().Replace("&", "").Replace(" ", "_") == "BTP")
-            //{
-            myPanelName = "pnl_" + d["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
-            Control c = Page.FindControlRecursive(myPanelName);
-            if (c != null)
-            {
-                Panel thePanel = c as Panel;
-                thePanel.Visible = true;
-                Type thisType = this.GetType();
-                MethodInfo theMethod = thisType.GetMethod("fill" + myPanelName);
-                try
-                {
-                    theMethod.Invoke(this, new object[] { MyEmpID });
-                }
-                catch (Exception Ex)
-                {
-                    Response.Write(Ex.Message.ToString() + "Something's wrong with " + myPanelName);
-                }
-                finally
-                {
-                    my.close_conn();
                 }
             }
         }
-
-    }
-    private void getNamePacmanCycle()
-    {
-        //lblPC.Text = ddlReviewPeriod.SelectedItem.Text.ToString();
-        string Name;
-        strSQL = "[WFMPMS].[GetName]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+        protected void gv_PreRender(object sender, EventArgs e)
         {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+            GridView gv = (GridView)sender;
+            if (gv.Rows.Count > 0)
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                Name = cmd.ExecuteScalar().ToString();
+                gv.UseAccessibleHeader = true;
+                gv.HeaderRow.TableSection = TableRowSection.TableHeader;
+                gv.HeaderStyle.BorderStyle = BorderStyle.None;
+                gv.BorderStyle = BorderStyle.None;
+                gv.BorderWidth = Unit.Pixel(1);
             }
         }
-        //lblName.Text = Name;
-    }
-    private void enableDisableButtons()
-    {
-        //int CurrentStage;
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        strSQL = "[WFMPMS].[GetPacmanStage]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+        #region Analytics KPIs
+        public void fillpnl_Coaching_and_Feedback(int ForEmpID)
         {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+            AnalyticCoaching = 0;
+            strSQL = "[WFMPMS].[getAnalyticCoachingScore]";
+            using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                //CurrentStage = Convert.ToInt32(cmd.ExecuteScalar());
-                //CurrentStage = 4;
-                if (CurrentStage == 0 || CurrentStage == 2 || CurrentStage == 5)
+                cn.Open();
+                using (SqlCommand cmd = new SqlCommand(strSQL, cn))
                 {
-                    //btnYesDiscussed.Enabled = false;
-                    //btnNotDiscussed.Enabled = false;
-                    btnAgree.Enabled = false;
-                    // Please remove the below true in production..........
-                    //btnAgree.Enabled = true;
-                }
-                else if (CurrentStage == 3)
-                {
-                    //btnYesDiscussed.Enabled = true;
-                    //btnNotDiscussed.Enabled = true;
-                    btnAgree.Enabled = true;
-                }
-                else if (CurrentStage == 4)
-                {
-                    //btnYesDiscussed.Enabled = false;
-                    //btnNotDiscussed.Enabled = false;
-                    btnAgree.Enabled = true;
-                }
-            }
-
-        }
-    }
-    private void fillddlReviewPeriod()
-    {
-        string strSQL = "WFMPMS.fillPacmanCycleSelectionDropdownList";
-        SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-
-        ddlReviewPeriod.DataSource = dt;
-
-        ddlReviewPeriod.DataTextField = "TextDescription";
-        ddlReviewPeriod.DataValueField = "Id";
-        ddlReviewPeriod.DataBind();
-        //ddlReviewPeriod.Items.Add(new ListItem("----Select-----", "0"));
-
-        ddlReviewPeriod.SelectedIndex = 0;
-
-    }
-    private void fillddlReviewPeriodOnPageLoad()
-    {
-        ddlReviewPeriod.SelectedValue = CurrrentPacManCycle.ToString();
-        ddlReviewPeriod_SelectedIndexChanged(this, new EventArgs());
-    }
-    protected void ddlReviewPeriod_SelectedIndexChanged(object sender, EventArgs e)
-    {
-        fillStartAndEndDates();
-        fillRelevantMetricsInPanels(MyEmpID);
-        enableDisableButtons();
-        getFinalRating(MyEmpID);
-    }
-    private void fillStartAndEndDates()
-    {
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
-        DataTable dt = my.GetData(strSQL);
-        if (dt != null && dt.Rows.Count > 0)
-        {
-            StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
-            EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
-        }
-        else
-        {
-            StartDate = new DateTime(DateTime.Today.Year, 1, 1);
-            EndDate = new DateTime(DateTime.Today.Year, 1, 31);
-        }
-
-    }    
-    private void getFinalRating(int ForEmpID)
-    {
-
-
-        string strSQL = "SELECT Distinct B.id, B.Metrics, B.Weight FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
-        strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
-        strSQL += " where EmpCode =  " + ForEmpID + " and [Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
-        strSQL += " order by B.id, B.Metrics, B.Weight ";
-
-        FinalRating = 0;
-        DataTable dtWeights = my.GetData(strSQL);
-        foreach (DataRow dr in dtWeights.Rows)
-        {
-            Decimal KPIWt = Convert.ToDecimal(dr["Weight"].ToString());
-            string KPIname = dr["Metrics"].ToString().Replace("&", "").Replace(" ", "_");
-            Literal ltl = (Literal)Page.FindControlRecursive("ltl_" + KPIname);
-
-            if (ltl != null)
-            {
-                ltl.Text = (ltl.Text == "") ? "0" : ltl.Text;
-                Decimal KPIScore = Convert.ToDecimal(ltl.Text);
-                FinalRating = FinalRating + (KPIScore * KPIWt);
-            }
-        }
-        if (CurrentStage == 4)
-        {
-            ltlfinalScore.Text = "3";
-            EachKPI_Score = 3;
-        }
-
-        else
-        {
-            ltlfinalScore.Text = Math.Round(FinalRating, 2).ToString();
-        }
-
-    }
-    protected void btnAgree_Click(object sender, EventArgs e)
-    {
-        //btnYesDiscussed.Enabled = false;
-        //btnNotDiscussed.Enabled = false;
-        btnAgree.Enabled = false;
-
-        SqlConnection con = new SqlConnection(my.getConnectionString());
-        con.Open();
-
-        String strSQL = "[WFMPMS].[InsertPacmanStage]";
-        SqlCommand cmd = new SqlCommand(strSQL, con);
-        cmd.CommandType = CommandType.StoredProcedure;
-
-        MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
-        int Stage = 5;
-        int PreviousStage = 3;
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
-        cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-        cmd.Parameters.AddWithValue("@Stage", Stage);
-        cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-        cmd.Parameters.AddWithValue("@ActionBy", MyEmpID);
-        cmd.Parameters.AddWithValue("@PreviousStage", PreviousStage);
-
-        cmd.Connection = con;
-        cmd.ExecuteNonQuery();
-        con.Close();
-        InsertTotblFinalKPI(MyEmpID);
-        enableDisableButtons();
-    }
-    private void InsertTotblFinalKPI(int ForEmpID)
-    {
-        //CurrentStage = 4;---------------------------------------check
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
-        DataTable dt = my.GetData(strSQL);
-        StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
-
-        strSQL = " SELECT Distinct B.Id, A.EmpCode,'' as PacmanCycle,B.SkillsetId, B.Metrics as Metric ";
-        strSQL += " , B.DataLevel, B.Weight as Weightage, '' as Acheived, '' as Score";
-        strSQL += " , getdate() as Date FROM[CWFM_Umang].[WFMPMS].[tblEmp2Account] A ";
-        strSQL += " inner join[WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId ";
-        strSQL += " where EmpCode = " + ForEmpID + " and[Active] = 1 and '" + StartDate + "' between A.FromDate and A.ToDate ";
-        strSQL += " order by B.Id, B.Metrics, B.Weight ";
-
-        FinalRating = 0;
-        DataTable dtWeights = my.GetData(strSQL);
-        strSQL = "[WFMPMS].[InsertFinalKPI]";
-
-        foreach (DataRow dr in dtWeights.Rows)
-        {
-            Decimal KPIWt = Convert.ToDecimal(dr["Weightage"].ToString());
-            string KPIname = dr["Metric"].ToString().Replace("&", "").Replace(" ", "_");
-            Literal ltl = (Literal)Page.FindControlRecursive("ltl_" + KPIname);
-
-            if (ltl != null)
-            {
-
-                Decimal KPIScore = Convert.ToDecimal(ltl.Text);
-                if (CurrentStage == 4)
-                { FinalRating = 3; }
-
-                else
-                { FinalRating = KPIScore * KPIWt; }
-
-                SqlCommand cmd = new SqlCommand(strSQL);
-                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                cmd.Parameters.AddWithValue("@SkillsetId", Convert.ToDecimal(dr["SkillsetId"].ToString()));
-                cmd.Parameters.AddWithValue("@Metric", KPIname);
-                cmd.Parameters.AddWithValue("@DataLevel", dr["DataLevel"].ToString());
-                cmd.Parameters.AddWithValue("@Weightage", Convert.ToDecimal(dr["Weightage"].ToString()));
-                cmd.Parameters.AddWithValue("@Achieved", KPIScore);
-                cmd.Parameters.AddWithValue("@Score", FinalRating);
-                my.ExecuteDMLCommand(ref cmd, strSQL, "S");
-                cmd.Dispose();
-
-            }
-        }
-    }
-    public void fillltlfinalScore(int ForEmpID)
-    {
-        int FinalScore = 0;
-        strSQL = "[WFMPMS].[getPacmanFinalScore]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
-        {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                SqlDataReader sdr = cmd.ExecuteReader();
-                while (sdr.Read())
-                {
-                    if (sdr.HasRows)
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                    SqlDataReader sdr = cmd.ExecuteReader();
+                    while (sdr.Read())
                     {
-                        FinalScore = Convert.ToInt32(sdr.GetValue(0));
-                        ltlfinalScore.Text = FinalScore.ToString();
-                    }
-                    else
-                    { ltlfinalScore.Text = "Pacman discussion not completed"; }
-                }
-
-            }
-        }
-    }
-    protected void gv_PreRender(object sender, EventArgs e)
-    {
-        GridView gv = (GridView)sender;
-        if (gv.Rows.Count > 0)
-        {
-            gv.UseAccessibleHeader = true;
-            gv.HeaderRow.TableSection = TableRowSection.TableHeader;
-            gv.HeaderStyle.BorderStyle = BorderStyle.None;
-            gv.BorderStyle = BorderStyle.None;
-            gv.BorderWidth = Unit.Pixel(1);
-        }
-    }
-    #region Analytics KPIs
-    public void fillpnl_Coaching_and_Feedback(int ForEmpID)
-    {
-        AnalyticCoaching = 0;
-        strSQL = "[WFMPMS].[getAnalyticCoachingScore]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
-        {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                SqlDataReader sdr = cmd.ExecuteReader();
-                while (sdr.Read())
-                {
-                    if (sdr.HasRows)
-                    {
-                        //AnalyticCoaching = Convert.ToInt32(sdr.GetValue(0));
-                        AnalyticCoaching = Convert.ToInt32(sdr.GetValue(0));
-                        ltlCoachingFeedback.Text = "Coaching & Feedback &nbsp= &nbsp";
-                        ltl_Coaching_and_Feedback.Text = AnalyticCoaching.ToString();
-                    }
-                    else
-                    {
-                        int noVal = 0;
-                        ltlCoachingFeedback.Text = noVal.ToString();
-                        ltl_Coaching_and_Feedback.Text = noVal.ToString();
-                    }
-                }
-                //ltlCoachingFeedback.Text = "Coaching & Feedback &nbsp= &nbsp";
-                //ltl_CoachingFeddback.Text = AnalyticCoaching.ToString();
-            }
-
-        }
-    }
-    public void fillpnl_On_Time_Delivery(int ForEmpID)
-    {
-        AnalyticTimeline = 0;
-        strSQL = "[WFMPMS].[GetAnalyticTimelineScore]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
-        {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                SqlDataReader sdr = cmd.ExecuteReader();
-                while (sdr.Read())
-                {
-                    if (sdr.HasRows)
-                    {
-                        string val = sdr.GetValue(0).ToString();
-                        //AnalyticTimeline = Convert.ToInt32(sdr.GetValue(0));
-                        //if (val != null)
-                        //    ltlOntimeDelivery.Text = "On Time Delivery &nbsp= &nbsp" + "<div class=\"pull-right header\">" + val + "</div>";
-                        //else
-                        //{
-                        //    int noVal = 0;
-                        //    ltlOntimeDelivery.Text = noVal.ToString();
-                        //}
-
-                        if (val != null)
+                        if (sdr.HasRows)
                         {
-                            ltlOntimeDelivery.Text = "On Time Delivery &nbsp= &nbsp";
-                            ltl_On_time_Delivery.Text = val.ToString();
+                            //AnalyticCoaching = Convert.ToInt32(sdr.GetValue(0));
+                            AnalyticCoaching = Convert.ToInt32(sdr.GetValue(0));
+                            ltlCoachingFeedback.Text = "Coaching & Feedback &nbsp= &nbsp";
+                            ltl_Coaching_and_Feedback.Text = AnalyticCoaching.ToString();
                         }
                         else
                         {
                             int noVal = 0;
-                            ltlOntimeDelivery.Text = noVal.ToString();
-                            ltl_On_time_Delivery.Text = noVal.ToString();
+                            ltlCoachingFeedback.Text = noVal.ToString();
+                            ltl_Coaching_and_Feedback.Text = noVal.ToString();
                         }
-
                     }
-                    //else {
-                    //    int noVal = 0;
-                    //    ltlOntimeDelivery.Text = noVal.ToString();
-                    //}
+                    //ltlCoachingFeedback.Text = "Coaching & Feedback &nbsp= &nbsp";
+                    //ltl_CoachingFeddback.Text = AnalyticCoaching.ToString();
                 }
 
             }
-
         }
-    }
-    public void fillpnl_Absenteeism(int ForEmpID)
-    {
-        AbsenteeismRating = 0;
-        strSQL = "[WFMPMS].[GetSelfAttendanceScore]";
-        SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.CommandType = CommandType.StoredProcedure;
-        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-        cmd.Parameters.AddWithValue("@StartDate", StartDate);
-        cmd.Parameters.AddWithValue("@EndDate", EndDate);
-        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-
-        GridView gvAbsenteeism = new GridView();
-        gvAbsenteeism.ID = "gvAbsenteeism";
-        gvAbsenteeism.AutoGenerateColumns = true;
-
-        gvAbsenteeism.DataSource = dt;
-        gvAbsenteeism.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-
-        gvAbsenteeism.DataBind();
-        if (dt != null && dt.Rows.Count > 0)
+        public void fillpnl_On_Time_Delivery(int ForEmpID)
         {
-            gvAbsenteeism.Rows[gvAbsenteeism.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-            gvAbsenteeism.Rows[gvAbsenteeism.Rows.Count - 1].Font.Bold = true;
-            gvAbsenteeism.PreRender += gv_PreRender;
-            string absRating = dt.Rows[dt.Rows.Count - 1]["Rating"].ToString();
-            Decimal dcAbsRting = 5;
-            Decimal.TryParse(absRating, out dcAbsRting);
-            AbsenteeismRating = dcAbsRting;
-        }
-        else
-        {
-            ltlAbsenteeism.Text = string.Empty;
-        }
-        ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
-        pnlAbsenteeism.Controls.Add(gvAbsenteeism);
-        ltl_Absenteeism.Text = AbsenteeismRating.ToString();
-    }
-    public void fillpnl_Accuracy(int ForEmpID)
-    {
-        Accuracy = 0;
-        strSQL = "[WFMPMS].[GetAnalyticAccuracyScore]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
-        {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+            AnalyticTimeline = 0;
+            strSQL = "[WFMPMS].[GetAnalyticTimelineScore]";
+            using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                SqlDataReader sdr = cmd.ExecuteReader();
-                while (sdr.Read())
+                cn.Open();
+                using (SqlCommand cmd = new SqlCommand(strSQL, cn))
                 {
-                    //if (sdr.HasRows)
-                    //{
-                    //    Accuracy = Convert.ToInt32(sdr.GetValue(0));
-                    //    ltlAccuracy.Text = "Accuracy &nbsp= &nbsp" + "<div class=\"pull-right header\">" + Accuracy + "</div>";
-                    //}
-                    //else
-                    //{
-                    //    int noVal = 0;
-                    //    ltlAccuracy.Text = noVal.ToString();
-                    //}
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                    SqlDataReader sdr = cmd.ExecuteReader();
+                    while (sdr.Read())
+                    {
+                        if (sdr.HasRows)
+                        {
+                            string val = sdr.GetValue(0).ToString();
+                            //AnalyticTimeline = Convert.ToInt32(sdr.GetValue(0));
+                            //if (val != null)
+                            //    ltlOntimeDelivery.Text = "On Time Delivery &nbsp= &nbsp" + "<div class=\"pull-right header\">" + val + "</div>";
+                            //else
+                            //{
+                            //    int noVal = 0;
+                            //    ltlOntimeDelivery.Text = noVal.ToString();
+                            //}
 
-                    if (sdr.HasRows)
-                    {
-                        Accuracy = Convert.ToInt32(sdr.GetValue(0));
-                        ltlAccuracy.Text = "Accuracy &nbsp= &nbsp";
-                        ltl_Accuracy.Text = Accuracy.ToString();
+                            if (val != null)
+                            {
+                                ltlOntimeDelivery.Text = "On Time Delivery &nbsp= &nbsp";
+                                ltl_On_time_Delivery.Text = val.ToString();
+                            }
+                            else
+                            {
+                                int noVal = 0;
+                                ltlOntimeDelivery.Text = noVal.ToString();
+                                ltl_On_time_Delivery.Text = noVal.ToString();
+                            }
+
+                        }
+                        //else {
+                        //    int noVal = 0;
+                        //    ltlOntimeDelivery.Text = noVal.ToString();
+                        //}
                     }
-                    else
-                    {
-                        int noVal = 0;
-                        ltlAccuracy.Text = noVal.ToString();
-                        ltl_Accuracy.Text = noVal.ToString();
-                    }
+
                 }
-                //ltlAccuracy.Text = "Accuracy &nbsp= &nbsp" + "<div class=\"pull-right header\">" + Accuracy + "</div>";
-            }
 
+            }
         }
-    }
-    public void fillpnl_Projects(int ForEmpID)
-    {
-        AnalyticProject = 0;
-        strSQL = "[WFMPMS].[getAnalyticProjectScore]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+        public void fillpnl_Absenteeism(int ForEmpID)
         {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+            AbsenteeismRating = 0;
+            strSQL = "[WFMPMS].[GetSelfAttendanceScore]";
+            SqlCommand cmd = new SqlCommand(strSQL);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+            cmd.Parameters.AddWithValue("@StartDate", StartDate);
+            cmd.Parameters.AddWithValue("@EndDate", EndDate);
+            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+
+            GridView gvAbsenteeism = new GridView();
+            gvAbsenteeism.ID = "gvAbsenteeism";
+            gvAbsenteeism.AutoGenerateColumns = true;
+
+            gvAbsenteeism.DataSource = dt;
+            gvAbsenteeism.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+
+            gvAbsenteeism.DataBind();
+            if (dt != null && dt.Rows.Count > 0)
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                SqlDataReader sdr = cmd.ExecuteReader();
-                while (sdr.Read())
+                gvAbsenteeism.RowStyle.CssClass = "text-muted well well-sm no-shadow";
+                gvAbsenteeism.Rows[0].Font.Bold = true;
+                gvAbsenteeism.PreRender += gv_PreRender;
+                string absRating = dt.Rows[0]["Final_Score"].ToString();
+                ltl_Absenteeism.Text = absRating;
+                //Decimal dcAbsRting = 5;
+                //Decimal.TryParse(absRating, out dcAbsRting);
+                //AbsenteeismRating = dcAbsRting;
+            }
+            else
+            {
+                ltlAbsenteeism.Text = string.Empty;
+            }
+            ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
+            pnlAbsenteeism.Controls.Add(gvAbsenteeism);
+            //ltl_Absenteeism.Text = AbsenteeismRating.ToString();
+        }
+        public void fillpnl_Accuracy(int ForEmpID)
+        {
+            Accuracy = 0;
+            strSQL = "[WFMPMS].[GetAnalyticAccuracyScore]";
+            using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+            {
+                cn.Open();
+                using (SqlCommand cmd = new SqlCommand(strSQL, cn))
                 {
-                    //if (sdr.HasRows)
-                    //{
-                    //    AnalyticProject = Convert.ToInt32(sdr.GetValue(0));
-                    //}
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                    SqlDataReader sdr = cmd.ExecuteReader();
+                    while (sdr.Read())
+                    {
+                        //if (sdr.HasRows)
+                        //{
+                        //    Accuracy = Convert.ToInt32(sdr.GetValue(0));
+                        //    ltlAccuracy.Text = "Accuracy &nbsp= &nbsp" + "<div class=\"pull-right header\">" + Accuracy + "</div>";
+                        //}
+                        //else
+                        //{
+                        //    int noVal = 0;
+                        //    ltlAccuracy.Text = noVal.ToString();
+                        //}
 
-                    if (sdr.HasRows)
-                    {
-                        AnalyticProject = Convert.ToInt32(sdr.GetValue(0));
-                        ltlProject.Text = "Projects &nbsp= &nbsp";
-                        ltl_Project.Text = AnalyticProject.ToString();
+                        if (sdr.HasRows)
+                        {
+                            Accuracy = Convert.ToInt32(sdr.GetValue(0));
+                            ltlAccuracy.Text = "Accuracy &nbsp= &nbsp";
+                            ltl_Accuracy.Text = Accuracy.ToString();
+                        }
+                        else
+                        {
+                            int noVal = 0;
+                            ltlAccuracy.Text = noVal.ToString();
+                            ltl_Accuracy.Text = noVal.ToString();
+                        }
                     }
-                    else
-                    {
-                        int noVal = 0;
-                        ltlProject.Text = noVal.ToString();
-                        ltl_Project.Text = noVal.ToString();
-                    }
+                    //ltlAccuracy.Text = "Accuracy &nbsp= &nbsp" + "<div class=\"pull-right header\">" + Accuracy + "</div>";
                 }
-                //ltlAnalyticProject.Text = "Projects &nbsp= &nbsp" + "<div class=\"pull-right header\">" + AnalyticProject + "</div>";
-                //ltlProject.Text = "Projects &nbsp= &nbsp";
-                //ltl_Project.Text = AnalyticProject.ToString();
-            }
 
-        }
-    }
-    #endregion Analytics KPIs
-    #region Manager
-    public void fillpnl_Attrition(int ForEmpID)
-    {
-        string metric = "Attrition";
-        string strSQL1 = "[WFMPMS].[getAttritionScore]";
-
-        SqlCommand cmd1 = new SqlCommand(strSQL1);
-        cmd1.CommandType = CommandType.StoredProcedure;
-        cmd1.Parameters.AddWithValue("@EmpCode", MyEmpID);
-        cmd1.Parameters.AddWithValue("@StartDate", StartDate);
-        cmd1.Parameters.AddWithValue("@EndDate", EndDate);
-        DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
-        if (dt1 != null)
-        {
-            GridView gvAttrition = new GridView();
-            gvAttrition.ID = "gvAttrition";
-            gvAttrition.AutoGenerateColumns = true;
-            //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-
-            DataRow dr1 = dt1.NewRow();
-
-            gvAttrition.DataSource = dt1;
-            gvAttrition.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-            gvAttrition.DataBind();
-            if (dt1.Rows.Count > 0)
-            {
-                gvAttrition.Rows[gvAttrition.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                gvAttrition.Rows[gvAttrition.Rows.Count - 1].Font.Bold = true;
-                gvAttrition.PreRender += gv_PreRender;
-                
-                AttritionRating = Convert.ToInt32(dt1.Rows[dt1.Rows.Count - 1]["Attrited"].ToString());
-                ltlAttrition.Text = "Attrition Rating = ";
-                pnlAttrition.Controls.Add(gvAttrition);
-                ltl_Attrition.Text = AttritionRating.ToString();
             }
         }
-    }
-    public void fillpnl_Team_Absenteeism(int ForEmpID)
-    {
-        string metric = "Absenteeism";
-        string strSQL1 = "[WFMPMS].[GetManagerKPI]";
-
-        SqlCommand cmd1 = new SqlCommand(strSQL1);
-        cmd1.CommandType = CommandType.StoredProcedure;
-        cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
-        cmd1.Parameters.AddWithValue("@StartDate", StartDate);
-        cmd1.Parameters.AddWithValue("@EndDate", EndDate);
-        cmd1.Parameters.AddWithValue("@Metric", metric);
-
-        DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
-        if (dt1 != null)
+        public void fillpnl_Projects(int ForEmpID)
         {
-            GridView gvTeamAbsenteeism = new GridView();
-            gvTeamAbsenteeism.ID = "gvTeamAbsenteeism";
-            gvTeamAbsenteeism.AutoGenerateColumns = true;
-            
-            DataRow dr1 = dt1.NewRow();
-
-            gvTeamAbsenteeism.DataSource = dt1;
-            gvTeamAbsenteeism.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-            gvTeamAbsenteeism.DataBind();
-            if (dt1.Rows.Count > 0)
+            AnalyticProject = 0;
+            strSQL = "[WFMPMS].[getAnalyticProjectScore]";
+            using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
             {
-                gvTeamAbsenteeism.Rows[gvTeamAbsenteeism.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                gvTeamAbsenteeism.Rows[gvTeamAbsenteeism.Rows.Count - 1].Font.Bold = true;
-                gvTeamAbsenteeism.PreRender += gv_PreRender;
-                //SLRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-                TeamAbsenteeismRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-                ltlTeam_Absenteeism.Text = "Team Absenteeism = ";
-                pnlTeam_Absenteeism.Controls.Add(gvTeamAbsenteeism);
-                ltl_Team_Absenteeism.Text = Math.Round(TeamAbsenteeismRating,2).ToString();
-            }
-        }
-    }
-    public void fillpnl_Self_Absenteeism(int ForEmpID)
-    {
-        SelfAbsenteeismRating = 0;
-        strSQL = "[WFMPMS].[GetSelfAttendanceScore]";
-        SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.CommandType = CommandType.StoredProcedure;
-        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-        cmd.Parameters.AddWithValue("@StartDate", StartDate);
-        cmd.Parameters.AddWithValue("@EndDate", EndDate);
-        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-
-        GridView gvSelfAbsenteeism = new GridView();
-        gvSelfAbsenteeism.ID = "gvSelfAbsenteeism";
-        gvSelfAbsenteeism.AutoGenerateColumns = true;
-
-        gvSelfAbsenteeism.DataSource = dt;
-        gvSelfAbsenteeism.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-
-        gvSelfAbsenteeism.DataBind();
-        if (dt != null && dt.Rows.Count > 0)
-        {
-            gvSelfAbsenteeism.Rows[gvSelfAbsenteeism.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-            gvSelfAbsenteeism.Rows[gvSelfAbsenteeism.Rows.Count - 1].Font.Bold = true;
-            gvSelfAbsenteeism.PreRender += gv_PreRender;
-            string absRating = dt.Rows[dt.Rows.Count - 1]["Rating"].ToString();
-            Decimal dcAbsRting = 5;
-            Decimal.TryParse(absRating, out dcAbsRting);
-            SelfAbsenteeismRating = dcAbsRting;
-        }
-        else
-        {
-            ltlSelf_Absenteeism.Text = string.Empty;
-        }
-        ltlSelf_Absenteeism.Text = "Self-Attendance &nbsp= &nbsp";
-        pnlSelf_Absenteeism.Controls.Add(gvSelfAbsenteeism);
-        ltl_Self_Absenteeism.Text = AbsenteeismRating.ToString();
-    }    
-    public void fillpnl_Revenue_and_Cost_optimization(int ForEmpID)
-    {
-        Revenue = 0;
-        strSQL = "[WFMPMS].[GetRevenueScore]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
-        {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                SqlDataReader sdr = cmd.ExecuteReader();
-                while (sdr.Read())
+                cn.Open();
+                using (SqlCommand cmd = new SqlCommand(strSQL, cn))
                 {
-                    if (sdr.HasRows)
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                    SqlDataReader sdr = cmd.ExecuteReader();
+                    while (sdr.Read())
                     {
-                        Revenue = Convert.ToInt32(sdr.GetValue(0));
-                    }
-                }
-                ltlRevenue_and_Cost_optimization.Text = "Revenue & Cost Optimization &nbsp= &nbsp";
-                ltl_Revenue_and_Cost_optimization.Text = Revenue.ToString();
-            }
+                        //if (sdr.HasRows)
+                        //{
+                        //    AnalyticProject = Convert.ToInt32(sdr.GetValue(0));
+                        //}
 
+                        if (sdr.HasRows)
+                        {
+                            AnalyticProject = Convert.ToInt32(sdr.GetValue(0));
+                            ltlProject.Text = "Projects &nbsp= &nbsp";
+                            ltl_Project.Text = AnalyticProject.ToString();
+                        }
+                        else
+                        {
+                            int noVal = 0;
+                            ltlProject.Text = noVal.ToString();
+                            ltl_Project.Text = noVal.ToString();
+                        }
+                    }
+                    //ltlAnalyticProject.Text = "Projects &nbsp= &nbsp" + "<div class=\"pull-right header\">" + AnalyticProject + "</div>";
+                    //ltlProject.Text = "Projects &nbsp= &nbsp";
+                    //ltl_Project.Text = AnalyticProject.ToString();
+                }
+
+            }
         }
-    }
-    #endregion
-    #region Planning
-    public void fillpnl_BTP(int ForEmpID)
-    {
-        string metric = "BTP";
-        if (IsManager == 1)
+        #endregion Analytics KPIs
+        #region Manager
+        public void fillpnl_Attrition(int ForEmpID)
         {
+            string metric = "Attrition";
+            string strSQL1 = "[WFMPMS].[getAttritionScore]";
+
+            SqlCommand cmd1 = new SqlCommand(strSQL1);
+            cmd1.CommandType = CommandType.StoredProcedure;
+            cmd1.Parameters.AddWithValue("@EmpCode", MyEmpID);
+            cmd1.Parameters.AddWithValue("@StartDate", StartDate);
+            cmd1.Parameters.AddWithValue("@EndDate", EndDate);
+            //cmd1.Parameters.AddWithValue("@Metric", metric);
+
+            DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
+            if (dt1 != null)
+            {
+                GridView gvAttrition = new GridView();
+                gvAttrition.ID = "gvAttrition";
+                gvAttrition.AutoGenerateColumns = true;
+                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+                DataRow dr1 = dt1.NewRow();
+
+                gvAttrition.DataSource = dt1;
+                gvAttrition.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                gvAttrition.DataBind();
+                if (dt1.Rows.Count > 0)
+                {
+                    gvAttrition.Rows[gvAttrition.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                    gvAttrition.Rows[gvAttrition.Rows.Count - 1].Font.Bold = true;
+                    gvAttrition.PreRender += gv_PreRender;
+                    //SLRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+                    AttritionRating = Convert.ToInt32(dt1.Rows[dt1.Rows.Count - 1]["Attrited"].ToString());
+                    ltlAttrition.Text = "Attrition Rating = ";
+                    pnlAttrition.Controls.Add(gvAttrition);
+                    ltl_Attrition.Text = AttritionRating.ToString();
+                }
+            }
+        }
+        public void fillpnl_Team_Absenteeism(int ForEmpID)
+        {
+            string metric = "Absenteeism";
             string strSQL1 = "[WFMPMS].[GetManagerKPI]";
 
             SqlCommand cmd1 = new SqlCommand(strSQL1);
@@ -941,807 +875,925 @@ public partial class pacman : System.Web.UI.Page
             DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
             if (dt1 != null)
             {
-                GridView gvBTP = new GridView();
-                gvBTP.ID = "gvBTP";
-                gvBTP.AutoGenerateColumns = true;
+                GridView gvTeamAbsenteeism = new GridView();
+                gvTeamAbsenteeism.ID = "gvTeamAbsenteeism";
+                gvTeamAbsenteeism.AutoGenerateColumns = true;
                 //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr1 = dt1.NewRow();
 
-                gvBTP.DataSource = dt1;
-                gvBTP.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                gvBTP.DataBind();
+                gvTeamAbsenteeism.DataSource = dt1;
+                gvTeamAbsenteeism.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                gvTeamAbsenteeism.DataBind();
                 if (dt1.Rows.Count > 0)
+                {
+                    gvTeamAbsenteeism.Rows[gvTeamAbsenteeism.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                    gvTeamAbsenteeism.Rows[gvTeamAbsenteeism.Rows.Count - 1].Font.Bold = true;
+                    gvTeamAbsenteeism.PreRender += gv_PreRender;
+                    //SLRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+                    TeamAbsenteeismRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+                    ltlTeam_Absenteeism.Text = "Team Absenteeism = ";
+                    pnlTeam_Absenteeism.Controls.Add(gvTeamAbsenteeism);
+                    ltl_Team_Absenteeism.Text = TeamAbsenteeismRating.ToString();
+                }
+            }
+        }
+        public void fillpnl_Self_Absenteeism(int ForEmpID)
+        {
+            SelfAbsenteeismRating = 0;
+            strSQL = "[WFMPMS].[GetSelfAttendanceScore]";
+            SqlCommand cmd = new SqlCommand(strSQL);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+            cmd.Parameters.AddWithValue("@StartDate", StartDate);
+            cmd.Parameters.AddWithValue("@EndDate", EndDate);
+            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+
+            GridView gvSelfAbsenteeism = new GridView();
+            gvSelfAbsenteeism.ID = "gvSelfAbsenteeism";
+            gvSelfAbsenteeism.AutoGenerateColumns = true;
+
+            gvSelfAbsenteeism.DataSource = dt;
+            gvSelfAbsenteeism.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+
+            gvSelfAbsenteeism.DataBind();
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                //gvSelfAbsenteeism.Rows[gvSelfAbsenteeism.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                //gvSelfAbsenteeism.Rows[gvSelfAbsenteeism.Rows.Count - 1].Font.Bold = true;
+                //gvSelfAbsenteeism.PreRender += gv_PreRender;
+                //string absRating = dt.Rows[dt.Rows.Count - 1]["Rating"].ToString();
+                //Decimal dcAbsRting = 5;
+                //Decimal.TryParse(absRating, out dcAbsRting);
+                //SelfAbsenteeismRating = dcAbsRting;
+            }
+            else
+            {
+                ltlSelf_Absenteeism.Text = string.Empty;
+            }
+            ltlSelf_Absenteeism.Text = "Self-Attendance &nbsp= &nbsp";
+            pnlSelf_Absenteeism.Controls.Add(gvSelfAbsenteeism);
+            ltl_Self_Absenteeism.Text = AbsenteeismRating.ToString();
+        }
+        //fillpnl_Revenue_and_Cost_optimization - post correction
+        //fillpnl_Revenue_Cost_optimization - earlier
+        public void fillpnl_Revenue_and_Cost_optimization(int ForEmpID)
+        {
+            Revenue = 0;
+            strSQL = "[WFMPMS].[GetRevenueScore]";
+            using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+            {
+                cn.Open();
+                using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                    SqlDataReader sdr = cmd.ExecuteReader();
+                    while (sdr.Read())
+                    {
+                        if (sdr.HasRows)
+                        {
+                            Revenue = Convert.ToInt32(sdr.GetValue(0));
+                        }
+                    }
+                    ltlRevenue_and_Cost_optimization.Text = "Revenue & Cost Optimization &nbsp= &nbsp";
+                    ltl_Revenue_and_Cost_optimization.Text = Revenue.ToString();
+                }
+
+            }
+        }
+        #endregion
+        #region Planning
+        public void fillpnl_BTP(int ForEmpID)
+        {
+            string metric = "BTP";
+            if (IsManager == 1)
+            {
+                string strSQL1 = "[WFMPMS].[GetManagerKPI]";
+
+                SqlCommand cmd1 = new SqlCommand(strSQL1);
+                cmd1.CommandType = CommandType.StoredProcedure;
+                cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd1.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd1.Parameters.AddWithValue("@EndDate", EndDate);
+                cmd1.Parameters.AddWithValue("@Metric", metric);
+
+                DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
+                if (dt1 != null)
+                {
+                    GridView gvBTP = new GridView();
+                    gvBTP.ID = "gvBTP";
+                    gvBTP.AutoGenerateColumns = true;
+                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+                    DataRow dr1 = dt1.NewRow();
+
+                    gvBTP.DataSource = dt1;
+                    gvBTP.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                    gvBTP.DataBind();
+                    if (dt1.Rows.Count > 0)
+                    {
+                        gvBTP.Rows[gvBTP.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                        gvBTP.Rows[gvBTP.Rows.Count - 1].Font.Bold = true;
+                        gvBTP.PreRender += gv_PreRender;
+                        //SLRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+                        BTPRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+                        ltlBTP.Text = "BTP : Billed To Pay Ratio = ";
+                        pnlBTP.Controls.Add(gvBTP);
+                        ltl_BTP.Text = BTPRating.ToString();
+                    }
+
+
+                    pnlBTP.Controls.Add(gvBTP);
+                }
+            }
+            else
+            {
+
+                PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+                string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+                DataTable dt = my.GetData(strSQL);
+                StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
+
+
+                strSQL = "[WFMPMS].GetBTPByEmp";
+                SqlCommand cmd = new SqlCommand(strSQL);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd.Parameters.AddWithValue("@Month", StartDate);
+                dt = my.GetDataTableViaProcedure(ref cmd);
+
+
+                GridView gvBTP = new GridView();
+                gvBTP.ID = "gvBTP";
+                gvBTP.AutoGenerateColumns = true;
+
+                gvBTP.DataSource = dt;
+                gvBTP.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+
+                gvBTP.DataBind();
+                if (dt != null && dt.Rows.Count > 0)
                 {
                     gvBTP.Rows[gvBTP.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
                     gvBTP.Rows[gvBTP.Rows.Count - 1].Font.Bold = true;
                     gvBTP.PreRender += gv_PreRender;
-                    //SLRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-                    BTPRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-                    ltlBTP.Text = "BTP : Billed To Pay Ratio = ";
-                    pnlBTP.Controls.Add(gvBTP);
-                    ltl_BTP.Text = Math.Round(BTPRating,2).ToString();
+                    BTPRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+                }
+                else
+                {
+                    ltlBTP.Text = string.Empty;
+                }
+                ltlBTP.Text = "BTP : Billed To Pay Ratio = ";
+                pnlBTP.Controls.Add(gvBTP);
+                ltl_BTP.Text = BTPRating.ToString();
+            }
+
+        }
+        public void fillpnl_Escalations(int ForEmpID)
+        {
+            //string metric = "Escalations";
+            //if (IsManager == 1)
+            //{
+            //    string strSQL1 = "[WFMPMS].[GetManagerKPI]";
+
+            //    SqlCommand cmd1 = new SqlCommand(strSQL1);
+            //    cmd1.CommandType = CommandType.StoredProcedure;
+            //    cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
+            //    cmd1.Parameters.AddWithValue("@StartDate", StartDate);
+            //    cmd1.Parameters.AddWithValue("@EndDate", EndDate);
+            //    cmd1.Parameters.AddWithValue("@Metric", metric);
+
+            //    DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
+            //    if (dt1 != null)
+            //    {
+            //        GridView gvEscalations = new GridView();
+            //        gvEscalations.ID = "gvEscalations";
+            //        gvEscalations.AutoGenerateColumns = true;
+            //        //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+            //        DataRow dr1 = dt1.NewRow();
+
+            //        gvEscalations.DataSource = dt1;
+            //        gvEscalations.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+            //        gvEscalations.DataBind();
+            //        if (dt1.Rows.Count > 0)
+            //        {
+            //            gvEscalations.Rows[gvEscalations.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+            //            gvEscalations.Rows[gvEscalations.Rows.Count - 1].Font.Bold = true;
+            //            gvEscalations.PreRender += gv_PreRender;
+            //            //SLRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+            //            EIRating = Convert.ToInt32(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+            //            ltlEI.Text = "Escalations & Initiatives &nbsp= &nbsp";
+            //            pnlBTP.Controls.Add(gvEscalations);
+            //            ltl_Escalations.Text = EIRating.ToString();
+            //        }
+
+
+            //        pnlEscalations.Controls.Add(gvEscalations);
+            //    }
+            //}
+            //else
+            //{
+            EIRating = 0;
+            strSQL = "[WFMPMS].[GetEscalationInitiativeScore]";
+            using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+            {
+                cn.Open();
+                using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                    cmd.Parameters.AddWithValue("@total", EIRating);
+                    cmd.Parameters["@total"].Direction = ParameterDirection.Output;
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+
+
+                    EIRating = Convert.ToInt32(cmd.Parameters["@total"].Value.ToString());
+                    ltlEI.Text = "Escalations & Initiatives &nbsp= &nbsp";
+                    ltl_Escalations.Text = EIRating.ToString();
+
+                    if (dt != null)
+                    {
+                        GridView gvEscalations = new GridView();
+                        gvEscalations.ID = "gvEscalations";
+                        gvEscalations.AutoGenerateColumns = true;
+                        //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+                        DataRow dr = dt.NewRow();
+
+                        gvEscalations.DataSource = dt;
+                        gvEscalations.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                        gvEscalations.DataBind();
+                        if (dt.Rows.Count > 0)
+                        {
+                            gvEscalations.Rows[gvEscalations.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                            gvEscalations.Rows[gvEscalations.Rows.Count - 1].Font.Bold = true;
+                            gvEscalations.PreRender += gv_PreRender;
+                        }
+
+
+                        pnlEscalations.Controls.Add(gvEscalations);
+                    }
+                    else
+                    {
+                        ltl_Escalations.Text = string.Empty;
+                    }
                 }
 
-
-                pnlBTP.Controls.Add(gvBTP);
             }
+            //}
         }
-        else
+        public void fillpnl_Forecasting_Accuracy(int ForEmpID)
         {
-
-            PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-            string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
-            DataTable dt = my.GetData(strSQL);
-            StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
-
-
-            strSQL = "[WFMPMS].GetBTPByEmp";
-            SqlCommand cmd = new SqlCommand(strSQL);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-            cmd.Parameters.AddWithValue("@Month", StartDate);
-            dt = my.GetDataTableViaProcedure(ref cmd);
-
-
-            GridView gvBTP = new GridView();
-            gvBTP.ID = "gvBTP";
-            gvBTP.AutoGenerateColumns = true;
-
-            gvBTP.DataSource = dt;
-            gvBTP.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-
-            gvBTP.DataBind();
-            if (dt != null && dt.Rows.Count > 0)
+            string metric = "Forecastin_ Accuracy";
+            if (IsManager == 1)
             {
-                gvBTP.Rows[gvBTP.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                gvBTP.Rows[gvBTP.Rows.Count - 1].Font.Bold = true;
-                gvBTP.PreRender += gv_PreRender;
-                BTPRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+                string strSQL1 = "[WFMPMS].[GetManagerKPI]";
+
+                SqlCommand cmd1 = new SqlCommand(strSQL1);
+                cmd1.CommandType = CommandType.StoredProcedure;
+                cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd1.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd1.Parameters.AddWithValue("@EndDate", EndDate);
+                cmd1.Parameters.AddWithValue("@Metric", metric);
+
+                DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
+                if (dt1 != null)
+                {
+                    GridView gvForecastingAccuracy = new GridView();
+                    gvForecastingAccuracy.ID = "gvForecastingAccuracy";
+                    gvForecastingAccuracy.AutoGenerateColumns = true;
+                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+                    DataRow dr1 = dt1.NewRow();
+
+                    gvForecastingAccuracy.DataSource = dt1;
+                    gvForecastingAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                    gvForecastingAccuracy.DataBind();
+                    if (dt1.Rows.Count > 0)
+                    {
+                        gvForecastingAccuracy.Rows[gvForecastingAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                        gvForecastingAccuracy.Rows[gvForecastingAccuracy.Rows.Count - 1].Font.Bold = true;
+                        gvForecastingAccuracy.PreRender += gv_PreRender;
+                        //BTPRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+                        bool farating = false;
+                        decimal dec_farating;
+                        farating = Decimal.TryParse(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString(), out dec_farating);
+                        if (farating)
+                        {
+                            ForecastingAccuracy = dec_farating;
+                        }
+                        else
+                        {
+                            ForecastingAccuracy = 0;
+                        }
+                        ltl_Forecasting_Accuracy.Text = ForecastingAccuracy.ToString();
+                        ltlForecasting_Accuracy.Text = "Forecasting Accuracy = ";
+                        pnlForecasting_Accuracy.Controls.Add(gvForecastingAccuracy);
+                    }
+                }
             }
             else
             {
-                ltlBTP.Text = string.Empty;
-            }
-            ltlBTP.Text = "BTP : Billed To Pay Ratio = ";
-            pnlBTP.Controls.Add(gvBTP);
-            ltl_BTP.Text = BTPRating.ToString();
-        }
+                //WFMPMS.getForecastAccuracyScore
+                string strSQL = "[WFMPMS].[IEXForecastingScore]";
 
-    }
-    public void fillpnl_Escalations(int ForEmpID)
-    {
-        //string metric = "Escalations";
-        //if (IsManager == 1)
-        //{
-        //    string strSQL1 = "[WFMPMS].[GetManagerKPI]";
-
-        //    SqlCommand cmd1 = new SqlCommand(strSQL1);
-        //    cmd1.CommandType = CommandType.StoredProcedure;
-        //    cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
-        //    cmd1.Parameters.AddWithValue("@StartDate", StartDate);
-        //    cmd1.Parameters.AddWithValue("@EndDate", EndDate);
-        //    cmd1.Parameters.AddWithValue("@Metric", metric);
-
-        //    DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
-        //    if (dt1 != null)
-        //    {
-        //        GridView gvEscalations = new GridView();
-        //        gvEscalations.ID = "gvEscalations";
-        //        gvEscalations.AutoGenerateColumns = true;
-        //        //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-
-        //        DataRow dr1 = dt1.NewRow();
-
-        //        gvEscalations.DataSource = dt1;
-        //        gvEscalations.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-        //        gvEscalations.DataBind();
-        //        if (dt1.Rows.Count > 0)
-        //        {
-        //            gvEscalations.Rows[gvEscalations.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-        //            gvEscalations.Rows[gvEscalations.Rows.Count - 1].Font.Bold = true;
-        //            gvEscalations.PreRender += gv_PreRender;
-        //            //SLRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-        //            EIRating = Convert.ToInt32(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-        //            ltlEI.Text = "Escalations & Initiatives &nbsp= &nbsp";
-        //            pnlBTP.Controls.Add(gvEscalations);
-        //            ltl_Escalations.Text = EIRating.ToString();
-        //        }
-
-
-        //        pnlEscalations.Controls.Add(gvEscalations);
-        //    }
-        //}
-        //else
-        //{
-        EIRating = 0;
-        strSQL = "[WFMPMS].[GetEscalationInitiativeScore]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
-        {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
-            {
+                SqlCommand cmd = new SqlCommand(strSQL);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                cmd.Parameters.AddWithValue("@total", EIRating);
-                cmd.Parameters["@total"].Direction = ParameterDirection.Output;
-                SqlDataAdapter da = new SqlDataAdapter(cmd);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
+                cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd.Parameters.AddWithValue("@EndDate", EndDate);
 
-
-                EIRating = Convert.ToInt32(cmd.Parameters["@total"].Value.ToString());
-                ltlEI.Text = "Escalations & Initiatives &nbsp= &nbsp";
-                ltl_Escalations.Text = EIRating.ToString();
-
+                DataTable dt = my.GetDataTableViaProcedure(ref cmd);
                 if (dt != null)
                 {
-                    GridView gvEscalations = new GridView();
-                    gvEscalations.ID = "gvEscalations";
-                    gvEscalations.AutoGenerateColumns = true;
+                    GridView gvForecastingAccuracy = new GridView();
+                    gvForecastingAccuracy.ID = "gvForecastingAccuracy";
+                    gvForecastingAccuracy.AutoGenerateColumns = true;
                     //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
 
                     DataRow dr = dt.NewRow();
 
-                    gvEscalations.DataSource = dt;
-                    gvEscalations.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                    gvEscalations.DataBind();
+                    gvForecastingAccuracy.DataSource = dt;
+                    gvForecastingAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                    gvForecastingAccuracy.DataBind();
                     if (dt.Rows.Count > 0)
                     {
-                        gvEscalations.Rows[gvEscalations.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                        gvEscalations.Rows[gvEscalations.Rows.Count - 1].Font.Bold = true;
-                        gvEscalations.PreRender += gv_PreRender;
+                        gvForecastingAccuracy.Rows[gvForecastingAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                        gvForecastingAccuracy.Rows[gvForecastingAccuracy.Rows.Count - 1].Font.Bold = true;
+                        gvForecastingAccuracy.PreRender += gv_PreRender;
+                        //ForecastingAccuracy = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+                        bool farating = false;
+                        decimal dec_farating;
+                        farating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_farating);
+                        if (farating)
+                        {
+                            ForecastingAccuracy = dec_farating;
+                        }
+                        else
+                        {
+                            ForecastingAccuracy = 0;
+                        }
+                        ltl_Forecasting_Accuracy.Text = ForecastingAccuracy.ToString();
                     }
 
 
-                    pnlEscalations.Controls.Add(gvEscalations);
+                    pnlForecasting_Accuracy.Controls.Add(gvForecastingAccuracy);
                 }
                 else
                 {
-                    ltl_Escalations.Text = string.Empty;
-                }
-            }
-
-        }
-        //}
-    }
-    public void fillpnl_Forecasting_Accuracy(int ForEmpID)
-    {
-        string metric = "Forecastin_ Accuracy";
-        if (IsManager == 1)
-        {
-            string strSQL1 = "[WFMPMS].[GetManagerKPI]";
-
-            SqlCommand cmd1 = new SqlCommand(strSQL1);
-            cmd1.CommandType = CommandType.StoredProcedure;
-            cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
-            cmd1.Parameters.AddWithValue("@StartDate", StartDate);
-            cmd1.Parameters.AddWithValue("@EndDate", EndDate);
-            cmd1.Parameters.AddWithValue("@Metric", metric);
-
-            DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
-            if (dt1 != null)
-            {
-                GridView gvForecastingAccuracy = new GridView();
-                gvForecastingAccuracy.ID = "gvForecastingAccuracy";
-                gvForecastingAccuracy.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-
-                DataRow dr1 = dt1.NewRow();
-
-                gvForecastingAccuracy.DataSource = dt1;
-                gvForecastingAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                gvForecastingAccuracy.DataBind();
-                if (dt1.Rows.Count > 0)
-                {
-                    gvForecastingAccuracy.Rows[gvForecastingAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                    gvForecastingAccuracy.Rows[gvForecastingAccuracy.Rows.Count - 1].Font.Bold = true;
-                    gvForecastingAccuracy.PreRender += gv_PreRender;
-                    //BTPRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-                    bool farating = false;
-                    decimal dec_farating;
-                    farating = Decimal.TryParse(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString(), out dec_farating);
-                    if (farating)
-                    {
-                        ForecastingAccuracy = dec_farating;
-                    }
-                    else
-                    {
-                        ForecastingAccuracy = 0;
-                    }
-                    ltl_Forecasting_Accuracy.Text = ForecastingAccuracy.ToString();
-                    ltlForecasting_Accuracy.Text = "Forecasting Accuracy = ";
-                    pnlForecasting_Accuracy.Controls.Add(gvForecastingAccuracy);
+                    ltl_Forecasting_Accuracy.Text = "Forecasting Accuracy &nbsp= &nbsp" + "No Data found";
                 }
             }
         }
-        else
+        public void fillpnl_Headcount_Accuracy(int ForEmpID)
         {
-            //WFMPMS.getForecastAccuracyScore
-            string strSQL = "[WFMPMS].[IEXForecastingScore]";
-
-            SqlCommand cmd = new SqlCommand(strSQL);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-            cmd.Parameters.AddWithValue("@StartDate", StartDate);
-            cmd.Parameters.AddWithValue("@EndDate", EndDate);
-
-            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-            if (dt != null)
+            string metric = "Headcount_Accuracy";
+            if (IsManager == 1)
             {
-                GridView gvForecastingAccuracy = new GridView();
-                gvForecastingAccuracy.ID = "gvForecastingAccuracy";
-                gvForecastingAccuracy.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                string strSQL1 = "[WFMPMS].[GetManagerKPI]";
 
-                DataRow dr = dt.NewRow();
+                SqlCommand cmd1 = new SqlCommand(strSQL1);
+                cmd1.CommandType = CommandType.StoredProcedure;
+                cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd1.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd1.Parameters.AddWithValue("@EndDate", EndDate);
+                cmd1.Parameters.AddWithValue("@Metric", metric);
 
-                gvForecastingAccuracy.DataSource = dt;
-                gvForecastingAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                gvForecastingAccuracy.DataBind();
-                if (dt.Rows.Count > 0)
+                DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
+                if (dt1 != null)
                 {
-                    gvForecastingAccuracy.Rows[gvForecastingAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                    gvForecastingAccuracy.Rows[gvForecastingAccuracy.Rows.Count - 1].Font.Bold = true;
-                    gvForecastingAccuracy.PreRender += gv_PreRender;
-                    //ForecastingAccuracy = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
-                    bool farating = false;
-                    decimal dec_farating;
-                    farating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_farating);
-                    if (farating)
+                    GridView gvHeadcountAccuracy = new GridView();
+                    gvHeadcountAccuracy.ID = "gvHeadcountAccuracy";
+                    gvHeadcountAccuracy.AutoGenerateColumns = true;
+                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+                    DataRow dr1 = dt1.NewRow();
+
+                    gvHeadcountAccuracy.DataSource = dt1;
+                    gvHeadcountAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                    gvHeadcountAccuracy.DataBind();
+                    if (dt1.Rows.Count > 0)
                     {
-                        ForecastingAccuracy = dec_farating;
+                        gvHeadcountAccuracy.Rows[gvHeadcountAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                        gvHeadcountAccuracy.Rows[gvHeadcountAccuracy.Rows.Count - 1].Font.Bold = true;
+                        gvHeadcountAccuracy.PreRender += gv_PreRender;
+                        //BTPRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+                        bool hcarating = false;
+                        decimal dec_hcarating;
+                        hcarating = Decimal.TryParse(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString(), out dec_hcarating);
+                        if (hcarating)
+                        {
+                            HeadcountAccuracy = dec_hcarating;
+                        }
+                        else
+                        {
+                            HeadcountAccuracy = 0;
+                        }
+                        ltl_Headcount_Accuracy.Text = HeadcountAccuracy.ToString();
+                        ltlHeadcount_Accuracy.Text = "Headcount Accuracy = ";
+                        //pnlHeadcount_Accuracy.Controls.Add(gvHeadcountAccuracy);
                     }
-                    else
-                    {
-                        ForecastingAccuracy = 0;
-                    }
-                    ltl_Forecasting_Accuracy.Text = ForecastingAccuracy.ToString();
+
+
+                    pnlHeadcount_Accuracy.Controls.Add(gvHeadcountAccuracy);
                 }
-
-
-                pnlForecasting_Accuracy.Controls.Add(gvForecastingAccuracy);
             }
             else
             {
-                ltl_Forecasting_Accuracy.Text = "Forecasting Accuracy &nbsp= &nbsp" + "No Data found";
+                //WFMPMS.getHeadcountAccuracyScore
+                string strSQL = "WFMPMS.getHeadCountAccuracyScore";
+
+                SqlCommand cmd = new SqlCommand(strSQL);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd.Parameters.AddWithValue("@EndDate", EndDate);
+
+                DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+                if (dt != null)
+                {
+                    GridView gvHeadcountAccuracy = new GridView();
+                    gvHeadcountAccuracy.ID = "gvHeadcountAccuracy";
+                    gvHeadcountAccuracy.AutoGenerateColumns = true;
+                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+                    DataRow dr = dt.NewRow();
+
+                    gvHeadcountAccuracy.DataSource = dt;
+                    gvHeadcountAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                    gvHeadcountAccuracy.DataBind();
+                    if (dt.Rows.Count > 0)
+                    {
+                        gvHeadcountAccuracy.Rows[gvHeadcountAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                        gvHeadcountAccuracy.Rows[gvHeadcountAccuracy.Rows.Count - 1].Font.Bold = true;
+                        gvHeadcountAccuracy.PreRender += gv_PreRender;
+                        //HeadcountAccuracy = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+                        bool hcarating = false;
+                        decimal dec_hcarating;
+                        hcarating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_hcarating);
+                        if (hcarating)
+                        {
+                            HeadcountAccuracy = dec_hcarating;
+                        }
+                        else
+                        {
+                            HeadcountAccuracy = 0;
+                        }
+                        ltl_Headcount_Accuracy.Text = HeadcountAccuracy.ToString();
+                    }
+
+
+                    pnlHeadcount_Accuracy.Controls.Add(gvHeadcountAccuracy);
+                }
+                else
+                {
+                    ltlHeadcount_Accuracy.Text = "Headcount Accuracy &nbsp= &nbsp" + "No Data found";
+                }
             }
         }
-    }
-    public void fillpnl_Headcount_Accuracy(int ForEmpID)
-    {
-        string metric = "Headcount_Accuracy";
-        if (IsManager == 1)
+        #endregion
+        #region RTA
+        public void fillpnl_Real_Time_Optimization(int ForEmpID)
         {
-            string strSQL1 = "[WFMPMS].[GetManagerKPI]";
-
-            SqlCommand cmd1 = new SqlCommand(strSQL1);
-            cmd1.CommandType = CommandType.StoredProcedure;
-            cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
-            cmd1.Parameters.AddWithValue("@StartDate", StartDate);
-            cmd1.Parameters.AddWithValue("@EndDate", EndDate);
-            cmd1.Parameters.AddWithValue("@Metric", metric);
-
-            DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
-            if (dt1 != null)
+            string metric = "Real Time Optimization";
+            if (IsManager == 1)
             {
-                GridView gvHeadcountAccuracy = new GridView();
-                gvHeadcountAccuracy.ID = "gvHeadcountAccuracy";
-                gvHeadcountAccuracy.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                string strSQL1 = "[WFMPMS].[GetManagerKPI]";
 
-                DataRow dr1 = dt1.NewRow();
+                SqlCommand cmd1 = new SqlCommand(strSQL1);
+                cmd1.CommandType = CommandType.StoredProcedure;
+                cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd1.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd1.Parameters.AddWithValue("@EndDate", EndDate);
+                cmd1.Parameters.AddWithValue("@Metric", metric);
 
-                gvHeadcountAccuracy.DataSource = dt1;
-                gvHeadcountAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                gvHeadcountAccuracy.DataBind();
-                if (dt1.Rows.Count > 0)
+                DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
+                if (dt1 != null)
                 {
-                    gvHeadcountAccuracy.Rows[gvHeadcountAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                    gvHeadcountAccuracy.Rows[gvHeadcountAccuracy.Rows.Count - 1].Font.Bold = true;
-                    gvHeadcountAccuracy.PreRender += gv_PreRender;
-                    //BTPRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-                    bool hcarating = false;
-                    decimal dec_hcarating;
-                    hcarating = Decimal.TryParse(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString(), out dec_hcarating);
-                    if (hcarating)
+                    GridView gvOptimizationKPI = new GridView();
+                    gvOptimizationKPI.ID = "gvOptimizationKPI";
+                    gvOptimizationKPI.AutoGenerateColumns = true;
+                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+                    DataRow dr1 = dt1.NewRow();
+
+                    gvOptimizationKPI.DataSource = dt1;
+                    gvOptimizationKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                    gvOptimizationKPI.DataBind();
+                    if (dt1.Rows.Count > 0)
                     {
-                        HeadcountAccuracy = dec_hcarating;
+                        gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                        gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].Font.Bold = true;
+                        gvOptimizationKPI.PreRender += gv_PreRender;
+                        OptimizationRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+                        ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
+                        ltl_Real_Time_Optimization.Text = OptimizationRating.ToString();
+                        pnlOptimization.Controls.Add(gvOptimizationKPI);
                     }
-                    else
-                    {
-                        HeadcountAccuracy = 0;
-                    }
-                    ltl_Headcount_Accuracy.Text = HeadcountAccuracy.ToString();
-                    ltlHeadcount_Accuracy.Text = "Headcount Accuracy = ";
-                    //pnlHeadcount_Accuracy.Controls.Add(gvHeadcountAccuracy);
                 }
-
-
-                pnlHeadcount_Accuracy.Controls.Add(gvHeadcountAccuracy);
-            }
-        }
-        else
-        {
-            //WFMPMS.getHeadcountAccuracyScore
-            string strSQL = "WFMPMS.getHeadCountAccuracyScore";
-
-            SqlCommand cmd = new SqlCommand(strSQL);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-            cmd.Parameters.AddWithValue("@StartDate", StartDate);
-            cmd.Parameters.AddWithValue("@EndDate", EndDate);
-
-            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-            if (dt != null)
-            {
-                GridView gvHeadcountAccuracy = new GridView();
-                gvHeadcountAccuracy.ID = "gvHeadcountAccuracy";
-                gvHeadcountAccuracy.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-
-                DataRow dr = dt.NewRow();
-
-                gvHeadcountAccuracy.DataSource = dt;
-                gvHeadcountAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                gvHeadcountAccuracy.DataBind();
-                if (dt.Rows.Count > 0)
-                {
-                    gvHeadcountAccuracy.Rows[gvHeadcountAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                    gvHeadcountAccuracy.Rows[gvHeadcountAccuracy.Rows.Count - 1].Font.Bold = true;
-                    gvHeadcountAccuracy.PreRender += gv_PreRender;
-                    //HeadcountAccuracy = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
-                    bool hcarating = false;
-                    decimal dec_hcarating;
-                    hcarating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_hcarating);
-                    if (hcarating)
-                    {
-                        HeadcountAccuracy = dec_hcarating;
-                    }
-                    else
-                    {
-                        HeadcountAccuracy = 0;
-                    }
-                    ltl_Headcount_Accuracy.Text = HeadcountAccuracy.ToString();
-                }
-
-
-                pnlHeadcount_Accuracy.Controls.Add(gvHeadcountAccuracy);
             }
             else
             {
-                ltlHeadcount_Accuracy.Text = "Headcount Accuracy &nbsp= &nbsp" + "No Data found";
-            }
-        }
-    }
-    #endregion
-    #region RTA
-    public void fillpnl_Real_Time_Optimization(int ForEmpID)
-    {
-        string metric = "Real Time Optimization";
-        if (IsManager == 1)
-        {
-            string strSQL1 = "[WFMPMS].[GetManagerKPI]";
 
-            SqlCommand cmd1 = new SqlCommand(strSQL1);
-            cmd1.CommandType = CommandType.StoredProcedure;
-            cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
-            cmd1.Parameters.AddWithValue("@StartDate", StartDate);
-            cmd1.Parameters.AddWithValue("@EndDate", EndDate);
-            cmd1.Parameters.AddWithValue("@Metric", metric);
+                string strSQL = "WFMPMS.getSLOptimizationSummaryForPACMAN";
 
-            DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
-            if (dt1 != null)
-            {
-                GridView gvOptimizationKPI = new GridView();
-                gvOptimizationKPI.ID = "gvOptimizationKPI";
-                gvOptimizationKPI.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                SqlCommand cmd = new SqlCommand(strSQL);
+                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd.Parameters.AddWithValue("@EndDate", EndDate);
 
-                DataRow dr1 = dt1.NewRow();
-
-                gvOptimizationKPI.DataSource = dt1;
-                gvOptimizationKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                gvOptimizationKPI.DataBind();
-                if (dt1.Rows.Count > 0)
+                DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+                if (dt != null && dt.Rows.Count > 0)
                 {
+                    GridView gvOptimizationKPI = new GridView();
+                    gvOptimizationKPI.AutoGenerateColumns = true;
+
+                    gvOptimizationKPI.DataSource = dt;
+                    gvOptimizationKPI.DataBind();
+                    gvOptimizationKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
                     gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
                     gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].Font.Bold = true;
-                    gvOptimizationKPI.PreRender += gv_PreRender;
-                    OptimizationRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+
+                    bool optirating = false;
+                    decimal dec_optirating;
+                    optirating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_optirating);
+                    if (optirating)
+                    {
+                        OPRating += dec_optirating;
+                    }
+                    else
+                    {
+                        OPRating += 0;
+                    }
                     ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
-                    ltl_Real_Time_Optimization.Text = Math.Round(OptimizationRating,2).ToString();
+                    ltl_Real_Time_Optimization.Text = Math.Round(OPRating, 2).ToString();
                     pnlOptimization.Controls.Add(gvOptimizationKPI);
+
+                    gvOptimizationKPI.PreRender += gv_PreRender;
+                }
+                else
+                {
+                    ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
+                    ltl_Real_Time_Optimization.Text = String.Empty;
                 }
             }
+
+
         }
-        else
+        #endregion
+        #region Scheduling
+        public void fillpnl_Scheduling_Accuracy(int ForEmpID)
         {
-
-            string strSQL = "WFMPMS.getSLOptimizationSummaryForPACMAN";
-
-            SqlCommand cmd = new SqlCommand(strSQL);
-            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-            cmd.Parameters.AddWithValue("@StartDate", StartDate);
-            cmd.Parameters.AddWithValue("@EndDate", EndDate);
-
-            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-            if (dt != null && dt.Rows.Count > 0)
+            string metric = "Scheduling_Accuracy";
+            if (IsManager == 1)
             {
-                GridView gvOptimizationKPI = new GridView();
-                gvOptimizationKPI.AutoGenerateColumns = true;
+                string strSQL1 = "[WFMPMS].[GetManagerKPI]";
 
-                gvOptimizationKPI.DataSource = dt;
-                gvOptimizationKPI.DataBind();
-                gvOptimizationKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].Font.Bold = true;
-                OptimizationRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
-                ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
-                ltl_Real_Time_Optimization.Text = OptimizationRating.ToString();
-                pnlOptimization.Controls.Add(gvOptimizationKPI);
+                SqlCommand cmd1 = new SqlCommand(strSQL1);
+                cmd1.CommandType = CommandType.StoredProcedure;
+                cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd1.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd1.Parameters.AddWithValue("@EndDate", EndDate);
+                cmd1.Parameters.AddWithValue("@Metric", metric);
 
-                gvOptimizationKPI.PreRender += gv_PreRender;
+                DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
+                if (dt1 != null)
+                {
+                    GridView gvSchedulingAccuracy = new GridView();
+                    gvSchedulingAccuracy.ID = "gvSchedulingAccuracy";
+                    gvSchedulingAccuracy.AutoGenerateColumns = true;
+                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+                    DataRow dr1 = dt1.NewRow();
+
+                    gvSchedulingAccuracy.DataSource = dt1;
+                    gvSchedulingAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                    gvSchedulingAccuracy.DataBind();
+                    if (dt1.Rows.Count > 0)
+                    {
+                        gvSchedulingAccuracy.Rows[gvSchedulingAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                        gvSchedulingAccuracy.Rows[gvSchedulingAccuracy.Rows.Count - 1].Font.Bold = true;
+                        gvSchedulingAccuracy.PreRender += gv_PreRender;
+                        SchedulingAccuracy = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
+                        ltlSchedulingAccuracy.Text = "Scheduling Accuracy = ";
+                        ltl_Scheduling_Accuracy.Text = SchedulingAccuracy.ToString();
+                        pnlSchedulingAccuracy.Controls.Add(gvSchedulingAccuracy);
+                    }
+                }
             }
             else
             {
-                ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
-                ltl_Real_Time_Optimization.Text = String.Empty;
-            }
-        }
+                //WFMPMS.getSchedulingAccuracyScore
+                string strSQL = "[WFMPMS].[IEXSchedulingScore]";
 
+                SqlCommand cmd = new SqlCommand(strSQL);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd.Parameters.AddWithValue("@EndDate", EndDate);
 
-    }
-    #endregion
-    #region Scheduling
-    public void fillpnl_Scheduling_Accuracy(int ForEmpID)
-    {
-        string metric = "Scheduling_Accuracy";
-        if (IsManager == 1)
-        {
-            string strSQL1 = "[WFMPMS].[GetManagerKPI]";
-
-            SqlCommand cmd1 = new SqlCommand(strSQL1);
-            cmd1.CommandType = CommandType.StoredProcedure;
-            cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
-            cmd1.Parameters.AddWithValue("@StartDate", StartDate);
-            cmd1.Parameters.AddWithValue("@EndDate", EndDate);
-            cmd1.Parameters.AddWithValue("@Metric", metric);
-
-            DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
-            if (dt1 != null)
-            {
-                GridView gvSchedulingAccuracy = new GridView();
-                gvSchedulingAccuracy.ID = "gvSchedulingAccuracy";
-                gvSchedulingAccuracy.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-
-                DataRow dr1 = dt1.NewRow();
-
-                gvSchedulingAccuracy.DataSource = dt1;
-                gvSchedulingAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                gvSchedulingAccuracy.DataBind();
-                if (dt1.Rows.Count > 0)
+                DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+                if (dt != null && dt.Rows.Count > 0)
                 {
+                    GridView gvSchedulingAccuracy = new GridView();
+                    gvSchedulingAccuracy.ID = "gvSchedulingAccuracy";
+                    gvSchedulingAccuracy.AutoGenerateColumns = true;
+                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+                    DataRow dr = dt.NewRow();
+
+                    gvSchedulingAccuracy.DataSource = dt;
+                    gvSchedulingAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                    gvSchedulingAccuracy.DataBind();
+
+
                     gvSchedulingAccuracy.Rows[gvSchedulingAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
                     gvSchedulingAccuracy.Rows[gvSchedulingAccuracy.Rows.Count - 1].Font.Bold = true;
                     gvSchedulingAccuracy.PreRender += gv_PreRender;
-                    SchedulingAccuracy = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-                    ltlSchedulingAccuracy.Text = "Scheduling Accuracy = ";
+                    SchedulingAccuracy = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
                     ltl_Scheduling_Accuracy.Text = SchedulingAccuracy.ToString();
+
                     pnlSchedulingAccuracy.Controls.Add(gvSchedulingAccuracy);
-                }
-            }
-        }
-        else
-        {
-            //WFMPMS.getSchedulingAccuracyScore
-            string strSQL = "[WFMPMS].[IEXSchedulingScore]";
-
-            SqlCommand cmd = new SqlCommand(strSQL);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-            cmd.Parameters.AddWithValue("@StartDate", StartDate);
-            cmd.Parameters.AddWithValue("@EndDate", EndDate);
-
-            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-            if (dt != null && dt.Rows.Count > 0)
-            {
-                GridView gvSchedulingAccuracy = new GridView();
-                gvSchedulingAccuracy.ID = "gvSchedulingAccuracy";
-                gvSchedulingAccuracy.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-
-                DataRow dr = dt.NewRow();
-
-                gvSchedulingAccuracy.DataSource = dt;
-                gvSchedulingAccuracy.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                gvSchedulingAccuracy.DataBind();
-
-
-                gvSchedulingAccuracy.Rows[gvSchedulingAccuracy.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                gvSchedulingAccuracy.Rows[gvSchedulingAccuracy.Rows.Count - 1].Font.Bold = true;
-                gvSchedulingAccuracy.PreRender += gv_PreRender;
-                SchedulingAccuracy = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
-                ltl_Scheduling_Accuracy.Text = SchedulingAccuracy.ToString();
-
-                pnlSchedulingAccuracy.Controls.Add(gvSchedulingAccuracy);
-            }
-            else
-            {
-                ltlSchedulingAccuracy.Text = "Scheduling Accuracy";
-                ltl_Scheduling_Accuracy.Text = "0";
-            }
-        }
-    }
-    public void fillpnl_IEX_Management(int ForEmpID)
-    {
-        IEXMgmt = 0;
-        strSQL = "[WFMPMS].[GetIEXMgmtScore]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
-        {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                SqlDataReader sdr = cmd.ExecuteReader();
-                while (sdr.Read())
-                {
-                    if (sdr.HasRows)
-                    {
-                        IEXMgmt = Convert.ToInt32(sdr.GetValue(0));
-                    }
-                }
-                ltlIEX_Management.Text = "IEX Management &nbsp= &nbsp";
-                ltl_IEX_Management.Text = IEXMgmt.ToString();
-            }
-
-        }
-    }
-    #endregion
-    protected void btnDownload_Click(object sender, EventArgs e)
-    {
-        LinkButton b = sender as LinkButton;
-        string Metric = b.ID.ToString().Replace("btn", "");
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
-        DataTable dt = my.GetData(strSQL);
-        StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
-        EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
-        string metricc;
-
-        SqlCommand cmd = new SqlCommand();
-        cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-        cmd.Parameters.AddWithValue("@StartDate", StartDate);
-        cmd.Parameters.AddWithValue("@EndDate", EndDate);
-
-        switch (Metric)
-        {
-            case "Absenteeism":
-                strSQL = "WFMPMS.GetSelfAttendanceScore";
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@DownloadDetailedReport", 1);
-                break;
-            case "Accuracy":
-                strSQL = "WFMPMS.GetAnalyticAccuracyScore";
-                cmd.CommandType = CommandType.StoredProcedure;
-                break;
-            case "Attrition":
-                if (IsManager == 1)
-                {
-                    strSQL = "wfmpms.getAttritionDetail";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                }
-
-                break;
-            case "BTP":
-                metricc = "BTP";
-                if (IsManager == 1)
-                {
-                    strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
                 }
                 else
                 {
-                    strSQL = "SELECT Distinct * FROM [WFMPMS].[tblBTPResults] A inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID and B.EmpCode = @EmpCode where[Month] between DATEADD(M,-1,@StartDate) and DATEADD(M,-1,@EndDate)";
+                    ltlSchedulingAccuracy.Text = "Scheduling Accuracy";
+                    ltl_Scheduling_Accuracy.Text = "0";
                 }
-                
-                break;
-            case "Coaching_and_Feedback":
-                strSQL = "WFMPMS.getAnalyticCoachingScore";
-                cmd.CommandType = CommandType.StoredProcedure;
-                break;
-            case "Escalations":
-                //metricc = "Escalations";
-                //if (IsManager == 1)
-                //{
-                //    strSQL = "wfmpms.getmanagerdownload";
-                //    cmd.CommandType = CommandType.StoredProcedure;
-                //    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                //    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                //    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                //    cmd.Parameters.AddWithValue("@metric", metricc);
-                //}
-                //else
-                //{
+            }
+        }
+        public void fillpnl_IEX_Management(int ForEmpID)
+        {
+            IEXMgmt = 0;
+            strSQL = "[WFMPMS].[GetIEXMgmtScore]";
+            using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+            {
+                cn.Open();
+                using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                    SqlDataReader sdr = cmd.ExecuteReader();
+                    while (sdr.Read())
+                    {
+                        if (sdr.HasRows)
+                        {
+                            IEXMgmt = Convert.ToInt32(sdr.GetValue(0));
+                        }
+                    }
+                    ltlIEX_Management.Text = "IEX Management &nbsp= &nbsp";
+                    ltl_IEX_Management.Text = IEXMgmt.ToString();
+                }
+
+            }
+        }
+        #endregion
+        protected void btnDownload_Click(object sender, EventArgs e)
+        {
+            LinkButton b = sender as LinkButton;
+            string Metric = b.ID.ToString().Replace("btn", "");
+            PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+            string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+            DataTable dt = my.GetData(strSQL);
+            StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
+            EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
+            string metricc;
+
+            SqlCommand cmd = new SqlCommand();
+            cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+            cmd.Parameters.AddWithValue("@StartDate", StartDate);
+            cmd.Parameters.AddWithValue("@EndDate", EndDate);
+
+            switch (Metric)
+            {
+                case "Absenteeism":
+                    strSQL = "WFMPMS.GetSelfAttendanceScore";
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@DownloadDetailedReport", 1);
+                    break;
+                case "Accuracy":
+                    strSQL = "WFMPMS.GetAnalyticAccuracyScore";
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    break;
+                case "Attrition":
+                    if (IsManager == 1)
+                    {
+                        strSQL = "wfmpms.getAttritionDetail";
+                        cmd.CommandType = CommandType.StoredProcedure;
+                    }
+
+                    break;
+                case "BTP":
+                    metricc = "BTP";
+                    if (IsManager == 1)
+                    {
+                        strSQL = "wfmpms.getmanagerdownload";
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+                        //cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                        //cmd.Parameters.AddWithValue("@EndDate", EndDate);
+                        cmd.Parameters.AddWithValue("@metric", metricc);
+                    }
+                    else
+                    {
+                        strSQL = "SELECT Distinct * FROM [WFMPMS].[tblBTPResults] A inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID and B.EmpCode = @EmpCode where[Month] between DATEADD(M,-1,@StartDate) and DATEADD(M,-1,@EndDate)";
+                    }
+
+                    break;
+                case "Coaching_and_Feedback":
+                    strSQL = "WFMPMS.getAnalyticCoachingScore";
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    break;
+                case "Escalations":
+                    //metricc = "Escalations";
+                    //if (IsManager == 1)
+                    //{
+                    //    strSQL = "wfmpms.getmanagerdownload";
+                    //    cmd.CommandType = CommandType.StoredProcedure;
+                    //    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+                    //    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                    //    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
+                    //    cmd.Parameters.AddWithValue("@metric", metricc);
+                    //}
+                    //else
+                    //{
                     strSQL = "select A.ID, A.EmpCode, A.Type, A.Category, Description, ActionBy as UpdatedBy ";
                     strSQL += ", ActionOn as UpdatedOn, Wtg, C.FromDate, C.ToDate ";
                     strSQL += " from WFMPMS.TBLEI A left join WFMPMS.TBLEIWTG B on A.Category = B.Category and A.Type = B.Type ";
                     strSQL += " inner join[WFMPMS].[tblPacmanCycle] C on A.PacmanCycle = C.Id ";
                     strSQL += " where A.EmpCode=@EmpCode and A.active = 1 and B.Active = 1 ";
                     strSQL += " and @StartDate between C.FromDate and C.ToDate";
-                //}
-                break;
-            case "Forecasting_Accuracy":
-                metricc = "Forecastin_ Accuracy";
-                if (IsManager == 1)
-                {
-                    strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
-                }
-                else
-                {
-                    strSQL = "SELECT* FROM [CWFM_Umang].[WFMPMS].[tblIEXForecastingResult] where [Employee_ID] = @EmpCode and [Date] between @StartDate and @EndDate";
-                }
-                
-                break;
-            case "Headcount_Accuracy":
-                metricc = "Headcount_Accuracy";
-                if (IsManager == 1)
-                {
-                    strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
-                }
-                else
-                {
-                    strSQL = "SELECT* FROM [WFMPMS].[tblHeadcountAccuracyResult] where [PlannerEmpCode] = @EmpCode and [Month] between @StartDate and @EndDate";
-                }
-                
-                break;
-            case "IEX_Management":
-                strSQL = "SELECT EmpCode, Comments, ActionedBy, ActionedOn, Score as Rating, B.FromDate as StartDate, B.ToDate as EndDate ";
-                strSQL += " FROM[CWFM_Umang].[WFMPMS].[tblIEXManagementScore] A inner join WFMPMs.tblPacmanCycle B on A.PacmanCycle = B.ID ";
-                strSQL += " where[EmpCode] = @EmpCode and B.FromDate between @StartDate and @EndDate ";
-                break;
-            case "KPI":
-                metricc = "KPI";
-                if (IsManager == 1)
-                {
-                    strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
-                }
-                else
-                {
-                    strSQL = "SELECT * FROM [WFMPMS].[tblKPIResults] where [Employee_ID] = @EmpCode and [Date] between @StartDate and @EndDate";
-                }
-               
-                break;
-            case "On_Time_Delivery":
-                strSQL = "WFMPMS.GetAnalyticTimelineScore";
-                cmd.CommandType = CommandType.StoredProcedure;
-                break;
-            case "Projects":
-                strSQL = "WFMPMS.getAnalyticProjectScore";
-                cmd.CommandType = CommandType.StoredProcedure;
-                break;
-            case "Optimization"://Real_Time_Optimization
-                
-                
-                break;
-            case "Revenue__Cost_optimization":
-                // Manager KPIs
-                break;
-            case "Scheduling_Accuracy":
-                 metricc = "Scheduling_Accuracy";
-                if (IsManager == 1)
-                {
-                    strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
-                }
-                else
-                {
-                    strSQL = "SELECT * FROM [CWFM_Umang].[WFMPMS].[tblIEXSchedulingResult] A where Employee_ID=@EmpCode and A.Date between @StartDate and @EndDate";
-                    
-                }
-                break;
-
-            case "Self_Absenteeism":
-                strSQL = "WFMPMS.GetSelfAttendanceScore";
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@DownloadDetailedReport", 1);
-                break;
-
-            case "Team_Absenteeism":
-                    metricc = "Absenteeism";
-                if (IsManager == 1)
-                {
-                    strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
-                }
-                break;
-
-
-            case "Download":
-
-                break;
-            default:
-
-                break;
-        }
-
-        cmd.CommandText = strSQL;
-        cmd.Connection = new SqlConnection(my.getConnectionString());
-        cmd.Connection.Open();
-
-
-        //DataSet ds = new DataSet("Export_Details");
-        //da.Fill(ds);
-        Label MyName = (Label)PageExtensionMethods.FindControlRecursive(Master, "lblName");
-        string FileName = MyName.Text + "'s " + Metric + " for " + StartDate.ToString("MMM yyyy") + " downloaded " + DateTime.Now.ToString("dd-MMM-yyyy HH-mm-ss") + ".csv";
-        DataTable d = new DataTable(FileName);
-        SqlDataAdapter da = new SqlDataAdapter(cmd);
-        da.Fill(d);
-        //Get the physical path to the file.
-        string FilePath = Server.MapPath("Sitel//metric_downloads//" + FileName);
-        using (var textWriter = File.CreateText(FilePath))
-        {
-            using (var csv = new CsvWriter(textWriter))
-            {
-                // Write columns
-                foreach (DataColumn column in d.Columns)
-                {
-                    csv.WriteField(column.ColumnName);
-                }
-                csv.NextRecord();
-
-                // Write row values
-                foreach (DataRow row in d.Rows)
-                {
-                    for (var i = 0; i < d.Columns.Count; i++)
+                    //}
+                    break;
+                case "Forecasting_Accuracy":
+                    metricc = "Forecastin_ Accuracy";
+                    if (IsManager == 1)
                     {
-                        csv.WriteField(row[i]);
+                        strSQL = "wfmpms.getmanagerdownload";
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+                        //cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                        //cmd.Parameters.AddWithValue("@EndDate", EndDate);
+                        cmd.Parameters.AddWithValue("@metric", metricc);
+                    }
+                    else
+                    {
+                        strSQL = "SELECT* FROM [CWFM_Umang].[WFMPMS].[tblIEXForecastingResult] where [Employee_ID] = @EmpCode and [Date] between @StartDate and @EndDate";
+                    }
+
+                    break;
+                case "Headcount_Accuracy":
+                    metricc = "Headcount_Accuracy";
+                    if (IsManager == 1)
+                    {
+                        strSQL = "wfmpms.getmanagerdownload";
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+                        //cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                        //cmd.Parameters.AddWithValue("@EndDate", EndDate);
+                        cmd.Parameters.AddWithValue("@metric", metricc);
+                    }
+                    else
+                    {
+                        strSQL = "SELECT* FROM [WFMPMS].[tblHeadcountAccuracyResult] where [PlannerEmpCode] = @EmpCode and [Month] between @StartDate and @EndDate";
+                    }
+
+                    break;
+                case "IEX_Management":
+                    strSQL = "SELECT EmpCode, Comments, ActionedBy, ActionedOn, Score as Rating, B.FromDate as StartDate, B.ToDate as EndDate ";
+                    strSQL += " FROM[CWFM_Umang].[WFMPMS].[tblIEXManagementScore] A inner join WFMPMs.tblPacmanCycle B on A.PacmanCycle = B.ID ";
+                    strSQL += " where[EmpCode] = @EmpCode and B.FromDate between @StartDate and @EndDate ";
+                    break;
+                case "KPI":
+                    metricc = "KPI";
+                    if (IsManager == 1)
+                    {
+                        strSQL = "wfmpms.getmanagerdownload";
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+                        //cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                        //cmd.Parameters.AddWithValue("@EndDate", EndDate);
+                        cmd.Parameters.AddWithValue("@metric", metricc);
+                    }
+                    else
+                    {
+                        strSQL = "SELECT * FROM [WFMPMS].[tblKPIResults] where [Employee_ID] = @EmpCode and [Date] between @StartDate and @EndDate";
+                    }
+
+                    break;
+                case "On_Time_Delivery":
+                    strSQL = "WFMPMS.GetAnalyticTimelineScore";
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    break;
+                case "Projects":
+                    strSQL = "WFMPMS.getAnalyticProjectScore";
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    break;
+                case "Optimization"://Real_Time_Optimization
+
+
+                    break;
+                case "Revenue__Cost_optimization":
+                    // Manager KPIs
+                    break;
+                case "Scheduling_Accuracy":
+                    metricc = "Scheduling_Accuracy";
+                    if (IsManager == 1)
+                    {
+                        strSQL = "wfmpms.getmanagerdownload";
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+                        //cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                        //cmd.Parameters.AddWithValue("@EndDate", EndDate);
+                        cmd.Parameters.AddWithValue("@metric", metricc);
+                    }
+                    else
+                    {
+                        strSQL = "SELECT * FROM [CWFM_Umang].[WFMPMS].[tblIEXSchedulingResult] A where Employee_ID=@EmpCode and A.Date between @StartDate and @EndDate";
+
+                    }
+                    break;
+
+                case "Self_Absenteeism":
+                    strSQL = "WFMPMS.GetSelfAttendanceScore";
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@DownloadDetailedReport", 1);
+                    break;
+
+                case "Team_Absenteeism":
+                    metricc = "Absenteeism";
+                    if (IsManager == 1)
+                    {
+                        strSQL = "wfmpms.getmanagerdownload";
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+                        //cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                        //cmd.Parameters.AddWithValue("@EndDate", EndDate);
+                        cmd.Parameters.AddWithValue("@metric", metricc);
+                    }
+                    break;
+
+
+                case "Download":
+
+                    break;
+                default:
+
+                    break;
+            }
+
+            cmd.CommandText = strSQL;
+            cmd.Connection = new SqlConnection(my.getConnectionString());
+            cmd.Connection.Open();
+
+
+            //DataSet ds = new DataSet("Export_Details");
+            //da.Fill(ds);
+            Label MyName = (Label)PageExtensionMethods.FindControlRecursive(Master, "lblName");
+            string FileName = MyName.Text + "'s " + Metric + " for " + StartDate.ToString("MMM yyyy") + " downloaded " + DateTime.Now.ToString("dd-MMM-yyyy HH-mm-ss") + ".csv";
+            DataTable d = new DataTable(FileName);
+            SqlDataAdapter da = new SqlDataAdapter(cmd);
+            da.Fill(d);
+            //Get the physical path to the file.
+            string FilePath = Server.MapPath("Sitel//metric_downloads//" + FileName);
+            using (var textWriter = File.CreateText(FilePath))
+            {
+                using (var csv = new CsvWriter(textWriter))
+                {
+                    // Write columns
+                    foreach (DataColumn column in d.Columns)
+                    {
+                        csv.WriteField(column.ColumnName);
                     }
                     csv.NextRecord();
+
+                    // Write row values
+                    foreach (DataRow row in d.Rows)
+                    {
+                        for (var i = 0; i < d.Columns.Count; i++)
+                        {
+                            csv.WriteField(row[i]);
+                        }
+                        csv.NextRecord();
+                    }
                 }
             }
-        }
 
-        //Send the CSV file as a Download.
-        Response.Clear();
-        Response.Buffer = true;
-        Response.AddHeader("content-disposition", "attachment;filename=" + FileName);
-        Response.Charset = "";
-        Response.ContentType = "application/text";
-        Response.Output.Write(File.ReadAllText(FilePath));
-        Response.Flush();
-        Response.End();
+            //Send the CSV file as a Download.
+            Response.Clear();
+            Response.Buffer = true;
+            Response.AddHeader("content-disposition", "attachment;filename=" + FileName);
+            Response.Charset = "";
+            Response.ContentType = "application/text";
+            Response.Output.Write(File.ReadAllText(FilePath));
+            Response.Flush();
+            Response.End();
+        }
     }
-}
 
