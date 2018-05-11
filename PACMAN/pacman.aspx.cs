@@ -1639,7 +1639,7 @@ public partial class pacman : System.Web.UI.Page
                 {
                     strSQL = "SELECT Distinct * FROM [WFMPMS].[tblBTPResults] A inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID and B.EmpCode = @EmpCode where[Month] between DATEADD(M,-1,@StartDate) and DATEADD(M,-1,@EndDate)";
                 }
-
+                
                 break;
             case "Coaching_and_Feedback":
                 strSQL = "WFMPMS.getAnalyticCoachingScore";
@@ -1658,12 +1658,12 @@ public partial class pacman : System.Web.UI.Page
                 //}
                 //else
                 //{
-                strSQL = "select A.ID, A.EmpCode, A.Type, A.Category, Description, ActionBy as UpdatedBy ";
-                strSQL += ", ActionOn as UpdatedOn, Wtg, C.FromDate, C.ToDate ";
-                strSQL += " from WFMPMS.TBLEI A left join WFMPMS.TBLEIWTG B on A.Category = B.Category and A.Type = B.Type ";
-                strSQL += " inner join[WFMPMS].[tblPacmanCycle] C on A.PacmanCycle = C.Id ";
-                strSQL += " where A.EmpCode=@EmpCode and A.active = 1 and B.Active = 1 ";
-                strSQL += " and @StartDate between C.FromDate and C.ToDate";
+                    strSQL = "select A.ID, A.EmpCode, A.Type, A.Category, Description, ActionBy as UpdatedBy ";
+                    strSQL += ", ActionOn as UpdatedOn, Wtg, C.FromDate, C.ToDate ";
+                    strSQL += " from WFMPMS.TBLEI A left join WFMPMS.TBLEIWTG B on A.Category = B.Category and A.Type = B.Type ";
+                    strSQL += " inner join[WFMPMS].[tblPacmanCycle] C on A.PacmanCycle = C.Id ";
+                    strSQL += " where A.EmpCode=@EmpCode and A.active = 1 and B.Active = 1 ";
+                    strSQL += " and @StartDate between C.FromDate and C.ToDate";
                 //}
                 break;
             case "Forecasting_Accuracy":
@@ -1681,7 +1681,7 @@ public partial class pacman : System.Web.UI.Page
                 {
                     strSQL = "SELECT* FROM [CWFM_Umang].[WFMPMS].[tblIEXForecastingResult] where [Employee_ID] = @EmpCode and [Date] between @StartDate and @EndDate";
                 }
-
+                
                 break;
             case "Headcount_Accuracy":
                 metricc = "Headcount_Accuracy";
@@ -1698,7 +1698,7 @@ public partial class pacman : System.Web.UI.Page
                 {
                     strSQL = "SELECT* FROM [WFMPMS].[tblHeadcountAccuracyResult] where [PlannerEmpCode] = @EmpCode and [Month] between @StartDate and @EndDate";
                 }
-
+                
                 break;
             case "IEX_Management":
                 strSQL = "SELECT EmpCode, Comments, ActionedBy, ActionedOn, Score as Rating, B.FromDate as StartDate, B.ToDate as EndDate ";
@@ -1720,7 +1720,7 @@ public partial class pacman : System.Web.UI.Page
                 {
                     strSQL = "SELECT * FROM [WFMPMS].[tblKPIResults] where [Employee_ID] = @EmpCode and [Date] between @StartDate and @EndDate";
                 }
-
+               
                 break;
             case "On_Time_Delivery":
                 strSQL = "WFMPMS.GetAnalyticTimelineScore";
@@ -1731,14 +1731,14 @@ public partial class pacman : System.Web.UI.Page
                 cmd.CommandType = CommandType.StoredProcedure;
                 break;
             case "Optimization"://Real_Time_Optimization
-
-
+                
+                
                 break;
             case "Revenue__Cost_optimization":
                 // Manager KPIs
                 break;
             case "Scheduling_Accuracy":
-                metricc = "Scheduling_Accuracy";
+                 metricc = "Scheduling_Accuracy";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
@@ -1751,7 +1751,7 @@ public partial class pacman : System.Web.UI.Page
                 else
                 {
                     strSQL = "SELECT * FROM [CWFM_Umang].[WFMPMS].[tblIEXSchedulingResult] A where Employee_ID=@EmpCode and A.Date between @StartDate and @EndDate";
-
+                    
                 }
                 break;
 
@@ -1762,7 +1762,7 @@ public partial class pacman : System.Web.UI.Page
                 break;
 
             case "Team_Absenteeism":
-                metricc = "Absenteeism";
+                    metricc = "Absenteeism";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";

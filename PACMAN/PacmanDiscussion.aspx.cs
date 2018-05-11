@@ -710,6 +710,36 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     protected void ddlReportee_SelectedIndexChanged(object sender, EventArgs e)
     {
         ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
+        string strSQL1 = "wfmpms.getLevelID";
+        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+        {
+            cn.Open();
+            using (SqlCommand cmd = new SqlCommand(strSQL1, cn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                SqlDataReader sdr = cmd.ExecuteReader();
+                while (sdr.Read())
+                {
+                    if (sdr.HasRows)
+                    {
+                        int LevelID = Convert.ToInt32(sdr.GetValue(0));
+                        if (LevelID <= 80)
+                            IsManager = 1;
+                        else
+                            IsManager = 0;
+                    }
+                    //else
+                    //{
+                    //    int noVal = 0;
+                    //    ltlAccuracy.Text = noVal.ToString();
+                    //    ltl_Accuracy.Text = noVal.ToString();
+                    //}
+                }
+                //ltlAccuracy.Text = "Accuracy &nbsp= &nbsp" + "<div class=\"pull-right header\">" + Accuracy + "</div>";
+            }
+
+        }
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
         DataTable dt = my.GetData(strSQL);
@@ -717,10 +747,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
         fillRelevantMetricsInPanels(ForEmpID);
         getFinalRating(MyEmpID);
-        if (Convert.ToInt32(ltl_IEX_Management.Text) != 0)
-        {
-            btnIEXMgmtScoreSubmit.Enabled = false;
-        }
+        //if (Convert.ToInt32(ltl_IEX_Management.Text) != 0)
+        //{
+        //    btnIEXMgmtScoreSubmit.Enabled = false;
+        //}
     }
     protected void btnAnalyticProjectScoreSubmit_Click(object sender, EventArgs e)
     {
@@ -743,8 +773,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         cmd.Connection = con;
         cmd.ExecuteNonQuery();
         con.Close();
-        ltlProject.Text = "Projects &nbsp= &nbsp" + "<div class=\"pull-right header\">" + scoreProjects + "</div>";
+        ltl_Project.Text = scoreProjects.ToString();
+        //ltlProject.Text = "Projects &nbsp= &nbsp" + "<div class=\"pull-right header\">" + scoreProjects + "</div>";
         clearAnalyticProjectScorefields();
+        fillltlfinalScore(ForEmpID);
 
     }
     private void clearAnalyticProjectScorefields()
@@ -775,6 +807,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         con.Close();
         ltlCoachingFeedback.Text = "Coaching & Feedback &nbsp= &nbsp" + "<div class=\"pull-right header\">" + scoreCoaching + "</div>";
         clearAnalyticCoachingScorefields();
+        fillltlfinalScore(ForEmpID);
     }
     private void clearAnalyticCoachingScorefields()
     {
@@ -960,21 +993,19 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         gvAbsenteeism.DataBind();
         if (dt != null && dt.Rows.Count > 0)
         {
-            gvAbsenteeism.Rows[gvAbsenteeism.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-            gvAbsenteeism.Rows[gvAbsenteeism.Rows.Count - 1].Font.Bold = true;
+            gvAbsenteeism.RowStyle.CssClass = "text-muted well well-sm no-shadow";
+            gvAbsenteeism.Rows[0].Font.Bold = true;
             gvAbsenteeism.PreRender += gv_PreRender;
-            string absRating = dt.Rows[dt.Rows.Count - 1]["Rating"].ToString();
-            Decimal dcAbsRting = 5;
-            Decimal.TryParse(absRating, out dcAbsRting);
-            AbsenteeismRating = dcAbsRting;
+            string absRating = dt.Rows[0]["Final_Score"].ToString();
+            ltl_Absenteeism.Text = absRating;
         }
         else
         {
-            ltlBTP.Text = string.Empty;
+            ltlAbsenteeism.Text = string.Empty;
         }
         ltlAbsenteeism.Text = "Self-Attendance &nbsp= &nbsp";
         pnlAbsenteeism.Controls.Add(gvAbsenteeism);
-        ltl_Absenteeism.Text = AbsenteeismRating.ToString();
+        //ltl_Absenteeism.Text = AbsenteeismRating.ToString();
     }
     public void fillpnl_Accuracy(int ForEmpID)
     {
@@ -1183,7 +1214,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 ltlRevenue_and_Cost_optimization.Text = "Revenue & Cost Optimization &nbsp= &nbsp";
                 ltl_Revenue_and_Cost_optimization.Text = Revenue.ToString();
             }
-            btnRevenue_and_Cost_optimization.Enabled = false;
+            //btnRevenue_and_Cost_optimization.Enabled = false;
         }
     }
     #endregion
@@ -1316,55 +1347,54 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         //}
         //else
         //{
-        EIRating = 0;
-        strSQL = "[WFMPMS].[GetEscalationInitiativeScore]";
-        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
-        {
-            cn.Open();
-            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+            EIRating = 0;
+            strSQL = "[WFMPMS].[GetEscalationInitiativeScore]";
+            using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
             {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                cmd.Parameters.AddWithValue("@total", EIRating);
-                cmd.Parameters["@total"].Direction = ParameterDirection.Output;
-                SqlDataAdapter da = new SqlDataAdapter(cmd);
-                DataTable dt = new DataTable();
-                da.Fill(dt);
-                EIRating = Convert.ToInt32(cmd.Parameters["@total"].Value.ToString());
-                ltlEI.Text = "Escalations & Initiatives &nbsp= &nbsp";
-                ltl_Escalations.Text = EIRating.ToString();
-
-                if (dt != null)
+                cn.Open();
+                using (SqlCommand cmd = new SqlCommand(strSQL, cn))
                 {
-                    GridView gvEscalations = new GridView();
-                    gvEscalations.ID = "gvEscalations";
-                    gvEscalations.AutoGenerateColumns = true;
-                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                    cmd.Parameters.AddWithValue("@total", EIRating);
+                    cmd.Parameters["@total"].Direction = ParameterDirection.Output;
+                    SqlDataAdapter da = new SqlDataAdapter(cmd);
+                    DataTable dt = new DataTable();
+                    da.Fill(dt);
+                    EIRating = Convert.ToInt32(cmd.Parameters["@total"].Value.ToString());
+                    ltlEI.Text = "Escalations & Initiatives &nbsp= &nbsp";
+                    ltl_Escalations.Text = EIRating.ToString();
 
-                    DataRow dr = dt.NewRow();
-
-                    gvEscalations.DataSource = dt;
-                    gvEscalations.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                    gvEscalations.DataBind();
-                    if (dt.Rows.Count > 0)
+                    if (dt != null)
                     {
-                        gvEscalations.Rows[gvEscalations.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                        gvEscalations.Rows[gvEscalations.Rows.Count - 1].Font.Bold = true;
-                        gvEscalations.PreRender += gv_PreRender;
+                        GridView gvEscalations = new GridView();
+                        gvEscalations.ID = "gvEscalations";
+                        gvEscalations.AutoGenerateColumns = true;
+                        //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+
+                        DataRow dr = dt.NewRow();
+
+                        gvEscalations.DataSource = dt;
+                        gvEscalations.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                        gvEscalations.DataBind();
+                        if (dt.Rows.Count > 0)
+                        {
+                            gvEscalations.Rows[gvEscalations.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                            gvEscalations.Rows[gvEscalations.Rows.Count - 1].Font.Bold = true;
+                            gvEscalations.PreRender += gv_PreRender;
+                        }
+
+
+                        pnlEscalations.Controls.Add(gvEscalations);
                     }
-
-
-                    pnlEscalations.Controls.Add(gvEscalations);
+                    else
+                    {
+                        ltl_Escalations.Text = string.Empty;
+                    }
                 }
-                else
-                {
-                    ltl_Escalations.Text = string.Empty;
-                }
+
             }
-
-        }
-
         //}
     }
     public void fillpnl_Forecasting_Accuracy(int ForEmpID)
@@ -1628,7 +1658,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             cmd.Parameters.AddWithValue("@EndDate", EndDate);
 
             DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-            if (dt.Rows.Count > 0)
+            if (dt != null && dt.Rows.Count > 0)
             {
                 GridView gvOptimizationKPI = new GridView();
                 gvOptimizationKPI.AutoGenerateColumns = true;
@@ -1638,12 +1668,28 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 gvOptimizationKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
                 gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
                 gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].Font.Bold = true;
-                OptimizationRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+
+                bool optirating = false;
+                decimal dec_optirating;
+                optirating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_optirating);
+                if (optirating)
+                {
+                    OPRating += dec_optirating;
+                }
+                else
+                {
+                    OPRating += 0;
+                }
                 ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
-                ltl_Real_Time_Optimization.Text = OptimizationRating.ToString();
+                ltl_Real_Time_Optimization.Text = Math.Round(OPRating, 2).ToString();
                 pnlOptimization.Controls.Add(gvOptimizationKPI);
 
                 gvOptimizationKPI.PreRender += gv_PreRender;
+            }
+            else
+            {
+                ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
+                ltl_Real_Time_Optimization.Text = String.Empty;
             }
         }
 
@@ -1783,8 +1829,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 cmd.Parameters.AddWithValue("@DownloadDetailedReport", 1);
                 break;
             case "Accuracy":
-                strSQL = "WFMPMS.GetAnalyticAccuracyScore";
-                cmd.CommandType = CommandType.StoredProcedure;
+                    strSQL = "WFMPMS.GetAnalyticAccuracyScore";
+                    cmd.CommandType = CommandType.StoredProcedure;
                 break;
             case "Attrition":
                 if (IsManager == 1)

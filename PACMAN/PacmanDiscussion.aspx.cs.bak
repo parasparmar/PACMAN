@@ -28,6 +28,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     private DateTime StartDate { get; set; }
     private DateTime EndDate { get; set; }
     private decimal SLRating { get; set; }
+    private decimal OPRating { get; set; }
     private decimal OptimizationRating { get; set; }
     private decimal EIRating { get; set; }
     private decimal AbsenteeismRating { get; set; }
@@ -79,6 +80,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         title.Text = "PACMAN Discussion";
 
         btnSubmitPacman.Enabled = false;
+        btnIEXMgmtScoreSubmit.Enabled = true;
+        btnAnalyticProjectScoreSubmit.Enabled = true;
+        btnCoachingScoreSubmit.Enabled = true;
+        btnRevenue_and_Cost_optimization.Enabled = true;
+
         //btnSubmitPacman.Enabled = true;
 
 
@@ -128,6 +134,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 btnRevenue_and_Cost_optimization.Enabled = false;
             }
+            btnIEXMgmtScoreSubmit.Enabled = true;
+            btnAnalyticProjectScoreSubmit.Enabled = true;
+            btnCoachingScoreSubmit.Enabled = true;
+            btnRevenue_and_Cost_optimization.Enabled = true;
 
         }
     }
@@ -336,6 +346,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     protected void btnYesDiscussed_Click(object sender, EventArgs e)
     {
+        btnIEXMgmtScoreSubmit.Enabled = false;
+        btnAnalyticProjectScoreSubmit.Enabled = false;
+        btnCoachingScoreSubmit.Enabled = false;
+        btnRevenue_and_Cost_optimization.Enabled = false;
+
         btnSubmitPacman.Enabled = true;
         btnYesDiscussed.Enabled = false;
         //btnNotDiscussed.Enabled = false;
