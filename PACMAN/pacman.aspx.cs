@@ -118,7 +118,7 @@ public partial class pacman : System.Web.UI.Page
         }
 
     }
-    private DataTable getDtOfAccountsIHandle()
+    private DataTable getDtOfAccountsIHandle(int ForEmpID)
     {
         string strSQL = "WFMPMS.GetAllAccountsIHandle";
         SqlCommand cmd = new SqlCommand(strSQL);
@@ -152,7 +152,7 @@ public partial class pacman : System.Web.UI.Page
         {
             fillStartAndEndDates();
             //* 1. Get a list of my accounts.
-            DtOfAccountsIHandle = getDtOfAccountsIHandle();
+            DtOfAccountsIHandle = getDtOfAccountsIHandle(ForEmpID);
 
             //* 2. For these accounts what skillsets do i profess.
             var myPrimaryKPIs = DtOfAccountsIHandle.AsEnumerable()
@@ -163,8 +163,6 @@ public partial class pacman : System.Web.UI.Page
             //3.If I am assigned more than 1 distinct skillsets(Planning, Scheduling or RTA) I'm out of scope.
             var mySkillsets = DtOfAccountsIHandle.AsEnumerable()
                 .Select(t => t.Field<int>("SkillsetId")).Distinct();
-            DataSet ds = new DataSet("KPI");
-
 
             //*4.If I have one and only one distinct skillset assigned for all accounts I can proceed further.
             if (mySkillsets.Count() == 1)
@@ -190,20 +188,18 @@ public partial class pacman : System.Web.UI.Page
                         dt.Merge(my.GetDataTableViaProcedure(ref cmd));
                         // ToDo: At this point, start merging the grand totals into each other.
                     }
-                    ConsolidateDataTables(dt);
+                    dt = ConsolidateDataTables(dt);
+                    if (dt != null && dt.Rows.Count > 0) { populateGvPrimaryKPI(dt); }
                 }
                 else
                 {
                     ltlPrimaryKPI.Text = "Multiple Roles found. The total KPI score for this employee will lead to an invalid condition (greater than 5)";
                     ltl_KPI.Text = String.Empty;
                 }
-
-
             }
-
         }
     }
-    private void ConsolidateDataTables(DataTable dt)
+    private DataTable ConsolidateDataTables(DataTable dt)
     {
         var h = from r in dt.AsEnumerable()
                 group r by new
@@ -243,7 +239,6 @@ public partial class pacman : System.Web.UI.Page
             //}                        
         }
 
-
         DataRow s = dt1.NewRow();
         var a = dt1.AsEnumerable();
         s["Account"] = "Grand Total";
@@ -255,8 +250,7 @@ public partial class pacman : System.Web.UI.Page
         s["Calculation"] = "(RatingxOccurence)/Occurence";
 
         dt1.Rows.Add(s);
-
-        if (dt1 != null) { populateGvPrimaryKPI(dt1); }
+        return dt1;
     }
     private void populateGvPrimaryKPI(DataTable dt)
     {
@@ -478,8 +472,8 @@ public partial class pacman : System.Web.UI.Page
         }
         else
         {
-            StartDate = new DateTime(DateTime.Today.Year, 1, 1);
-            EndDate = new DateTime(DateTime.Today.Year, 1, 31);
+            StartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            EndDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 31);
         }
 
     }
@@ -1395,6 +1389,18 @@ public partial class pacman : System.Web.UI.Page
     #region RTA
     public void fillpnl_Real_Time_Optimization(int ForEmpID)
     {
+        /*
+         * 0. Am I a manager or not. If so, WFMPMS.GetManagerKPI gets my rating directly.
+         * 1. Get a list of my accounts.
+         * 2. For these accounts what skillsets do i profess.
+         * 3. If I am assigned more than 1 distinct skillsets (Planning, Scheduling or RTA) I'm out of scope.
+         * 4. If I have one and only one distinct skillset assigned for all accounts I can proceed further.
+         * 5. If my skillset is RTA, For each individual KPI run the WFMPMS.get<KPI>SummaryForPACMAN procedure exactly once.
+         * 6. Merge the above datatables into one. Calculate the merged score as my Primary KPI Score.
+         * 7. If I profess the planning or scheduling skillset, then just run the WFMPMS.getSLSummaryForPACMAN
+         * contd. because that procedure contains the intelligence needed to pull data from KPI dashboard 
+         * contd. for that month for all Accounts and KPIs.
+        */
         string metric = "Real Time Optimization";
         if (IsManager == 1)
         {
@@ -1432,50 +1438,84 @@ public partial class pacman : System.Web.UI.Page
                 }
             }
         }
-        else
-        {
+        else if (IsManager == 0)
+        {   
+            fillStartAndEndDates();
+            //* 1. Get a list of my accounts.
+            DtOfAccountsIHandle = getDtOfAccountsIHandle(ForEmpID);
 
-            string strSQL = "WFMPMS.getSLOptimizationSummaryForPACMAN";
+            //* 2. For these accounts what skillsets do i profess.
+            var myPrimaryKPIs = DtOfAccountsIHandle.AsEnumerable()
+                .Where(s => s.Field<string>("PrimaryKPI") != null)
+                .Select(s => new { kpi = s.Field<string>("PrimaryKPI") })
+                .Distinct();
 
-            SqlCommand cmd = new SqlCommand(strSQL);
-            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-            cmd.Parameters.AddWithValue("@StartDate", StartDate);
-            cmd.Parameters.AddWithValue("@EndDate", EndDate);
-
-            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-            if (dt != null && dt.Rows.Count > 0)
+            //3.If I am assigned more than 1 distinct skillsets(Planning, Scheduling or RTA) I'm out of scope.
+            var mySkillsets = DtOfAccountsIHandle.AsEnumerable()
+                .Select(t => t.Field<int>("SkillsetId")).Distinct();
+            //*4.If I have one and only one distinct skillset assigned for all accounts I can proceed further.
+            if (mySkillsets.Count() == 1)
             {
-                GridView gvOptimizationKPI = new GridView();
-                gvOptimizationKPI.AutoGenerateColumns = true;
-
-                gvOptimizationKPI.DataSource = dt;
-                gvOptimizationKPI.DataBind();
-                gvOptimizationKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].Font.Bold = true;
-
-                bool optirating = false;
-                decimal dec_optirating;
-                optirating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_optirating);
-                if (optirating)
+                //string strSQL = "WFMPMS.getSLOptimizationSummaryForPACMAN";
+                SqlCommand cmd = new SqlCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd.Parameters.AddWithValue("@EndDate", EndDate);
+                DataTable dt = new DataTable();
+                if (mySkillsets.FirstOrDefault() == 2 || mySkillsets.FirstOrDefault() == 3)
                 {
-                    OPRating += dec_optirating;
+                    cmd.CommandText = "WFMPMS.getSLOptimizationSummaryForPACMAN";
+                    dt = my.GetDataTableViaProcedure(ref cmd);
+                }
+                else if (mySkillsets.FirstOrDefault() == 4)
+                {
+                    foreach (var individualKPI in myPrimaryKPIs)
+                    {
+                        cmd.CommandText = "WFMPMS.get" + individualKPI.kpi.ToString() + "OptimizationSummaryForPACMAN";
+                        dt.Merge(my.GetDataTableViaProcedure(ref cmd));
+                        // ToDo: At this point, start merging the grand totals into each other.
+                    }
+                    dt = ConsolidateDataTables(dt);
+                    if (dt != null && dt.Rows.Count > 0)
+                    {
+                        GridView gvOptimizationKPI = new GridView();
+                        gvOptimizationKPI.AutoGenerateColumns = true;
+
+                        gvOptimizationKPI.DataSource = dt;
+                        gvOptimizationKPI.DataBind();
+                        gvOptimizationKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                        gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                        gvOptimizationKPI.Rows[gvOptimizationKPI.Rows.Count - 1].Font.Bold = true;
+
+                        bool optirating = false;
+                        decimal dec_optirating;
+                        optirating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_optirating);
+                        if (optirating)
+                        {
+                            OPRating += dec_optirating;
+                        }
+                        else
+                        {
+                            OPRating += 0;
+                        }
+                        ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
+                        ltl_Real_Time_Optimization.Text = Math.Round(OPRating, 2).ToString();
+                        pnlOptimization.Controls.Add(gvOptimizationKPI);
+
+                        gvOptimizationKPI.PreRender += gv_PreRender;
+                    }
                 }
                 else
                 {
-                    OPRating += 0;
+                    ltlOptimization.Text = "Multiple Roles found. The total KPI score for this employee will lead to an invalid condition (greater than 5)";
+                    ltl_Real_Time_Optimization.Text = String.Empty;
                 }
-                ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
-                ltl_Real_Time_Optimization.Text = Math.Round(OPRating, 2).ToString();
-                pnlOptimization.Controls.Add(gvOptimizationKPI);
+            }
 
-                gvOptimizationKPI.PreRender += gv_PreRender;
-            }
-            else
-            {
-                ltlOptimization.Text = "Real Time Optimization &nbsp= &nbsp";
-                ltl_Real_Time_Optimization.Text = String.Empty;
-            }
+
+
+
         }
 
 
@@ -1639,7 +1679,7 @@ public partial class pacman : System.Web.UI.Page
                 {
                     strSQL = "SELECT Distinct * FROM [WFMPMS].[tblBTPResults] A inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID and B.EmpCode = @EmpCode where[Month] between DATEADD(M,-1,@StartDate) and DATEADD(M,-1,@EndDate)";
                 }
-                
+
                 break;
             case "Coaching_and_Feedback":
                 strSQL = "WFMPMS.getAnalyticCoachingScore";
@@ -1658,12 +1698,12 @@ public partial class pacman : System.Web.UI.Page
                 //}
                 //else
                 //{
-                    strSQL = "select A.ID, A.EmpCode, A.Type, A.Category, Description, ActionBy as UpdatedBy ";
-                    strSQL += ", ActionOn as UpdatedOn, Wtg, C.FromDate, C.ToDate ";
-                    strSQL += " from WFMPMS.TBLEI A left join WFMPMS.TBLEIWTG B on A.Category = B.Category and A.Type = B.Type ";
-                    strSQL += " inner join[WFMPMS].[tblPacmanCycle] C on A.PacmanCycle = C.Id ";
-                    strSQL += " where A.EmpCode=@EmpCode and A.active = 1 and B.Active = 1 ";
-                    strSQL += " and @StartDate between C.FromDate and C.ToDate";
+                strSQL = "select A.ID, A.EmpCode, A.Type, A.Category, Description, ActionBy as UpdatedBy ";
+                strSQL += ", ActionOn as UpdatedOn, Wtg, C.FromDate, C.ToDate ";
+                strSQL += " from WFMPMS.TBLEI A left join WFMPMS.TBLEIWTG B on A.Category = B.Category and A.Type = B.Type ";
+                strSQL += " inner join[WFMPMS].[tblPacmanCycle] C on A.PacmanCycle = C.Id ";
+                strSQL += " where A.EmpCode=@EmpCode and A.active = 1 and B.Active = 1 ";
+                strSQL += " and @StartDate between C.FromDate and C.ToDate";
                 //}
                 break;
             case "Forecasting_Accuracy":
@@ -1681,7 +1721,7 @@ public partial class pacman : System.Web.UI.Page
                 {
                     strSQL = "SELECT* FROM [CWFM_Umang].[WFMPMS].[tblIEXForecastingResult] where [Employee_ID] = @EmpCode and [Date] between @StartDate and @EndDate";
                 }
-                
+
                 break;
             case "Headcount_Accuracy":
                 metricc = "Headcount_Accuracy";
@@ -1698,7 +1738,7 @@ public partial class pacman : System.Web.UI.Page
                 {
                     strSQL = "SELECT* FROM [WFMPMS].[tblHeadcountAccuracyResult] where [PlannerEmpCode] = @EmpCode and [Month] between @StartDate and @EndDate";
                 }
-                
+
                 break;
             case "IEX_Management":
                 strSQL = "SELECT EmpCode, Comments, ActionedBy, ActionedOn, Score as Rating, B.FromDate as StartDate, B.ToDate as EndDate ";
@@ -1720,7 +1760,7 @@ public partial class pacman : System.Web.UI.Page
                 {
                     strSQL = "SELECT * FROM [WFMPMS].[tblKPIResults] where [Employee_ID] = @EmpCode and [Date] between @StartDate and @EndDate";
                 }
-               
+
                 break;
             case "On_Time_Delivery":
                 strSQL = "WFMPMS.GetAnalyticTimelineScore";
@@ -1731,14 +1771,14 @@ public partial class pacman : System.Web.UI.Page
                 cmd.CommandType = CommandType.StoredProcedure;
                 break;
             case "Optimization"://Real_Time_Optimization
-                
-                
+
+
                 break;
             case "Revenue__Cost_optimization":
                 // Manager KPIs
                 break;
             case "Scheduling_Accuracy":
-                 metricc = "Scheduling_Accuracy";
+                metricc = "Scheduling_Accuracy";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
@@ -1751,7 +1791,7 @@ public partial class pacman : System.Web.UI.Page
                 else
                 {
                     strSQL = "SELECT * FROM [CWFM_Umang].[WFMPMS].[tblIEXSchedulingResult] A where Employee_ID=@EmpCode and A.Date between @StartDate and @EndDate";
-                    
+
                 }
                 break;
 
@@ -1762,7 +1802,7 @@ public partial class pacman : System.Web.UI.Page
                 break;
 
             case "Team_Absenteeism":
-                    metricc = "Absenteeism";
+                metricc = "Absenteeism";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";

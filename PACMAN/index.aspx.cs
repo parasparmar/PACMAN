@@ -51,8 +51,9 @@ public partial class index : System.Web.UI.Page
             //myID = "vshir001"; 
             //myID = "gsing017"; 
             //myID = "fjaya001";
-            myID = "smerc021";
-            //myID = "aansa008"; //
+            //myID = "smerc021";
+            //myID = "aansa008";
+            //myID = "atike001";
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
             cmd.Parameters.AddWithValue("@NT_ID", myID);
             
