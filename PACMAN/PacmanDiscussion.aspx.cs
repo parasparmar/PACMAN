@@ -28,6 +28,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     private DateTime StartDate { get; set; }
     private DateTime EndDate { get; set; }
     private decimal SLRating { get; set; }
+    private decimal OPRating { get; set; }
     private decimal OptimizationRating { get; set; }
     private decimal EIRating { get; set; }
     private decimal AbsenteeismRating { get; set; }
@@ -79,6 +80,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         title.Text = "PACMAN Discussion";
 
         btnSubmitPacman.Enabled = false;
+        btnIEXMgmtScoreSubmit.Enabled = true;
+        btnAnalyticProjectScoreSubmit.Enabled = true;
+        btnCoachingScoreSubmit.Enabled = true;
+        btnRevenue_and_Cost_optimization.Enabled = true;
+
         //btnSubmitPacman.Enabled = true;
 
 
@@ -128,6 +134,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 btnRevenue_and_Cost_optimization.Enabled = false;
             }
+            btnIEXMgmtScoreSubmit.Enabled = true;
+            btnAnalyticProjectScoreSubmit.Enabled = true;
+            btnCoachingScoreSubmit.Enabled = true;
+            btnRevenue_and_Cost_optimization.Enabled = true;
 
         }
     }
@@ -336,6 +346,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     protected void btnYesDiscussed_Click(object sender, EventArgs e)
     {
+        btnIEXMgmtScoreSubmit.Enabled = false;
+        btnAnalyticProjectScoreSubmit.Enabled = false;
+        btnCoachingScoreSubmit.Enabled = false;
+        btnRevenue_and_Cost_optimization.Enabled = false;
+
         btnSubmitPacman.Enabled = true;
         btnYesDiscussed.Enabled = false;
         //btnNotDiscussed.Enabled = false;
@@ -476,104 +491,197 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     public void fillpnl_KPI(int ForEmpID)
     {
         string metric = "KPI";
+        /*
+         * 0. Am I a manager or not. If so, WFMPMS.GetManagerKPI gets my rating directly.
+         * 1. Get a list of my accounts.
+         * 2. For these accounts what skillsets do i profess.
+         * 3. If I am assigned more than 1 distinct skillsets (Planning, Scheduling or RTA) I'm out of scope.
+         * 4. If I have one and only one distinct skillset assigned for all accounts I can proceed further.
+         * 5. If my skillset is RTA, For each individual KPI run the WFMPMS.get<KPI>SummaryForPACMAN procedure exactly once.
+         * 6. Merge the above datatables into one. Calculate the merged score as my Primary KPI Score.
+         * 7. If I profess the planning or scheduling skillset, then just run the WFMPMS.getSLSummaryForPACMAN
+         * contd. because that procedure contains the intelligence needed to pull data from KPI dashboard 
+         * contd. for that month for all Accounts and KPIs.
+         */
+
         if (IsManager == 1)
         {
-            string strSQL = "[WFMPMS].[GetManagerKPI]";
+            //0. Am I a manager or not. If so, WFMPMS.GetManagerKPI gets my rating directly.
+            fillpnl_KPI_forManagers(ForEmpID);
+        }
 
-            SqlCommand cmd = new SqlCommand(strSQL);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-            cmd.Parameters.AddWithValue("@StartDate", StartDate);
-            cmd.Parameters.AddWithValue("@EndDate", EndDate);
-            cmd.Parameters.AddWithValue("@Metric", metric);
+        else if (IsManager == 0)
+        {
 
-            DataTable dt1 = my.GetDataTableViaProcedure(ref cmd);
-            if (dt1 != null)
+            //* 1. Get a list of my accounts.
+            DtOfAccountsIHandle = getDtOfAccountsIHandle();
+
+            //* 2. For these accounts what skillsets do i profess.
+            var myPrimaryKPIs = DtOfAccountsIHandle.AsEnumerable()
+                .Where(s => s.Field<string>("PrimaryKPI") != null)
+                .Select(s => new { kpi = s.Field<string>("PrimaryKPI") })
+                .Distinct();
+
+            //3.If I am assigned more than 1 distinct skillsets(Planning, Scheduling or RTA) I'm out of scope.
+            var mySkillsets = DtOfAccountsIHandle.AsEnumerable()
+                .Select(t => t.Field<int>("SkillsetId")).Distinct();
+            DataSet ds = new DataSet("KPI");
+
+
+            //*4.If I have one and only one distinct skillset assigned for all accounts I can proceed further.
+            if (mySkillsets.Count() == 1)
             {
+                SqlCommand cmd = new SqlCommand();
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                cmd.Parameters.AddWithValue("@EndDate", EndDate);
+
+                DataTable dt = new DataTable();
                 GridView gvPrimaryKPI = new GridView();
-                gvPrimaryKPI.ID = "gvPrimaryKPI";
-                gvPrimaryKPI.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-
-                DataRow dr1 = dt1.NewRow();
-
-                gvPrimaryKPI.DataSource = dt1;
-                gvPrimaryKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                gvPrimaryKPI.DataBind();
-                if (dt1.Rows.Count > 0)
+                if (mySkillsets.FirstOrDefault() == 2 || mySkillsets.FirstOrDefault() == 3)
                 {
-                    gvPrimaryKPI.Rows[gvPrimaryKPI.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                    gvPrimaryKPI.Rows[gvPrimaryKPI.Rows.Count - 1].Font.Bold = true;
-                    gvPrimaryKPI.PreRender += gv_PreRender;
-                    SLRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-                    ltl_KPI.Text = SLRating.ToString();
+                    cmd.CommandText = "WFMPMS.getSLSummaryForPACMAN";
+                    dt = my.GetDataTableViaProcedure(ref cmd);
+                }
+                else if (mySkillsets.FirstOrDefault() == 4)
+                {
+                    foreach (var individualKPI in myPrimaryKPIs)
+                    {
+                        cmd.CommandText = "WFMPMS.get" + individualKPI.kpi.ToString() + "SummaryForPACMAN";
+                        dt.Merge(my.GetDataTableViaProcedure(ref cmd));
+                        // ToDo: At this point, start merging the grand totals into each other.
+                    }
+                    ConsolidateDataTables(dt);
+                }
+                else
+                {
+                    ltlPrimaryKPI.Text = "Multiple Roles found. The total KPI score for this employee will lead to an invalid condition (greater than 5)";
+                    ltl_KPI.Text = String.Empty;
                 }
 
 
+            }
+
+        }
+
+
+    }
+    private void ConsolidateDataTables(DataTable dt)
+    {
+        var h = from r in dt.AsEnumerable()
+                group r by new
+                {
+                    accountid = r["AccountId"],
+                    account = r["Account"],
+                    rating = r["Rating"]
+                } into groupby
+                where groupby.Key.account.ToString().Contains("Total") != true
+                select new
+                {
+                    accountid = groupby.Key.accountid,
+                    account = groupby.Key.account,
+                    rating = groupby.Key.rating,
+                    occurence = groupby.Sum(r => r.Field<int?>("Occurence")),
+                    calculation = groupby.ElementAtOrDefault(6)
+
+                };
+        var g = h.ToList();
+        DataTable dt1 = dt.Clone();
+        foreach (var f in g)
+        {
+            //if(f.account!=null && f.account.ToString().Contains("Total") != true)
+            //{
+            DataRow r = dt1.NewRow();
+            r["AccountId"] = f.accountid;
+            r["Account"] = f.account;
+            int rating = 0;
+            if (f.rating != null && f.rating.ToString().Length > 0) { rating = Convert.ToInt32(f.rating); }
+            r["Rating"] = rating;
+            int occurence = 0;
+            if (f.occurence != null && f.occurence.ToString().Length > 0) { occurence = Convert.ToInt32(f.occurence); }
+            r["Occurence"] = occurence;
+            r["RatingxOccurence"] = rating * occurence;
+            r["Calculation"] = string.Empty;
+            dt1.Rows.Add(r);
+            //}                        
+        }
+
+
+        DataRow s = dt1.NewRow();
+        var a = dt1.AsEnumerable();
+        s["Account"] = "Grand Total";
+        int occurences = a.Sum(x => x.Field<int>("Occurence"));
+        s["Occurence"] = occurences;
+        Decimal ratingxoccurence = Convert.ToDecimal(dt1.Compute("Sum(RatingxOccurence)", "").ToString());
+        s["RatingxOccurence"] = ratingxoccurence;
+        s["Rating"] = Math.Round(ratingxoccurence / occurences, 2);
+        s["Calculation"] = "(RatingxOccurence)/Occurence";
+
+        dt1.Rows.Add(s);
+
+        if (dt1 != null) { populateGvPrimaryKPI(dt1); }
+    }
+    private void fillpnl_KPI_forManagers(int ForEmpID, string metric = "KPI")
+    {
+        string strSQL = "WFMPMS.GetManagerKPI";
+        SqlCommand cmd = new SqlCommand(strSQL);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        cmd.Parameters.AddWithValue("@StartDate", StartDate);
+        cmd.Parameters.AddWithValue("@EndDate", EndDate);
+        cmd.Parameters.AddWithValue("@Metric", metric);
+        DataTable dt1 = my.GetDataTableViaProcedure(ref cmd);
+        if (dt1 != null)
+        {
+            populateGvPrimaryKPI(dt1);
+        }
+
+    }
+
+    private void populateGvPrimaryKPI(DataTable dt)
+    {
+        if (dt != null)
+        {
+            GridView gvPrimaryKPI = new GridView();
+            gvPrimaryKPI.ID = "gvPrimaryKPI";
+            gvPrimaryKPI.AutoGenerateColumns = true;
+            gvPrimaryKPI.DataSource = dt;
+            gvPrimaryKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+
+            gvPrimaryKPI.DataBind();
+            if (dt != null && dt.Rows.Count > 0)
+            {
+                gvPrimaryKPI.Rows[dt.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                gvPrimaryKPI.Rows[dt.Rows.Count - 1].Font.Bold = true;
+                gvPrimaryKPI.PreRender += gv_PreRender;
+                bool slrating = false;
+                decimal dec_slrating;
+                slrating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_slrating);
+                if (slrating)
+                {
+                    SLRating += dec_slrating;
+                }
+                else
+                {
+                    SLRating += 0;
+                }
+                ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";
+                ltl_KPI.Text = Math.Round(SLRating, 2).ToString();
                 pnlKPI.Controls.Add(gvPrimaryKPI);
             }
             else
             {
-                ltlPrimaryKPI.Text = "KPI &nbsp= &nbsp" + "No Data found";
+                ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
+                ltl_KPI.Text = String.Empty;
             }
+
         }
         else
         {
-            string strSQL = "WFMPMS.getSLSummaryForPACMAN";
-            SqlCommand cmd = new SqlCommand(strSQL);
-            cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-            cmd.Parameters.AddWithValue("@StartDate", StartDate);
-            cmd.Parameters.AddWithValue("@EndDate", EndDate);
-
-            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-            if (dt != null)
-            {
-                GridView gvPrimaryKPI = new GridView();
-                gvPrimaryKPI.ID = "gvPrimaryKPI";
-                gvPrimaryKPI.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-                DataRow dr = dt.NewRow();
-
-                gvPrimaryKPI.DataSource = dt;
-                gvPrimaryKPI.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-
-                gvPrimaryKPI.DataBind();
-                if (dt.Rows.Count > 0)
-                {
-                    gvPrimaryKPI.Rows[dt.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                    gvPrimaryKPI.Rows[dt.Rows.Count - 1].Font.Bold = true;
-                    gvPrimaryKPI.PreRender += gv_PreRender;
-                    bool slrating = false;
-                    decimal dec_slrating;
-                    slrating = Decimal.TryParse(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString(), out dec_slrating);
-                    if (slrating)
-                    {
-                        SLRating = dec_slrating;
-                    }
-                    else
-                    {
-                        SLRating = 0;
-                    }
-                    ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp";
-                    ltl_KPI.Text = SLRating.ToString();
-                    pnlKPI.Controls.Add(gvPrimaryKPI);
-                }
-                else
-                {
-                    ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp";// + "No Data found";
-                    ltl_KPI.Text = String.Empty;
-                }
-
-            }
-            else
-            {
-                ltlPrimaryKPI.Text = "Primary KPIname : Service Level &nbsp= &nbsp";// + "No Data found";
-                ltl_KPI.Text = String.Empty;
-            }
+            ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
+            ltl_KPI.Text = String.Empty;
         }
-
-
     }
     protected void btnIEXMgmtScoreSubmit_Click(object sender, EventArgs e)
     {
@@ -1208,54 +1316,54 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         //}
         //else
         //{
-            EIRating = 0;
-            strSQL = "[WFMPMS].[GetEscalationInitiativeScore]";
-            using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+        EIRating = 0;
+        strSQL = "[WFMPMS].[GetEscalationInitiativeScore]";
+        using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
+        {
+            cn.Open();
+            using (SqlCommand cmd = new SqlCommand(strSQL, cn))
             {
-                cn.Open();
-                using (SqlCommand cmd = new SqlCommand(strSQL, cn))
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                cmd.Parameters.AddWithValue("@total", EIRating);
+                cmd.Parameters["@total"].Direction = ParameterDirection.Output;
+                SqlDataAdapter da = new SqlDataAdapter(cmd);
+                DataTable dt = new DataTable();
+                da.Fill(dt);
+                EIRating = Convert.ToInt32(cmd.Parameters["@total"].Value.ToString());
+                ltlEI.Text = "Escalations & Initiatives &nbsp= &nbsp";
+                ltl_Escalations.Text = EIRating.ToString();
+
+                if (dt != null)
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                    cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                    cmd.Parameters.AddWithValue("@total", EIRating);
-                    cmd.Parameters["@total"].Direction = ParameterDirection.Output;
-                    SqlDataAdapter da = new SqlDataAdapter(cmd);
-                    DataTable dt = new DataTable();
-                    da.Fill(dt);
-                    EIRating = Convert.ToInt32(cmd.Parameters["@total"].Value.ToString());
-                    ltlEI.Text = "Escalations & Initiatives &nbsp= &nbsp";
-                    ltl_Escalations.Text = EIRating.ToString();
+                    GridView gvEscalations = new GridView();
+                    gvEscalations.ID = "gvEscalations";
+                    gvEscalations.AutoGenerateColumns = true;
+                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
 
-                    if (dt != null)
+                    DataRow dr = dt.NewRow();
+
+                    gvEscalations.DataSource = dt;
+                    gvEscalations.CssClass = "table DataTable table-condensed table-bordered table-responsive";
+                    gvEscalations.DataBind();
+                    if (dt.Rows.Count > 0)
                     {
-                        GridView gvEscalations = new GridView();
-                        gvEscalations.ID = "gvEscalations";
-                        gvEscalations.AutoGenerateColumns = true;
-                        //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-
-                        DataRow dr = dt.NewRow();
-
-                        gvEscalations.DataSource = dt;
-                        gvEscalations.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-                        gvEscalations.DataBind();
-                        if (dt.Rows.Count > 0)
-                        {
-                            gvEscalations.Rows[gvEscalations.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-                            gvEscalations.Rows[gvEscalations.Rows.Count - 1].Font.Bold = true;
-                            gvEscalations.PreRender += gv_PreRender;
-                        }
-
-
-                        pnlEscalations.Controls.Add(gvEscalations);
+                        gvEscalations.Rows[gvEscalations.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
+                        gvEscalations.Rows[gvEscalations.Rows.Count - 1].Font.Bold = true;
+                        gvEscalations.PreRender += gv_PreRender;
                     }
-                    else
-                    {
-                        ltl_Escalations.Text = string.Empty;
-                    }
+
+
+                    pnlEscalations.Controls.Add(gvEscalations);
                 }
-
+                else
+                {
+                    ltl_Escalations.Text = string.Empty;
+                }
             }
+
+        }
 
         //}
     }
@@ -1675,8 +1783,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 cmd.Parameters.AddWithValue("@DownloadDetailedReport", 1);
                 break;
             case "Accuracy":
-                    strSQL = "WFMPMS.GetAnalyticAccuracyScore";
-                    cmd.CommandType = CommandType.StoredProcedure;
+                strSQL = "WFMPMS.GetAnalyticAccuracyScore";
+                cmd.CommandType = CommandType.StoredProcedure;
                 break;
             case "Attrition":
                 if (IsManager == 1)
