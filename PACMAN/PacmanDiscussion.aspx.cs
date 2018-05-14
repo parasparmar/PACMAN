@@ -317,7 +317,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ddlReportee.DataBind();
         showRelevantMetricPanels(ForEmpID);
         fillRelevantMetricsInPanels(ForEmpID);//////////////////////////////////////////
-        getFinalRating(MyEmpID);
+        getFinalRating(ForEmpID);
     }
     private void fillRelevantMetricsInPanels(int ForEmpID)
     {
@@ -507,7 +507,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
     public void fillpnl_KPI(int ForEmpID)
     {
-        string metric = "KPI";
+        
         /*
          * 0. Am I a manager or not. If so, WFMPMS.GetManagerKPI gets my rating directly.
          * 1. Get a list of my accounts.
@@ -760,7 +760,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
         EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
         fillRelevantMetricsInPanels(ForEmpID);
-        getFinalRating(MyEmpID);
+        getFinalRating(ForEmpID);
         //if (Convert.ToInt32(ltl_IEX_Management.Text) != 0)
         //{
         //    btnIEXMgmtScoreSubmit.Enabled = false;
@@ -1092,7 +1092,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     #region Manager
     public void fillpnl_Attrition(int ForEmpID)
     {
-        string metric = "Attrition";
+        
         string strSQL1 = "[WFMPMS].[getAttritionScore]";
 
         SqlCommand cmd1 = new SqlCommand(strSQL1);
@@ -1108,7 +1108,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             GridView gvAttrition = new GridView();
             gvAttrition.ID = "gvAttrition";
             gvAttrition.AutoGenerateColumns = true;
-            //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+            //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
             DataRow dr1 = dt1.NewRow();
 
@@ -1146,7 +1146,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             GridView gvTeamAbsenteeism = new GridView();
             gvTeamAbsenteeism.ID = "gvTeamAbsenteeism";
             gvTeamAbsenteeism.AutoGenerateColumns = true;
-            //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+            //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
             DataRow dr1 = dt1.NewRow();
 
@@ -1253,7 +1253,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 GridView gvBTP = new GridView();
                 gvBTP.ID = "gvBTP";
                 gvBTP.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr1 = dt1.NewRow();
 
@@ -1318,49 +1318,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     public void fillpnl_Escalations(int ForEmpID)
     {
-        string metric = "Escalations";
-        //if (IsManager == 1)
-        //{
-        //    string strSQL1 = "[WFMPMS].[GetManagerKPI]";
-
-        //    SqlCommand cmd1 = new SqlCommand(strSQL1);
-        //    cmd1.CommandType = CommandType.StoredProcedure;
-        //    cmd1.Parameters.AddWithValue("@EmpCode", ForEmpID);
-        //    cmd1.Parameters.AddWithValue("@StartDate", StartDate);
-        //    cmd1.Parameters.AddWithValue("@EndDate", EndDate);
-        //    cmd1.Parameters.AddWithValue("@Metric", metric);
-
-        //    DataTable dt1 = my.GetDataTableViaProcedure(ref cmd1);
-        //    if (dt1 != null)
-        //    {
-        //        GridView gvEscalations = new GridView();
-        //        gvEscalations.ID = "gvEscalations";
-        //        gvEscalations.AutoGenerateColumns = true;
-        //        //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
-
-        //        DataRow dr1 = dt1.NewRow();
-
-        //        gvEscalations.DataSource = dt1;
-        //        gvEscalations.CssClass = "table DataTable table-condensed table-bordered table-responsive";
-        //        gvEscalations.DataBind();
-        //        if (dt1.Rows.Count > 0)
-        //        {
-        //            gvEscalations.Rows[gvEscalations.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
-        //            gvEscalations.Rows[gvEscalations.Rows.Count - 1].Font.Bold = true;
-        //            gvEscalations.PreRender += gv_PreRender;
-        //            //SLRating = Convert.ToDecimal(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-        //            EIRating = Convert.ToInt32(dt1.Rows[dt1.Rows.Count - 1]["Metric_Score"].ToString());
-        //            ltlEI.Text = "Escalations & Initiatives &nbsp= &nbsp";
-        //            pnlBTP.Controls.Add(gvEscalations);
-        //            ltl_Escalations.Text = EIRating.ToString();
-        //        }
-
-
-        //        pnlEscalations.Controls.Add(gvEscalations);
-        //    }
-        //}
-        //else
-        //{
+        
         EIRating = 0;
         strSQL = "[WFMPMS].[GetEscalationInitiativeScore]";
         using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
@@ -1385,7 +1343,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                     GridView gvEscalations = new GridView();
                     gvEscalations.ID = "gvEscalations";
                     gvEscalations.AutoGenerateColumns = true;
-                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                    //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                     DataRow dr = dt.NewRow();
 
@@ -1409,7 +1367,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             }
 
         }
-        //}
+        
     }
     public void fillpnl_Forecasting_Accuracy(int ForEmpID)
     {
@@ -1431,7 +1389,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 GridView gvForecastingAccuracy = new GridView();
                 gvForecastingAccuracy.ID = "gvForecastingAccuracy";
                 gvForecastingAccuracy.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr1 = dt1.NewRow();
 
@@ -1478,7 +1436,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 GridView gvForecastingAccuracy = new GridView();
                 gvForecastingAccuracy.ID = "gvForecastingAccuracy";
                 gvForecastingAccuracy.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr = dt.NewRow();
 
@@ -1535,7 +1493,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 GridView gvHeadcountAccuracy = new GridView();
                 gvHeadcountAccuracy.ID = "gvHeadcountAccuracy";
                 gvHeadcountAccuracy.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr1 = dt1.NewRow();
 
@@ -1585,7 +1543,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 GridView gvHeadcountAccuracy = new GridView();
                 gvHeadcountAccuracy.ID = "gvHeadcountAccuracy";
                 gvHeadcountAccuracy.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr = dt.NewRow();
 
@@ -1655,7 +1613,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 GridView gvOptimizationKPI = new GridView();
                 gvOptimizationKPI.ID = "gvOptimizationKPI";
                 gvOptimizationKPI.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr1 = dt1.NewRow();
 
@@ -1778,7 +1736,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 GridView gvSchedulingAccuracy = new GridView();
                 gvSchedulingAccuracy.ID = "gvSchedulingAccuracy";
                 gvSchedulingAccuracy.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr1 = dt1.NewRow();
 
@@ -1814,7 +1772,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 GridView gvSchedulingAccuracy = new GridView();
                 gvSchedulingAccuracy.ID = "gvSchedulingAccuracy";
                 gvSchedulingAccuracy.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr = dt.NewRow();
 
@@ -1874,13 +1832,14 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
         DataTable dt = my.GetData(strSQL);
+        ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
         EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
-        string metricc;
+        string metric2Download;
         SqlCommand cmd = new SqlCommand();
-        cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-        cmd.Parameters.AddWithValue("@StartDate", "20180101");
-        cmd.Parameters.AddWithValue("@EndDate", "20180131");
+        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        cmd.Parameters.AddWithValue("@StartDate", StartDate);
+        cmd.Parameters.AddWithValue("@EndDate", EndDate);
 
         switch (Metric)
         {
@@ -1901,21 +1860,22 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 }
                 break;
             case "BTP":
-                metricc = "BTP";
+                metric2Download = "BTP";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
                 {
-                    strSQL = "SELECT Distinct * FROM [WFMPMS].[tblBTPResults] A inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID and B.EmpCode = @EmpCode where[Month] between DATEADD(M,-1,@StartDate) and DATEADD(M,-1,@EndDate)";
+                    strSQL = @"SELECT Distinct * FROM [WFMPMS].[tblBTPResults] A 
+                    inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID 
+                    and B.EmpCode = @EmpCode where[Month] between DATEADD(M,-1,@StartDate) 
+                    and DATEADD(M,-1,@EndDate)";
                 }
                 break;
+
             case "Coaching_and_Feedback":
                 strSQL = "WFMPMS.getAnalyticCoachingScore";
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -1929,15 +1889,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 strSQL += " and @StartDate between C.FromDate and C.ToDate";
                 break;
             case "Forecasting_Accuracy":
-                metricc = "Forecastin_ Accuracy";
+                metric2Download = "Forecasting_Accuracy";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
                 {
@@ -1945,15 +1902,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 }
                 break;
             case "Headcount_Accuracy":
-                metricc = "Headcount_Accuracy";
+                metric2Download = "Headcount_Accuracy";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
                 {
@@ -1966,15 +1920,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 cmd.CommandType = CommandType.StoredProcedure;
                 break;
             case "KPI":
-                metricc = "KPI";
+                metric2Download = "KPI";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
                 {
@@ -1990,15 +1941,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 cmd.CommandType = CommandType.StoredProcedure;
                 break;
             case "Optimization":
-                metricc = "Real Time Optimization";
+                metric2Download = "Real Time Optimization";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
                 {
@@ -2009,15 +1957,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 // Manager KPIs
                 break;
             case "Scheduling_Accuracy":
-                metricc = "Scheduling_Accuracy";
+                metric2Download = "Scheduling_Accuracy";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
                 {
@@ -2032,15 +1977,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 break;
 
             case "Team_Absenteeism":
-                metricc = "Absenteeism";
+                metric2Download = "Absenteeism";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 break;
             default:
@@ -2051,14 +1993,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         cmd.Connection = new SqlConnection(my.getConnectionString());
         cmd.Connection.Open();
 
-
-        //DataSet ds = new DataSet("Export_Details");
-        //da.Fill(ds);
-        Label MyName = (Label)PageExtensionMethods.FindControlRecursive(Master, "lblName");
-        string FileName = MyName.Text + "'s " + Metric + " for " + StartDate.ToString("MMM yyyy") + " downloaded " + DateTime.Today.ToString("dd-MMM-yyyy HH-mm-ss") + ".csv";
-        DataTable d = new DataTable(FileName);
-        SqlDataAdapter da = new SqlDataAdapter(cmd);
-        da.Fill(d);
+        string MyName = my.getFirstResult("select dbo.getFullName(" + ForEmpID + ") as FullName");
+        string FileName = MyName + "'s " + Metric + " for " + StartDate.ToString("MMM yyyy") + " downloaded " + DateTime.Now.ToString("dd-MMM-yyyy HH-mm-ss") + ".csv";
+        DataTable d = my.GetData(ref cmd);
+        d.TableName = FileName;
+        
         //Get the physical path to the file.
         string FilePath = Server.MapPath("Sitel//metric_downloads//" + FileName);
         using (var textWriter = File.CreateText(FilePath))
@@ -2111,7 +2050,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@EmpCode", reportee);
         cmd.Parameters.AddWithValue("@Score", score);
         cmd.Parameters.AddWithValue("@Comments", comments);
-        cmd.Parameters.AddWithValue("@ActionedBy", MyEmpID);
+        cmd.Parameters.AddWithValue("@ActionedBy", ForEmpID);
         cmd.Connection = con;
         cmd.ExecuteNonQuery();
         con.Close();

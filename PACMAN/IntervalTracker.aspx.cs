@@ -82,6 +82,10 @@ public partial class IntervalTracker : System.Web.UI.Page
     private void fillddlLOB()
     {
         string Account = ddlAccount.SelectedItem.Value.ToString();
+        if (!string.IsNullOrEmpty(Account))
+        {
+            ddlLOB.Items.Add("No-LOB");
+        }
         string strSQL = "[WFMP].[fillAccountLOB]";
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.Parameters.AddWithValue("@Account", Account);
@@ -95,6 +99,10 @@ public partial class IntervalTracker : System.Web.UI.Page
     private void filllbSites()
     {
         string Account = ddlAccount.SelectedItem.Value.ToString();
+        if (!string.IsNullOrEmpty(Account))
+        {
+            lbSites.Items.Add("No-Site");
+        }
         string strSQL = "[WFMP].[fillSites]";
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.Parameters.AddWithValue("@AccountID", Account);
@@ -243,11 +251,19 @@ public partial class IntervalTracker : System.Web.UI.Page
 
     protected void ddlIncident_SelectedIndexChanged(object sender, EventArgs e)
     {
-        if (ddlIncident.SelectedItem.Value == "3") {
+        if (ddlIncident.SelectedItem.Value == "3")
+        {
             txtClientTicket.Text = "0";
             txtSitelTicket.Text = "0";
             txtClientTicket.Enabled = false;
             txtSitelTicket.Enabled = false;
+        }
+        else
+        {
+            txtClientTicket.Enabled = true;
+            txtSitelTicket.Enabled = true;
+            txtClientTicket.Text = string.Empty;
+            txtSitelTicket.Text = string.Empty;
         }
     }
 }

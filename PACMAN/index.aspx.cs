@@ -18,7 +18,7 @@ public partial class index : System.Web.UI.Page
         {
             ViewState["PreviousPageUrl"] = Request.UrlReferrer.ToString();
         }
-        
+
         if (Request.QueryString["q"] != null)
         {
             string skillset = Request.QueryString["q"].ToString();
@@ -30,12 +30,12 @@ public partial class index : System.Web.UI.Page
             myID = PageExtensionMethods.getMyWindowsID().ToString();
             RedirectBasedOnNTNameLookup(myID);
         }
-        
+
     }
 
     private void RedirectBasedOnNTNameLookup(string myID)
     {
-        
+
         DataTable dt = new DataTable();
         if (myID != "IDNotFound")
         {
@@ -43,7 +43,7 @@ public partial class index : System.Web.UI.Page
             //myID = "nchan016"; //Planner
             //myID = "nrodr05"; //Planner
             //myID = "vshir001"; 
-            //myID = "vchoh001";
+            myID = "vchoh001";
 
             //myID = "utiwa002";
             //myID = "vfern016";
@@ -54,9 +54,11 @@ public partial class index : System.Web.UI.Page
             //myID = "smerc021";
             //myID = "aansa008";
             //myID = "atike001";
+            //myID = "ssund007";
+            //myID = "spava002";
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
             cmd.Parameters.AddWithValue("@NT_ID", myID);
-            
+
             try
             {
                 dt = my.GetDataTableViaProcedure(ref cmd);
@@ -83,12 +85,12 @@ public partial class index : System.Web.UI.Page
             Response.Redirect("lockscreen.aspx", false);
         }
 
-        
+
     }
 
     private DataTable getSkillsetImpersonator()
     {
-        
+
         string strSQL = "Select distinct  A.Skillset from [WFMPMS].[tblDsgn2KPIWtg] A ";
         strSQL += " where A.SkillsetId <> 5 ";
         strSQL += " union select distinct A.Skillset + '-Manager' as Skillset from[WFMPMS].[tblDsgn2KPIWtg] A";
@@ -109,8 +111,7 @@ public partial class index : System.Web.UI.Page
                 myID = "gsing017";
                 break;
             case "Planning":
-                myID = "akamb002"; //Planner Anil Kamble 
-                                   //myID = "akamb002"; //Planner Anil Kamble
+                myID = "akamb002"; //Planner Anil Kamble                 
                 break;
             case "Planning - Manager":
                 myID = "g.001"; //Manager Gorang Suri

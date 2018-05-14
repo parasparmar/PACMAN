@@ -52,8 +52,6 @@ public partial class ExceptionTracker : System.Web.UI.Page
         else
         { btnSave.Enabled = false; }
 
-        
-
         if (!IsPostBack)
         {
             fillddlInterval();

@@ -210,7 +210,7 @@
                     <br />
                     <div class="pull-left" style="margin-top: 1%">
                         <asp:FileUpload ID="FileUploadAttachMailIni" runat="server"  accept=".msg" />
-                        <asp:RequiredFieldValidator ID="RequiredFieldValidator5" runat="server" Display="Dynamic" ErrorMessage="Select a category" ForeColor="Red" ControlToValidate="FileUploadAttachMailIni" ValidationGroup="Initiative"></asp:RequiredFieldValidator>
+                        <asp:RequiredFieldValidator ID="RequiredFieldValidator5" runat="server" Display="Dynamic" ErrorMessage="Email-Attachment is required." ForeColor="Red" ControlToValidate="FileUploadAttachMailIni" ValidationGroup="Initiative"></asp:RequiredFieldValidator>
                         <asp:RegularExpressionValidator ID="RegularExpressionValidator3" ValidationExpression="([a-zA-Z0-9\s_\\.\-:])+(.msg)$"
 
     ControlToValidate="FileUploadAttachMailIni" runat="server" ForeColor="Red" ErrorMessage="Please select a valid mail file."

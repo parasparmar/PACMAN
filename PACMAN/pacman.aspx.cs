@@ -853,7 +853,7 @@ public partial class pacman : System.Web.UI.Page
     #region Manager
     public void fillpnl_Attrition(int ForEmpID)
     {
-        string metric = "Attrition";
+        
         string strSQL1 = "[WFMPMS].[getAttritionScore]";
 
         SqlCommand cmd1 = new SqlCommand(strSQL1);
@@ -1439,7 +1439,7 @@ public partial class pacman : System.Web.UI.Page
             }
         }
         else if (IsManager == 0)
-        {   
+        {
             fillStartAndEndDates();
             //* 1. Get a list of my accounts.
             DtOfAccountsIHandle = getDtOfAccountsIHandle(ForEmpID);
@@ -1638,7 +1638,7 @@ public partial class pacman : System.Web.UI.Page
         DataTable dt = my.GetData(strSQL);
         StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
         EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
-        string metricc;
+        string metric2Download;
 
         SqlCommand cmd = new SqlCommand();
         cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
@@ -1662,77 +1662,59 @@ public partial class pacman : System.Web.UI.Page
                     strSQL = "wfmpms.getAttritionDetail";
                     cmd.CommandType = CommandType.StoredProcedure;
                 }
-
                 break;
             case "BTP":
-                metricc = "BTP";
+                metric2Download = "BTP";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
                 {
-                    strSQL = "SELECT Distinct * FROM [WFMPMS].[tblBTPResults] A inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID and B.EmpCode = @EmpCode where[Month] between DATEADD(M,-1,@StartDate) and DATEADD(M,-1,@EndDate)";
+                    strSQL = @"SELECT Distinct * FROM [WFMPMS].[tblBTPResults] A 
+                    inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID 
+                    and B.EmpCode = @EmpCode where[Month] between DATEADD(M,-1,@StartDate) 
+                    and DATEADD(M,-1,@EndDate)";
                 }
-
                 break;
+
             case "Coaching_and_Feedback":
                 strSQL = "WFMPMS.getAnalyticCoachingScore";
                 cmd.CommandType = CommandType.StoredProcedure;
                 break;
+
             case "Escalations":
-                //metricc = "Escalations";
-                //if (IsManager == 1)
-                //{
-                //    strSQL = "wfmpms.getmanagerdownload";
-                //    cmd.CommandType = CommandType.StoredProcedure;
-                //    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                //    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                //    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                //    cmd.Parameters.AddWithValue("@metric", metricc);
-                //}
-                //else
-                //{
                 strSQL = "select A.ID, A.EmpCode, A.Type, A.Category, Description, ActionBy as UpdatedBy ";
                 strSQL += ", ActionOn as UpdatedOn, Wtg, C.FromDate, C.ToDate ";
                 strSQL += " from WFMPMS.TBLEI A left join WFMPMS.TBLEIWTG B on A.Category = B.Category and A.Type = B.Type ";
                 strSQL += " inner join[WFMPMS].[tblPacmanCycle] C on A.PacmanCycle = C.Id ";
                 strSQL += " where A.EmpCode=@EmpCode and A.active = 1 and B.Active = 1 ";
                 strSQL += " and @StartDate between C.FromDate and C.ToDate";
-                //}
                 break;
+
             case "Forecasting_Accuracy":
-                metricc = "Forecastin_ Accuracy";
+                metric2Download = "Forecasting_Accuracy";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.CommandType = CommandType.StoredProcedure;               
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
                 {
                     strSQL = "SELECT* FROM [CWFM_Umang].[WFMPMS].[tblIEXForecastingResult] where [Employee_ID] = @EmpCode and [Date] between @StartDate and @EndDate";
                 }
-
                 break;
+
             case "Headcount_Accuracy":
-                metricc = "Headcount_Accuracy";
+                metric2Download = "Headcount_Accuracy";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
                     cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
                 {
@@ -1740,21 +1722,19 @@ public partial class pacman : System.Web.UI.Page
                 }
 
                 break;
+
             case "IEX_Management":
                 strSQL = "SELECT EmpCode, Comments, ActionedBy, ActionedOn, Score as Rating, B.FromDate as StartDate, B.ToDate as EndDate ";
                 strSQL += " FROM[CWFM_Umang].[WFMPMS].[tblIEXManagementScore] A inner join WFMPMs.tblPacmanCycle B on A.PacmanCycle = B.ID ";
                 strSQL += " where[EmpCode] = @EmpCode and B.FromDate between @StartDate and @EndDate ";
                 break;
             case "KPI":
-                metricc = "KPI";
+                metric2Download = "KPI";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
                 {
@@ -1766,27 +1746,26 @@ public partial class pacman : System.Web.UI.Page
                 strSQL = "WFMPMS.GetAnalyticTimelineScore";
                 cmd.CommandType = CommandType.StoredProcedure;
                 break;
-            case "Projects":
-                strSQL = "WFMPMS.getAnalyticProjectScore";
-                cmd.CommandType = CommandType.StoredProcedure;
-                break;
+
             case "Optimization"://Real_Time_Optimization
 
 
                 break;
+            case "Projects":
+                strSQL = "WFMPMS.getAnalyticProjectScore";
+                cmd.CommandType = CommandType.StoredProcedure;
+                break;
+
             case "Revenue__Cost_optimization":
                 // Manager KPIs
                 break;
             case "Scheduling_Accuracy":
-                metricc = "Scheduling_Accuracy";
+                metric2Download = "Scheduling_Accuracy";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
                 {
@@ -1802,15 +1781,12 @@ public partial class pacman : System.Web.UI.Page
                 break;
 
             case "Team_Absenteeism":
-                metricc = "Absenteeism";
+                metric2Download = "Absenteeism";
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    //cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-                    //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                    //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                    cmd.Parameters.AddWithValue("@metric", metricc);
+                    cmd.CommandType = CommandType.StoredProcedure;                   
+                    cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 break;
 
@@ -1827,14 +1803,11 @@ public partial class pacman : System.Web.UI.Page
         cmd.Connection = new SqlConnection(my.getConnectionString());
         cmd.Connection.Open();
 
+        string MyName = my.getFirstResult("select dbo.getFullName(" + MyEmpID + ") as FullName");
+        string FileName = MyName + "'s " + Metric + " for " + StartDate.ToString("MMM yyyy") + " downloaded " + DateTime.Now.ToString("dd-MMM-yyyy HH-mm-ss") + ".csv";
+        DataTable d = my.GetData(ref cmd);
+        d.TableName = FileName;
 
-        //DataSet ds = new DataSet("Export_Details");
-        //da.Fill(ds);
-        Label MyName = (Label)PageExtensionMethods.FindControlRecursive(Master, "lblName");
-        string FileName = MyName.Text + "'s " + Metric + " for " + StartDate.ToString("MMM yyyy") + " downloaded " + DateTime.Now.ToString("dd-MMM-yyyy HH-mm-ss") + ".csv";
-        DataTable d = new DataTable(FileName);
-        SqlDataAdapter da = new SqlDataAdapter(cmd);
-        da.Fill(d);
         //Get the physical path to the file.
         string FilePath = Server.MapPath("Sitel//metric_downloads//" + FileName);
         using (var textWriter = File.CreateText(FilePath))

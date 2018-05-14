@@ -281,10 +281,10 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         Email.InitiatorEmpId = MyEmpID;//918031;
         Email.RecipientsEmpId = reportee;//931040.ToString();
         //Email.BCCsEmpId = 918031.ToString();
-        //Email.CCsEmpId = MyEmpID.ToString();
+        Email.CCsEmpId = MyEmpID.ToString();
         Email.Subject = "Escalation raised";
         Email.Body = "<strong>Hi, </strong>";
-        Email.Body += "<P>"+ dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has raised escalation '" + description + "' against you on " +DateTime.Now+"<p>";
+        Email.Body += "<P>"+ dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has raised escalation <i>" + description + "</i> against you on " +DateTime.Now+"<p>";
         Email.Body += "<p>Please visit dashboard on <a href='http://iaccess/TA//EscalationsInitiatives.aspx'>Escalations and Initiatives page</a> .<p>";
         //Email.Attachment = Attachment;
         Email.Send();
@@ -337,7 +337,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         Email.InitiatorEmpId = MyEmpID;//918031;
         Email.RecipientsEmpId = reportee;//931040.ToString();
         //Email.BCCsEmpId = 918031.ToString();
-        //Email.CCsEmpId = MyEmpID.ToString();
+        Email.CCsEmpId = MyEmpID.ToString();
         Email.Subject = "Initiave Recorded";
         Email.Body = "<strong>Hi, </strong>";
         Email.Body += "<P>" + dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has recorded your initiative '" + description + "' on" + DateTime.Now+"<p>";
