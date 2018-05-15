@@ -571,13 +571,14 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                         // ToDo: At this point, start merging the grand totals into each other.
                     }
                     dt = ConsolidateDataTables(dt);
-                    if (dt != null && dt.Rows.Count > 0) { populateGvPrimaryKPI(dt); }
+                    
                 }
                 else
                 {
                     ltlPrimaryKPI.Text = "Multiple Roles found. The total KPI score for this employee will lead to an invalid condition (greater than 5)";
                     ltl_KPI.Text = String.Empty;
                 }
+                if (dt != null && dt.Rows.Count > 0) { populateGvPrimaryKPI(dt); }
             }
         }
     }

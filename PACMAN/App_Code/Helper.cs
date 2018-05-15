@@ -18,6 +18,7 @@ public class Helper
     {
         EDCryptor xEDCryptor = new EDCryptor();
         string xString = ConfigurationManager.ConnectionStrings["constr"].ToString();
+        //string xString = ConfigurationManager.ConnectionStrings["constrDev"].ToString();
         xString = xEDCryptor.DeCrypt(xString);
         return xString;
     }
