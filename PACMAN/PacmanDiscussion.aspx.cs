@@ -507,7 +507,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
     public void fillpnl_KPI(int ForEmpID)
     {
-        
+
         /*
          * 0. Am I a manager or not. If so, WFMPMS.GetManagerKPI gets my rating directly.
          * 1. Get a list of my accounts.
@@ -571,7 +571,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                         // ToDo: At this point, start merging the grand totals into each other.
                     }
                     dt = ConsolidateDataTables(dt);
-                    
+
                 }
                 else
                 {
@@ -1093,7 +1093,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     #region Manager
     public void fillpnl_Attrition(int ForEmpID)
     {
-        
+
         string strSQL1 = "[WFMPMS].[getAttritionScore]";
 
         SqlCommand cmd1 = new SqlCommand(strSQL1);
@@ -1285,7 +1285,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
 
 
-            strSQL = "[WFMPMS].GetBTPByEmp";
+            strSQL = "[WFMPMS].[getBTPSummaryForPACMAN]";
             SqlCommand cmd = new SqlCommand(strSQL);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
@@ -1319,7 +1319,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     public void fillpnl_Escalations(int ForEmpID)
     {
-        
+
         EIRating = 0;
         strSQL = "[WFMPMS].[GetEscalationInitiativeScore]";
         using (SqlConnection cn = new SqlConnection(my.getConnectionString()))
@@ -1368,7 +1368,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             }
 
         }
-        
+
     }
     public void fillpnl_Forecasting_Accuracy(int ForEmpID)
     {
@@ -1841,6 +1841,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
         cmd.Parameters.AddWithValue("@StartDate", StartDate);
         cmd.Parameters.AddWithValue("@EndDate", EndDate);
+        int SelectedEmpIsManager = my.getSingleton("Select case when LevelID >80 then 0 else 1 end as isManager from WFMP.tblMaster where Employee_ID = " + ForEmpID);
 
         switch (Metric)
         {
@@ -1854,7 +1855,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 cmd.CommandType = CommandType.StoredProcedure;
                 break;
             case "Attrition":
-                if (IsManager == 1)
+                if (SelectedEmpIsManager == 1)
                 {
                     strSQL = "wfmpms.getAttritionDetail";
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -1862,18 +1863,17 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 break;
             case "BTP":
                 metric2Download = "BTP";
-                if (IsManager == 1)
+                if (SelectedEmpIsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
                 {
                     strSQL = @"SELECT Distinct * FROM [WFMPMS].[tblBTPResults] A 
                     inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID 
-                    and B.EmpCode = @EmpCode where[Month] between DATEADD(M,-1,@StartDate) 
-                    and DATEADD(M,-1,@EndDate)";
+                    and B.EmpCode = @EmpCode where convert(date,[Month]) = DATEADD(M,-1,@StartDate)";
                 }
                 break;
 
@@ -1891,10 +1891,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 break;
             case "Forecasting_Accuracy":
                 metric2Download = "Forecasting_Accuracy";
-                if (IsManager == 1)
+                if (SelectedEmpIsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
@@ -1904,10 +1904,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 break;
             case "Headcount_Accuracy":
                 metric2Download = "Headcount_Accuracy";
-                if (IsManager == 1)
+                if (SelectedEmpIsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
@@ -1922,10 +1922,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 break;
             case "KPI":
                 metric2Download = "KPI";
-                if (IsManager == 1)
+                if (SelectedEmpIsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
@@ -1943,10 +1943,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 break;
             case "Optimization":
                 metric2Download = "Real Time Optimization";
-                if (IsManager == 1)
+                if (SelectedEmpIsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
@@ -1959,10 +1959,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 break;
             case "Scheduling_Accuracy":
                 metric2Download = "Scheduling_Accuracy";
-                if (IsManager == 1)
+                if (SelectedEmpIsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
@@ -1979,10 +1979,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
             case "Team_Absenteeism":
                 metric2Download = "Absenteeism";
-                if (IsManager == 1)
+                if (SelectedEmpIsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 break;
@@ -1998,7 +1998,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         string FileName = MyName + "'s " + Metric + " for " + StartDate.ToString("MMM yyyy") + " downloaded " + DateTime.Now.ToString("dd-MMM-yyyy HH-mm-ss") + ".csv";
         DataTable d = my.GetData(ref cmd);
         d.TableName = FileName;
-        
+
         //Get the physical path to the file.
         string FilePath = Server.MapPath("Sitel//metric_downloads//" + FileName);
         using (var textWriter = File.CreateText(FilePath))
