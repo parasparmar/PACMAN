@@ -1047,7 +1047,7 @@ public partial class pacman : System.Web.UI.Page
             StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
 
 
-            strSQL = "[WFMPMS].GetBTPByEmp";
+            strSQL = "[WFMPMS].[getBTPSummaryForPACMAN]";
             SqlCommand cmd = new SqlCommand(strSQL);
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);

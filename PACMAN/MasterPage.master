@@ -34,8 +34,8 @@
     <!-- DataTables -->
 
 
-    <link href="CDN/code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet" />
-    <link href="CDN/cdn.datatables.net/1.10.15/css/dataTables.jqueryui.min.css" rel="stylesheet" />
+    <link href="Sitel/CDN/code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet" />
+    <link href="Sitel/CDN/Sitel/CDN.datatables.net/1.10.15/css/dataTables.jqueryui.min.css" rel="stylesheet" />
 
 
     <!-- bootstrap datepicker -->
@@ -230,7 +230,7 @@
                     <!-- mini logo for sidebar mini 50x50 pixels -->
                     <span class="logo-mini"><b>IA</b></span>
                     <!-- logo for regular state and mobile devices -->
-                    <span class="logo-lg">IA<b>ccess</b></span>
+                    <span class="logo-lg">i<b>A</b>ccess</span>
                 </a>
                 <!-- Header Navbar: style can be found in header.less -->
                 <nav class="navbar navbar-static-top">
@@ -632,21 +632,21 @@
 
     <!-- DataTables -->
 
-    <script src="CDN/cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
-    <%--<script src="https://cdn.DataTables.net/1.10.15/js/jquery.DataTables.min.js"></script>--%>
-    <script src="CDN/cdn.datatables.net/1.10.15/js/dataTables.jqueryui.min.js"></script>
-    <%--<script src="https://cdn.DataTables.net/1.10.15/js/DataTables.jqueryui.min.js"></script>--%>
-    <link href="CDN/cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css" rel="stylesheet" />
-    <%--<link rel="stylesheet" href="https://cdn.DataTables.net/buttons/1.3.1/css/buttons.DataTables.min.css" type="text/css" />--%>
-    <script src="CDN/cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
-    <%--<script type="text/javascript" src="https://cdn.DataTables.net/buttons/1.3.1/js/DataTables.buttons.min.js"></script>--%>
-    <script src="CDN/cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
-    <%--<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>--%>
+    <script src="Sitel/CDN/Sitel/CDN.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
+    <%--<script src="https://Sitel/CDN.DataTables.net/1.10.15/js/jquery.DataTables.min.js"></script>--%>
+    <script src="Sitel/CDN/Sitel/CDN.datatables.net/1.10.15/js/dataTables.jqueryui.min.js"></script>
+    <%--<script src="https://Sitel/CDN.DataTables.net/1.10.15/js/DataTables.jqueryui.min.js"></script>--%>
+    <link href="Sitel/CDN/Sitel/CDN.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css" rel="stylesheet" />
+    <%--<link rel="stylesheet" href="https://Sitel/CDN.DataTables.net/buttons/1.3.1/css/buttons.DataTables.min.css" type="text/css" />--%>
+    <script src="Sitel/CDN/Sitel/CDN.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
+    <%--<script type="text/javascript" src="https://Sitel/CDN.DataTables.net/buttons/1.3.1/js/DataTables.buttons.min.js"></script>--%>
+    <script src="Sitel/CDN/Sitel/CDN.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
+    <%--<script type="text/javascript" src="https://Sitel/CDN.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>--%>
 
 
     <script type="text/javascript" src="Sitel/jszip.js"></script>
-    <script type="text/javascript" src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.27/build/pdfmake.min.js"></script>
-    <script type="text/javascript" src="https://cdn.rawgit.com/bpampuch/pdfmake/0.1.27/build/vfs_fonts.js"></script>
+    <script type="text/javascript" src="https://Sitel/CDN.rawgit.com/bpampuch/pdfmake/0.1.27/build/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://Sitel/CDN.rawgit.com/bpampuch/pdfmake/0.1.27/build/vfs_fonts.js"></script>
 
     <!-- date-range-picker -->
     <script src="AdminLTE/bower_components/moment/min/moment.min.js"></script>

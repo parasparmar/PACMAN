@@ -53,7 +53,7 @@ public partial class index : System.Web.UI.Page
             //myID = "fjaya001";
             //myID = "smerc021";
             //myID = "aansa008";
-            myID = "atike001";
+            //myID = "atike001";
             //myID = "ssund007";
             //myID = "spava002";
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");

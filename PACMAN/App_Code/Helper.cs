@@ -391,7 +391,7 @@ public class EmailSender
     public string Body { get; set; }
     private string MailFormat = "html";
     private string From { get; set; }
-    public int EmailType { get; set; }
+    private int EmailType { get; set; }
     Helper my = new Helper();
     public EmailSender()
     {
