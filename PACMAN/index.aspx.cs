@@ -43,8 +43,8 @@ public partial class index : System.Web.UI.Page
             //myID = "nchan016"; //Planner
             //myID = "nrodr05"; //Planner
             //myID = "vshir001"; 
-            //myID = "vchoh001";
-
+            //myID = "mshar034";
+            //myID = "Cpere059";
             //myID = "utiwa002";
             //myID = "vfern016";
 
@@ -54,8 +54,10 @@ public partial class index : System.Web.UI.Page
             //myID = "smerc021";
             //myID = "aansa008";
             //myID = "atike001";
+            //myID = "mchau006";
             //myID = "ssund007";
-            //myID = "spava002";
+            //myID = "adube010";
+
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
             cmd.Parameters.AddWithValue("@NT_ID", myID);
 

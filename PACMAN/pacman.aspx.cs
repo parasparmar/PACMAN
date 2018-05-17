@@ -130,6 +130,7 @@ public partial class pacman : System.Web.UI.Page
     }
     public void fillpnl_KPI(int ForEmpID)
     {
+
         /*
          * 0. Am I a manager or not. If so, WFMPMS.GetManagerKPI gets my rating directly.
          * 1. Get a list of my accounts.
@@ -148,9 +149,10 @@ public partial class pacman : System.Web.UI.Page
             //0. Am I a manager or not. If so, WFMPMS.GetManagerKPI gets my rating directly.
             fillpnl_KPI_forManagers(ForEmpID);
         }
+
         else if (IsManager == 0)
         {
-            fillStartAndEndDates();
+
             //* 1. Get a list of my accounts.
             DtOfAccountsIHandle = getDtOfAccountsIHandle(ForEmpID);
 
@@ -164,9 +166,12 @@ public partial class pacman : System.Web.UI.Page
             var mySkillsets = DtOfAccountsIHandle.AsEnumerable()
                 .Select(t => t.Field<int>("SkillsetId")).Distinct();
 
+
+
             //*4.If I have one and only one distinct skillset assigned for all accounts I can proceed further.
             if (mySkillsets.Count() == 1)
             {
+                fillStartAndEndDates();
                 SqlCommand cmd = new SqlCommand();
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
@@ -188,8 +193,9 @@ public partial class pacman : System.Web.UI.Page
                         dt.Merge(my.GetDataTableViaProcedure(ref cmd));
                         // ToDo: At this point, start merging the grand totals into each other.
                     }
+
                     dt = ConsolidateDataTables(dt);
-                    
+
                 }
                 else
                 {
@@ -202,57 +208,99 @@ public partial class pacman : System.Web.UI.Page
     }
     private DataTable ConsolidateDataTables(DataTable dt)
     {
-        var h = from r in dt.AsEnumerable()
-                group r by new
-                {
-                    accountid = r["AccountId"],
-                    account = r["Account"],
-                    rating = r["Rating"]
-                } into groupby
-                where groupby.Key.account.ToString().Contains("Total") != true
-                select new
-                {
-                    accountid = groupby.Key.accountid,
-                    account = groupby.Key.account,
-                    rating = groupby.Key.rating,
-                    occurence = groupby.Sum(r => r.Field<int?>("Occurence")),
-                    calculation = groupby.ElementAtOrDefault(6)
-
-                };
-        var g = h.ToList();
-        DataTable dt1 = dt.Clone();
-        foreach (var f in g)
+        if (dt.Rows.Count > 1)
         {
-            //if(f.account!=null && f.account.ToString().Contains("Total") != true)
-            //{
-            DataRow r = dt1.NewRow();
-            r["AccountId"] = f.accountid;
-            r["Account"] = f.account;
-            int rating = 0;
-            if (f.rating != null && f.rating.ToString().Length > 0) { rating = Convert.ToInt32(f.rating); }
-            r["Rating"] = rating;
-            int occurence = 0;
-            if (f.occurence != null && f.occurence.ToString().Length > 0) { occurence = Convert.ToInt32(f.occurence); }
-            r["Occurence"] = occurence;
-            r["RatingxOccurence"] = rating * occurence;
-            r["Calculation"] = string.Empty;
-            dt1.Rows.Add(r);
-            //}                        
+            var h = from r in dt.AsEnumerable()
+                    group r by new
+                    {
+                        accountid = r["AccountId"],
+                        account = r["Account"],
+                        rating = r["Rating"],
+                        primarykpitarget = r["PrimaryKPITarget"]
+                    } into groupby
+                    where groupby.Key.account.ToString().Contains("Total") != true
+                    select new
+                    {
+                        accountid = groupby.Key.accountid,
+                        account = groupby.Key.account,
+                        rating = groupby.Key.rating,
+                        primarykpitarget = groupby.Key.primarykpitarget,
+                        occurence = groupby.Sum(r => r.Field<int?>("Occurence")),
+                        calculation = groupby.ElementAtOrDefault(6)
+
+                    };
+            var g = h.ToList();
+            DataTable dt1 = dt.Clone();
+            foreach (var f in g)
+            {
+                //if(f.account!=null && f.account.ToString().Contains("Total") != true)
+                //{
+                DataRow r = dt1.NewRow();
+                string accountid = ".";
+                if (f.accountid != null && f.accountid.ToString().Length > 0) { accountid = f.accountid.ToString(); }
+                r["AccountId"] = accountid;
+                r["Account"] = f.account;
+                r["PrimaryKPITarget"] = f.primarykpitarget;
+                int rating = 0;
+                if (f.rating != null && f.rating.ToString().Length > 0) { rating = Convert.ToInt32(f.rating); }
+                r["Rating"] = rating;
+                int occurence = 0;
+                if (f.occurence != null && f.occurence.ToString().Length > 0) { occurence = Convert.ToInt32(f.occurence); }
+                r["Occurence"] = occurence;
+                r["RatingxOccurence"] = rating * occurence;
+                r["Calculation"] = string.Empty;
+
+                dt1.Rows.Add(r);
+                //}                        
+            }
+
+
+            DataRow s = dt1.NewRow();
+            var a = dt1.AsEnumerable();
+            s["AccountID"] = ".";
+            s["Account"] = "Grand Total";
+            s["PrimaryKPITarget"] = 0;
+            int occurences = a.Sum(x => x.Field<int>("Occurence"));
+            s["Occurence"] = occurences;
+            var sumOfRatings = dt1.Compute("Sum(RatingxOccurence)", "").ToString();
+            Decimal ratingxoccurence = 0;
+            if (sumOfRatings.Length > 0)
+            {
+                ratingxoccurence = Convert.ToDecimal(sumOfRatings);
+            }
+            else
+            {
+                ratingxoccurence = 0;
+            }
+            s["RatingxOccurence"] = ratingxoccurence;
+            s["Rating"] = Math.Round(ratingxoccurence / occurences, 2);
+            s["Calculation"] = "(RatingxOccurence)/Occurence";
+
+            dt1.Rows.Add(s);
+            return dt1;
+        }
+        else
+        {
+            return dt;
+        }
+    }
+    private void fillpnl_KPI_forManagers(int ForEmpID, string metric = "KPI")
+    {
+        string strSQL = "WFMPMS.GetManagerKPI";
+        SqlCommand cmd = new SqlCommand(strSQL);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        cmd.Parameters.AddWithValue("@StartDate", StartDate);
+        cmd.Parameters.AddWithValue("@EndDate", EndDate);
+        cmd.Parameters.AddWithValue("@Metric", metric);
+        DataTable dt1 = my.GetDataTableViaProcedure(ref cmd);
+        if (dt1 != null)
+        {
+            populateGvPrimaryKPI(dt1);
         }
 
-        DataRow s = dt1.NewRow();
-        var a = dt1.AsEnumerable();
-        s["Account"] = "Grand Total";
-        int occurences = a.Sum(x => x.Field<int>("Occurence"));
-        s["Occurence"] = occurences;
-        Decimal ratingxoccurence = Convert.ToDecimal(dt1.Compute("Sum(RatingxOccurence)", "").ToString());
-        s["RatingxOccurence"] = ratingxoccurence;
-        s["Rating"] = Math.Round(ratingxoccurence / occurences, 2);
-        s["Calculation"] = "(RatingxOccurence)/Occurence";
-
-        dt1.Rows.Add(s);
-        return dt1;
     }
+
     private void populateGvPrimaryKPI(DataTable dt)
     {
         if (dt != null)
@@ -296,22 +344,6 @@ public partial class pacman : System.Web.UI.Page
             ltlPrimaryKPI.Text = "Primary KPI &nbsp= &nbsp";// + "No Data found";
             ltl_KPI.Text = String.Empty;
         }
-    }
-    private void fillpnl_KPI_forManagers(int ForEmpID, string metric = "KPI")
-    {
-        string strSQL = "WFMPMS.GetManagerKPI";
-        SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.CommandType = CommandType.StoredProcedure;
-        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-        cmd.Parameters.AddWithValue("@StartDate", StartDate);
-        cmd.Parameters.AddWithValue("@EndDate", EndDate);
-        cmd.Parameters.AddWithValue("@Metric", metric);
-        DataTable dt1 = my.GetDataTableViaProcedure(ref cmd);
-        if (dt1 != null)
-        {
-            populateGvPrimaryKPI(dt1);
-        }
-
     }
     private void showRelevantMetricPanels(int ForEmpID)
     {
@@ -854,7 +886,7 @@ public partial class pacman : System.Web.UI.Page
     #region Manager
     public void fillpnl_Attrition(int ForEmpID)
     {
-        
+
         string strSQL1 = "[WFMPMS].[getAttritionScore]";
 
         SqlCommand cmd1 = new SqlCommand(strSQL1);
@@ -1015,10 +1047,10 @@ public partial class pacman : System.Web.UI.Page
                 GridView gvBTP = new GridView();
                 gvBTP.ID = "gvBTP";
                 gvBTP.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr1 = dt1.NewRow();
-
+                dt1 = ConsolidateDataTables(dt1);
                 gvBTP.DataSource = dt1;
                 gvBTP.CssClass = "table DataTable table-condensed table-bordered table-responsive";
                 gvBTP.DataBind();
@@ -1040,7 +1072,6 @@ public partial class pacman : System.Web.UI.Page
         }
         else
         {
-
             PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
             string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
             DataTable dt = my.GetData(strSQL);
@@ -1062,23 +1093,34 @@ public partial class pacman : System.Web.UI.Page
             gvBTP.DataSource = dt;
             gvBTP.CssClass = "table DataTable table-condensed table-bordered table-responsive";
 
-            gvBTP.DataBind();
+
             if (dt != null && dt.Rows.Count > 0)
             {
+
+                if (dt.Rows[0]["Rating"] != null && dt.Rows[0]["Rating"].ToString().Length > 0)
+                {
+
+                    BTPRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+                    dt.Rows[dt.Rows.Count - 1].Delete();
+                }
+                else
+                {
+                    BTPRating = 0;
+                }
+                gvBTP.DataBind();
                 gvBTP.Rows[gvBTP.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
                 gvBTP.Rows[gvBTP.Rows.Count - 1].Font.Bold = true;
                 gvBTP.PreRender += gv_PreRender;
-                BTPRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+
             }
             else
             {
                 ltlBTP.Text = string.Empty;
             }
-            ltlBTP.Text = "BTP : Billed To Pay Ratio = ";
+            ltlBTP.Text = "Billed To Pay &nbsp: &nbsp";
             pnlBTP.Controls.Add(gvBTP);
             ltl_BTP.Text = BTPRating.ToString();
         }
-
     }
     public void fillpnl_Escalations(int ForEmpID)
     {
@@ -1669,7 +1711,7 @@ public partial class pacman : System.Web.UI.Page
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
@@ -1700,7 +1742,7 @@ public partial class pacman : System.Web.UI.Page
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;               
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
@@ -1734,7 +1776,7 @@ public partial class pacman : System.Web.UI.Page
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
@@ -1765,7 +1807,7 @@ public partial class pacman : System.Web.UI.Page
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;                    
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 else
@@ -1786,7 +1828,7 @@ public partial class pacman : System.Web.UI.Page
                 if (IsManager == 1)
                 {
                     strSQL = "wfmpms.getmanagerdownload";
-                    cmd.CommandType = CommandType.StoredProcedure;                   
+                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@metric", metric2Download);
                 }
                 break;

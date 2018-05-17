@@ -116,7 +116,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 // btnNotDiscussed.Enabled = false;
             }
 
-            DtOfAccountsIHandle = getDtOfAccountsIHandle(MyEmpID);
+            DtOfAccountsIHandle = getDtOfAccountsIHandle(ForEmpID);
             ////////////////////////////////////////////////////////////////////show relevant metrics
             if (Convert.ToInt32(ltl_IEX_Management.Text) != 0)
             {
@@ -321,6 +321,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     private void fillRelevantMetricsInPanels(int ForEmpID)
     {
+        if (ForEmpID == 0)
+        {
+            ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
+        }
         hideMetricPanels();
         string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
         strSQL += " inner join [WFMPMS].[tblDsgn2KPIWtg] B on B.SkillsetId = A.SkillsetId  ";
@@ -340,24 +344,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 thePanel.Visible = true;
                 Type thisType = this.GetType();
                 MethodInfo theMethod = thisType.GetMethod("fill" + myPanelName);
-                theMethod.Invoke(this, new object[] { ForEmpID });//MyEmpID
-
-
-                //fillpnl_Absenteeism --Done
-                //fillpnl_KPI --Done
-                //fillpnl_BTP --Done
-                //fillpnl_Accuracy  --Done -- Analytics KPI
-                //fillpnl_Attrition --NA -- Manager KPI
-                //fillpnl_Coaching_Feedback-- Analytics KPI
-                //fillpnl_Escalations --Done
-                //fillpnl_Forecasting_Accuracy --Empty Method
-                //fillpnl_Headcount_Accuracy --Empty Method
-                //fillpnl_IEX_Management --Done
-                //fillpnl_On_Time_Delivery -- Analytics KPI
-                //fillpnl_Projects --Done
-                //fillpnl_Real_Time_Optimization --Done
-                //fillpnl_Revenue_Cost_optimization -- Manager KPI
-                //fillpnl_Scheduling_Accuracy
+                theMethod.Invoke(this, new object[] { ForEmpID });
             }
         }
     }
@@ -570,6 +557,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                         dt.Merge(my.GetDataTableViaProcedure(ref cmd));
                         // ToDo: At this point, start merging the grand totals into each other.
                     }
+
                     dt = ConsolidateDataTables(dt);
 
                 }
@@ -584,58 +572,81 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     private DataTable ConsolidateDataTables(DataTable dt)
     {
-        var h = from r in dt.AsEnumerable()
-                group r by new
-                {
-                    accountid = r["AccountId"],
-                    account = r["Account"],
-                    rating = r["Rating"]
-                } into groupby
-                where groupby.Key.account.ToString().Contains("Total") != true
-                select new
-                {
-                    accountid = groupby.Key.accountid,
-                    account = groupby.Key.account,
-                    rating = groupby.Key.rating,
-                    occurence = groupby.Sum(r => r.Field<int?>("Occurence")),
-                    calculation = groupby.ElementAtOrDefault(6)
-
-                };
-        var g = h.ToList();
-        DataTable dt1 = dt.Clone();
-        foreach (var f in g)
+        if (dt.Rows.Count > 1)
         {
-            //if(f.account!=null && f.account.ToString().Contains("Total") != true)
-            //{
-            DataRow r = dt1.NewRow();
-            r["AccountId"] = f.accountid;
-            r["Account"] = f.account;
-            int rating = 0;
-            if (f.rating != null && f.rating.ToString().Length > 0) { rating = Convert.ToInt32(f.rating); }
-            r["Rating"] = rating;
-            int occurence = 0;
-            if (f.occurence != null && f.occurence.ToString().Length > 0) { occurence = Convert.ToInt32(f.occurence); }
-            r["Occurence"] = occurence;
-            r["RatingxOccurence"] = rating * occurence;
-            r["Calculation"] = string.Empty;
-            dt1.Rows.Add(r);
-            //}                        
+            var h = from r in dt.AsEnumerable()
+                    group r by new
+                    {
+                        accountid = r["AccountId"],
+                        account = r["Account"],
+                        rating = r["Rating"],
+                        primarykpitarget = r["PrimaryKPITarget"]
+                    } into groupby
+                    where groupby.Key.account.ToString().Contains("Total") != true
+                    select new
+                    {
+                        accountid = groupby.Key.accountid,
+                        account = groupby.Key.account,
+                        rating = groupby.Key.rating,
+                        primarykpitarget = groupby.Key.primarykpitarget,
+                        occurence = groupby.Sum(r => r.Field<int?>("Occurence")),
+                        calculation = groupby.ElementAtOrDefault(6)
+
+                    };
+            var g = h.ToList();
+            DataTable dt1 = dt.Clone();
+            foreach (var f in g)
+            {
+                //if(f.account!=null && f.account.ToString().Contains("Total") != true)
+                //{
+                DataRow r = dt1.NewRow();
+                string accountid = ".";
+                if (f.accountid != null && f.accountid.ToString().Length > 0) { accountid = f.accountid.ToString(); }
+                r["AccountId"] = accountid;
+                r["Account"] = f.account;
+                r["PrimaryKPITarget"] = f.primarykpitarget;
+                int rating = 0;
+                if (f.rating != null && f.rating.ToString().Length > 0) { rating = Convert.ToInt32(f.rating); }
+                r["Rating"] = rating;
+                int occurence = 0;
+                if (f.occurence != null && f.occurence.ToString().Length > 0) { occurence = Convert.ToInt32(f.occurence); }
+                r["Occurence"] = occurence;
+                r["RatingxOccurence"] = rating * occurence;
+                r["Calculation"] = string.Empty;
+
+                dt1.Rows.Add(r);
+                //}                        
+            }
+
+
+            DataRow s = dt1.NewRow();
+            var a = dt1.AsEnumerable();
+            s["AccountID"] = ".";
+            s["Account"] = "Grand Total";
+            s["PrimaryKPITarget"] = 0;
+            int occurences = a.Sum(x => x.Field<int>("Occurence"));
+            s["Occurence"] = occurences;
+            var sumOfRatings = dt1.Compute("Sum(RatingxOccurence)", "").ToString();
+            Decimal ratingxoccurence = 0;
+            if (sumOfRatings.Length > 0)
+            {
+                ratingxoccurence = Convert.ToDecimal(sumOfRatings);
+            }
+            else
+            {
+                ratingxoccurence = 0;
+            }
+            s["RatingxOccurence"] = ratingxoccurence;
+            s["Rating"] = Math.Round(ratingxoccurence / occurences, 2);
+            s["Calculation"] = "(RatingxOccurence)/Occurence";
+
+            dt1.Rows.Add(s);
+            return dt1;
         }
-
-
-        DataRow s = dt1.NewRow();
-        var a = dt1.AsEnumerable();
-        s["Account"] = "Grand Total";
-        int occurences = a.Sum(x => x.Field<int>("Occurence"));
-        s["Occurence"] = occurences;
-        Decimal ratingxoccurence = Convert.ToDecimal(dt1.Compute("Sum(RatingxOccurence)", "").ToString());
-        s["RatingxOccurence"] = ratingxoccurence;
-        s["Rating"] = Math.Round(ratingxoccurence / occurences, 2);
-        s["Calculation"] = "(RatingxOccurence)/Occurence";
-
-        dt1.Rows.Add(s);
-
-        return dt1;
+        else
+        {
+            return dt;
+        }
     }
     private void fillpnl_KPI_forManagers(int ForEmpID, string metric = "KPI")
     {
@@ -1257,7 +1268,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr1 = dt1.NewRow();
-
+                dt1 = ConsolidateDataTables(dt1);
                 gvBTP.DataSource = dt1;
                 gvBTP.CssClass = "table DataTable table-condensed table-bordered table-responsive";
                 gvBTP.DataBind();
@@ -1300,13 +1311,25 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             gvBTP.DataSource = dt;
             gvBTP.CssClass = "table DataTable table-condensed table-bordered table-responsive";
 
-            gvBTP.DataBind();
+
             if (dt != null && dt.Rows.Count > 0)
             {
+
+                if (dt.Rows[0]["Rating"] != null && dt.Rows[0]["Rating"].ToString().Length > 0)
+                {
+
+                    BTPRating = Convert.ToDecimal(dt.Rows[dt.Rows.Count - 1]["Rating"].ToString());
+                    dt.Rows[dt.Rows.Count - 1].Delete();
+                }
+                else
+                {
+                    BTPRating = 0;
+                }
+                gvBTP.DataBind();
                 gvBTP.Rows[gvBTP.Rows.Count - 1].CssClass = "text-muted well well-sm no-shadow";
                 gvBTP.Rows[gvBTP.Rows.Count - 1].Font.Bold = true;
                 gvBTP.PreRender += gv_PreRender;
-                BTPRating = Convert.ToDecimal(dt.Rows[0]["Rating"].ToString());
+
             }
             else
             {

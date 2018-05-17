@@ -48,92 +48,7 @@
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
 
-    <!-- Small boxes (Stat box) -->
-    <%--<div class="row">
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-green">
-                <div class="inner">
-                    <h3>3.59</h3>
-                    <p>service level</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-yellow">
-                <div class="inner">
-                    <h3>2.48<sup style="font-size: 20px"></sup></h3>
 
-                    <p>btp</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-green">
-                <div class="inner">
-                    <h3>3.6</h3>
-
-                    <p>coaching</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-aqua">
-                <div class="inner">
-                    <h3>5.0</h3>
-
-                    <p>escalations</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-aqua">
-                <div class="inner">
-                    <h3>5.0</h3>
-
-                    <p>attendance</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-green">
-                <div class="inner">
-                    <h3>3.0</h3>
-
-                    <p>rta optimization</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-    </div>--%>
     <!-- /.row -->
     <div class="box">
         <div class="box-body">
@@ -163,7 +78,7 @@
                             <asp:LinkButton ID="btnDownload" runat="server"
                                 CssClass="btn btn-lg btn-primary"
                                 OnClick="btnDownload_Click"><i class="fa fa-download"></i>
-                            </asp:LinkButton>                            
+                            </asp:LinkButton>
                         </div>
                     </li>
                     <li><a href="#all-my-accounts" data-toggle="tab">My Accounts</a></li>
@@ -182,7 +97,93 @@
                         </asp:GridView>
                     </div>
                     <div class="box-body tab-pane  active" id="monthly-scorecard" style="position: relative; height: auto;">
+                        <!-- Small boxes (Stat box) -->
                         
+                        <%--<div class="row">
+                            <div class="col-lg-2 col-xs-4">
+                                <!-- small box -->
+                                <div class="small-box bg-green">
+                                    <div class="inner">
+                                        <h3>3.59</h3>
+                                        <p>service level</p>
+                                    </div>
+                                    <div class="icon">
+                                    </div>
+                                    <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                            <!-- ./col -->
+                            <div class="col-lg-2 col-xs-4">
+                                <!-- small box -->
+                                <div class="small-box bg-yellow">
+                                    <div class="inner">
+                                        <h3>2.48<sup style="font-size: 20px"></sup></h3>
+
+                                        <p>btp</p>
+                                    </div>
+                                    <div class="icon">
+                                    </div>
+                                    <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                            <!-- ./col -->
+                            <div class="col-lg-2 col-xs-4">
+                                <!-- small box -->
+                                <div class="small-box bg-green">
+                                    <div class="inner">
+                                        <h3>3.6</h3>
+
+                                        <p>coaching</p>
+                                    </div>
+                                    <div class="icon">
+                                    </div>
+                                    <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                            <!-- ./col -->
+                            <div class="col-lg-2 col-xs-4">
+                                <!-- small box -->
+                                <div class="small-box bg-aqua">
+                                    <div class="inner">
+                                        <h3>5.0</h3>
+
+                                        <p>escalations</p>
+                                    </div>
+                                    <div class="icon">
+                                    </div>
+                                    <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                            <!-- ./col -->
+                            <div class="col-lg-2 col-xs-4">
+                                <!-- small box -->
+                                <div class="small-box bg-aqua">
+                                    <div class="inner">
+                                        <h3>5.0</h3>
+
+                                        <p>attendance</p>
+                                    </div>
+                                    <div class="icon">
+                                    </div>
+                                    <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                            <!-- ./col -->
+                            <div class="col-lg-2 col-xs-4">
+                                <!-- small box -->
+                                <div class="small-box bg-green">
+                                    <div class="inner">
+                                        <h3>3.0</h3>
+
+                                        <p>rta optimization</p>
+                                    </div>
+                                    <div class="icon">
+                                    </div>
+                                    <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
+                                </div>
+                            </div>
+                            <!-- ./col -->
+                        </div>--%>
                         <!-- START ACCORDION & CAROUSEL-->
                         <div class="row">
                             <div class="col-md-12">
@@ -514,8 +515,8 @@
                                             </div>
                                         </asp:Panel>
 
-                                        
-                                      <!--Manager exclusive KPI-->
+
+                                        <!--Manager exclusive KPI-->
 
                                         <!--Attrition-->
                                         <asp:Panel ID="pnl_Attrition" CssClass="panel box box-primary" runat="server" Visible="false">
