@@ -276,13 +276,22 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
         fillddlStage();
         fillddlReportee();
-        ltlEmloyeeBanner.Text = " Performance Management Cycle : " + ddlReviewPeriod.SelectedItem.Text.ToString();
-        if (ddlReportee.Items.Count > 0)
-        {
-            ltlEmloyeeBanner.Text = ddlReportee.SelectedItem.Text.ToString() + ltlEmloyeeBanner.Text;
-        }
+        populateHeaders();
 
     }
+
+    private void populateHeaders()
+    {
+        if (ddlReportee.Items.Count > 0 && ddlReportee.SelectedIndex > 0)
+        {
+            ltlEmployeeBanner.Text = ddlReportee.SelectedItem.Text.ToString() + "( " + ForEmpID + " ) Performance Management Cycle : " + ddlReviewPeriod.SelectedItem.Text.ToString();
+        }
+        else
+        {
+            ltlEmployeeBanner.Text = "Performance Management Cycle : " + ddlReviewPeriod.SelectedItem.Text.ToString();
+        }
+    }
+
     private void fillStartAndEndDates()
     {
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
@@ -764,7 +773,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 }
                 //ltlAccuracy.Text = "Accuracy &nbsp= &nbsp" + "<div class=\"pull-right header\">" + Accuracy + "</div>";
             }
-
+            populateHeaders();
         }
         PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
@@ -1268,7 +1277,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr1 = dt1.NewRow();
-                
+
                 gvBTP.DataSource = dt1;
                 gvBTP.CssClass = "table DataTable table-condensed table-bordered table-responsive";
                 gvBTP.DataBind();
@@ -1689,7 +1698,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                     foreach (var individualKPI in myPrimaryKPIs)
                     {
                         cmd.CommandText = "WFMPMS.get" + individualKPI.kpi.ToString() + "OptimizationSummaryForPACMAN";
-                        
+
                         dt.Merge(my.GetDataTableViaProcedure(ref cmd));
                         // ToDo: At this point, start merging the grand totals into each other.
                     }

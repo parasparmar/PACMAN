@@ -172,7 +172,8 @@
                             <div class="input-group-addon">
                                 <i class="fa fa-user"></i>
                             </div>
-                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlReportee" runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlReportee_SelectedIndexChanged">
+                            <asp:DropDownList ItemType="text" CssClass="form-control select2" ID="ddlReportee"
+                                  runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlReportee_SelectedIndexChanged">
                             </asp:DropDownList>
                         </div>
                         <!-- /.input group -->
@@ -210,7 +211,7 @@
                     <li class="active"><a href="#monthly-scorecard" data-toggle="tab">Overall Scorecard</a></li>
 
                     <li class="pull-left header"><i class="fa fa-inbox"></i>
-                        <asp:Literal ID="ltlEmloyeeBanner" runat="server"></asp:Literal>
+                        <asp:Literal ID="ltlEmployeeBanner" runat="server"></asp:Literal>
                     </li>
                 </ul>
                 <div class="tab-content no-padding">

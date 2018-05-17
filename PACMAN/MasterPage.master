@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="AdminLTE/bower_components/Ionicons/css/ionicons.min.css">
     <!-- Theme style -->
     <!-- Select2 -->
-    <link rel="stylesheet" href="AdminLTE/bower_components/select2/dist/css/select2.min.css">
+    <link href="AdminLTE/plugins/select2/dist/css/select2.min.css" rel="stylesheet" />
 
     <link rel="stylesheet" href="AdminLTE/dist/css/AdminLTE.css">
     <!-- AdminLTE Skins. Choose a skin from the css/ folder instead of downloading all of them to reduce the load. -->
@@ -334,11 +334,6 @@
                             <li>
                                 <a href="PacmanDiscussion.aspx">
                                     <i class="fa fa-file-text"></i><span>PACMAN Discussion</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="IntervalTracker.aspx">
-                                    <i class="fa fa-sliders"></i><span>Interval Tracker</span>
                                 </a>
                             </li>
                             <li>
@@ -651,7 +646,7 @@
 
     <!-- date-range-picker -->
     <script src="AdminLTE/bower_components/moment/min/moment.min.js"></script>
-
+    <script src="AdminLTE/plugins/select2/dist/js/select2.full.js"></script>
     <script src="AdminLTE/bower_components/bootstrap-daterangepicker/daterangepicker.js"></script>
 
     <script src="AdminLTE/bower_components/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
@@ -675,7 +670,7 @@
         $("#signout").click(function () {
             window.close();
         });
-
+        $(".select2").select2();
         //Date range picker
 
 
@@ -751,7 +746,7 @@
             font-size: 12px;
         }
 
-        */
+        
     </style>
     <asp:ContentPlaceHolder ID="below_footer" runat="server">
     </asp:ContentPlaceHolder>
