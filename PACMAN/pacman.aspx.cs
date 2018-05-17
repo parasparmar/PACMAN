@@ -194,7 +194,7 @@ public partial class pacman : System.Web.UI.Page
                         // ToDo: At this point, start merging the grand totals into each other.
                     }
 
-                    dt = ConsolidateDataTables(dt);
+                    dt = ConsolidateDataTables(ref dt);
 
                 }
                 else
@@ -206,7 +206,7 @@ public partial class pacman : System.Web.UI.Page
             }
         }
     }
-    private DataTable ConsolidateDataTables(DataTable dt)
+    private DataTable ConsolidateDataTables(ref DataTable dt)
     {
         if (dt.Rows.Count > 1)
         {
@@ -273,7 +273,7 @@ public partial class pacman : System.Web.UI.Page
                 ratingxoccurence = 0;
             }
             s["RatingxOccurence"] = ratingxoccurence;
-            s["Rating"] = Math.Round(ratingxoccurence / occurences, 2);
+            if (occurences > 0) { s["Rating"] = Math.Round(ratingxoccurence / occurences, 2); } else { s["Rating"] = 0; }
             s["Calculation"] = "(RatingxOccurence)/Occurence";
 
             dt1.Rows.Add(s);
@@ -1050,7 +1050,7 @@ public partial class pacman : System.Web.UI.Page
                 //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr1 = dt1.NewRow();
-                dt1 = ConsolidateDataTables(dt1);
+
                 gvBTP.DataSource = dt1;
                 gvBTP.CssClass = "table DataTable table-condensed table-bordered table-responsive";
                 gvBTP.DataBind();
@@ -1065,8 +1065,6 @@ public partial class pacman : System.Web.UI.Page
                     pnlBTP.Controls.Add(gvBTP);
                     ltl_BTP.Text = BTPRating.ToString();
                 }
-
-
                 pnlBTP.Controls.Add(gvBTP);
             }
         }
@@ -1519,7 +1517,7 @@ public partial class pacman : System.Web.UI.Page
                         dt.Merge(my.GetDataTableViaProcedure(ref cmd));
                         // ToDo: At this point, start merging the grand totals into each other.
                     }
-                    dt = ConsolidateDataTables(dt);
+                    dt = ConsolidateDataTables(ref dt);
                     if (dt != null && dt.Rows.Count > 0)
                     {
                         GridView gvOptimizationKPI = new GridView();

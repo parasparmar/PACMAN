@@ -82,10 +82,10 @@ public class Helper
     }
     public DataTable GetDataTableViaProcedure(ref SqlCommand cmd)
     {
-        open_db();
+        
         DataTable dt = new DataTable();
         using (cmd)
-        {
+        {            
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Connection = open_db();
             var r = cmd.ExecuteReader();
