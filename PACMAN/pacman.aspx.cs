@@ -187,11 +187,69 @@ public partial class pacman : System.Web.UI.Page
                 }
                 else if (mySkillsets.FirstOrDefault() == 4)
                 {
+
+                    int i = 0;
                     foreach (var individualKPI in myPrimaryKPIs)
                     {
                         cmd.CommandText = "WFMPMS.get" + individualKPI.kpi.ToString() + "SummaryForPACMAN";
-                        dt.Merge(my.GetDataTableViaProcedure(ref cmd));
-                        // ToDo: At this point, start merging the grand totals into each other.
+                        if (i == 0)
+                        {
+                            dt = my.GetDataTableViaProcedure(ref cmd);
+                            dt.Columns["PrimaryKPI"].AllowDBNull = true;
+                            dt.Columns["AccountId"].AllowDBNull = true;
+                            dt.Columns["Rating"].AllowDBNull = true;
+                            dt.Columns["Occurence"].AllowDBNull = true;
+                            dt.Columns["RatingxOccurence"].AllowDBNull = true;
+                            dt.Columns["Calculation"].AllowDBNull = true;
+                            dt.Columns["PrimaryKPI"].MaxLength = 500;
+                            i++;
+                        }
+                        else
+                        {
+                            DataTable dttemp = new DataTable();
+                            dttemp = my.GetDataTableViaProcedure(ref cmd);
+
+                            foreach (DataRow r in dttemp.Rows)
+                            {
+                                KPISummary j = new KPISummary();
+                                j.AccountId = r["AccountId"].ToString();
+                                j.Account = r["Account"].ToString();
+                                j.PrimaryKPI = r["PrimaryKPI"].ToString();
+                                j.PrimaryKPITarget = Convert.ToDecimal(r["PrimaryKPITarget"].ToString());
+                                if (r["Rating"].ToString() == "")
+                                { j.Rating = 0; }
+                                else
+                                {
+                                    j.Rating = Convert.ToDecimal(r["Rating"].ToString());
+                                }
+                                if (r["RatingxOccurence"].ToString() == "")
+                                {
+                                    j.RatingxOccurence = 0;
+                                }
+                                else
+                                {
+                                    j.RatingxOccurence = Convert.ToInt32(r["RatingxOccurence"].ToString());
+                                }
+                                j.Calculation = r["Calculation"].ToString();
+
+
+
+                                DataRow k = dt.NewRow();
+                                k["AccountId"] = j.AccountId;
+                                k["Account"] = j.Account;
+                                k["PrimaryKPI"] = j.PrimaryKPI;
+                                k["PrimaryKPITarget"] = j.PrimaryKPITarget;
+                                k["Rating"] = j.Rating;
+                                k["Occurence"] = j.Occurence;
+                                k["RatingxOccurence"] = j.RatingxOccurence;
+                                k["Calculation"] = j.Calculation;
+                                dt.Rows.Add(k);
+
+
+                            }
+                            dttemp.Clear();
+                            i++;
+                        }
                     }
 
                     dt = ConsolidateDataTables(ref dt);
@@ -1460,7 +1518,7 @@ public partial class pacman : System.Web.UI.Page
                 GridView gvOptimizationKPI = new GridView();
                 gvOptimizationKPI.ID = "gvOptimizationKPI";
                 gvOptimizationKPI.AutoGenerateColumns = true;
-                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + MyEmpID + StartDate.Month.ToString("M");
+                //gvPrimaryKPI.EmptyDataTemplate =  "No data found matching this set of parameters " + ForEmpID + StartDate.Month.ToString("M");
 
                 DataRow dr1 = dt1.NewRow();
 
@@ -1511,11 +1569,66 @@ public partial class pacman : System.Web.UI.Page
                 }
                 else if (mySkillsets.FirstOrDefault() == 4)
                 {
+                    int i = 0;
                     foreach (var individualKPI in myPrimaryKPIs)
                     {
                         cmd.CommandText = "WFMPMS.get" + individualKPI.kpi.ToString() + "OptimizationSummaryForPACMAN";
-                        dt.Merge(my.GetDataTableViaProcedure(ref cmd));
-                        // ToDo: At this point, start merging the grand totals into each other.
+
+                        if (i == 0)
+                        {
+                            dt = my.GetDataTableViaProcedure(ref cmd);
+                            dt.Columns["PrimaryKPI"].AllowDBNull = true;
+                            dt.Columns["AccountId"].AllowDBNull = true;
+                            dt.Columns["Rating"].AllowDBNull = true;
+                            dt.Columns["Occurence"].AllowDBNull = true;
+                            dt.Columns["RatingxOccurence"].AllowDBNull = true;
+                            dt.Columns["Calculation"].AllowDBNull = true;
+                            dt.Columns["PrimaryKPI"].MaxLength = 500;
+                            i++;
+                        }
+                        else
+                        {
+                            DataTable dttemp = new DataTable();
+                            dttemp = my.GetDataTableViaProcedure(ref cmd);
+
+                            foreach (DataRow r in dttemp.Rows)
+                            {
+                                KPISummary j = new KPISummary();
+                                j.AccountId = r["AccountId"].ToString();
+                                j.Account = r["Account"].ToString();
+                                j.PrimaryKPI = r["PrimaryKPI"].ToString();
+                                j.PrimaryKPITarget = Convert.ToDecimal(r["PrimaryKPITarget"].ToString());
+                                if (r["Rating"].ToString() == "")
+                                { j.Rating = 0; }
+                                else
+                                {
+                                    j.Rating = Convert.ToDecimal(r["Rating"].ToString());
+                                }
+                                if (r["RatingxOccurence"].ToString() == "")
+                                {
+                                    j.RatingxOccurence = 0;
+                                }
+                                else
+                                {
+                                    j.RatingxOccurence = Convert.ToInt32(r["RatingxOccurence"].ToString());
+                                }
+
+                                DataRow k = dt.NewRow();
+                                k["AccountId"] = j.AccountId;
+                                k["Account"] = j.Account;
+                                k["PrimaryKPI"] = j.PrimaryKPI;
+                                k["PrimaryKPITarget"] = j.PrimaryKPITarget;
+                                k["Rating"] = j.Rating;
+                                k["Occurence"] = j.Occurence;
+                                k["RatingxOccurence"] = j.RatingxOccurence;
+                                k["Calculation"] = j.Calculation;
+                                dt.Rows.Add(k);
+
+
+                            }
+                            dttemp.Clear();
+                            i++;
+                        }
                     }
                     dt = ConsolidateDataTables(ref dt);
                     if (dt != null && dt.Rows.Count > 0)
@@ -1714,10 +1827,12 @@ public partial class pacman : System.Web.UI.Page
                 }
                 else
                 {
-                    strSQL = @"SELECT Distinct * FROM [WFMPMS].[tblBTPResults] A 
+                    strSQL = @"SELECT Distinct [AccountID],[Project],[Month],[ActualBTP],[TargetBTP]
+                    ,[BTPAccuracy],[Criteria],[LowerTgt],[UpperTgt],[Rating],0 [Id],[EmpCode],[Name]
+                    ,[SkillsetId],[Skillset],[PrimaryClientID],[Account],0 [Code_A],[FromDate],[ToDate]
+                    ,[Active] FROM [WFMPMS].[tblBTPResults] A 
                     inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID 
-                    and B.EmpCode = @EmpCode where[Month] between DATEADD(M,-1,@StartDate) 
-                    and DATEADD(M,-1,@EndDate)";
+                    and B.EmpCode = @EmpCode where convert(date,[Month]) = DATEADD(M,-1,@StartDate)";
                 }
                 break;
 

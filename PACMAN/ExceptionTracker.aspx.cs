@@ -47,7 +47,7 @@ public partial class ExceptionTracker : System.Web.UI.Page
         Literal title = (Literal)PageExtensionMethods.FindControlRecursive(Master, "ltlPageTitle");
         title.Text = "Exception Tracker";
 
-        if (Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString()) <= 75)
+        if (Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString()) <= 80)
         { btnSave.Enabled = true; }
         else
         { btnSave.Enabled = false; }

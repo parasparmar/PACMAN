@@ -79,7 +79,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         Literal title = (Literal)PageExtensionMethods.FindControlRecursive(Master, "ltlPageTitle");
         title.Text = "PACMAN Discussion";
 
-        btnSubmitPacman.Enabled = false;
+        btnSubmitPacman.Enabled = true;
+        btnYesDiscussed.Enabled = true;
         btnIEXMgmtScoreSubmit.Enabled = true;
         btnAnalyticProjectScoreSubmit.Enabled = true;
         btnCoachingScoreSubmit.Enabled = true;
@@ -560,15 +561,68 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 }
                 else if (mySkillsets.FirstOrDefault() == 4)
                 {
+
+                    int i = 0;
                     foreach (var individualKPI in myPrimaryKPIs)
                     {
                         cmd.CommandText = "WFMPMS.get" + individualKPI.kpi.ToString() + "SummaryForPACMAN";
-                        dt.Merge(my.GetDataTableViaProcedure(ref cmd));
-                        // ToDo: At this point, start merging the grand totals into each other.
+
+                        if (i == 0)
+                        {
+                            dt = my.GetDataTableViaProcedure(ref cmd);
+                            dt.Columns["PrimaryKPI"].AllowDBNull = true;
+                            dt.Columns["AccountId"].AllowDBNull = true;
+                            dt.Columns["Rating"].AllowDBNull = true;
+                            dt.Columns["Occurence"].AllowDBNull = true;
+                            dt.Columns["RatingxOccurence"].AllowDBNull = true;
+                            dt.Columns["Calculation"].AllowDBNull = true;
+                            dt.Columns["PrimaryKPI"].MaxLength = 500;
+                            i++;
+                        }
+                        else
+                        {
+                            DataTable dttemp = new DataTable();
+                            dttemp = my.GetDataTableViaProcedure(ref cmd);
+
+                            foreach (DataRow r in dttemp.Rows)
+                            {
+                                KPISummary j = new KPISummary();
+                                j.AccountId = r["AccountId"].ToString();
+                                j.Account = r["Account"].ToString();
+                                j.PrimaryKPI = r["PrimaryKPI"].ToString();
+                                j.PrimaryKPITarget = Convert.ToDecimal(r["PrimaryKPITarget"].ToString());
+                                if (r["Rating"].ToString() == "")
+                                { j.Rating = 0; }
+                                else
+                                {
+                                    j.Rating = Convert.ToDecimal(r["Rating"].ToString());
+                                }
+                                if (r["RatingxOccurence"].ToString() == "")
+                                {
+                                    j.RatingxOccurence = 0;
+                                }
+                                else
+                                {
+                                    j.RatingxOccurence = Convert.ToInt32(r["RatingxOccurence"].ToString());
+                                }
+                                j.Calculation = r["Calculation"].ToString();
+
+                                DataRow k = dt.NewRow();
+                                k["AccountId"] = j.AccountId;
+                                k["Account"] = j.Account;
+                                k["PrimaryKPI"] = j.PrimaryKPI;
+                                k["PrimaryKPITarget"] = j.PrimaryKPITarget;
+                                k["Rating"] = j.Rating;
+                                k["Occurence"] = j.Occurence;
+                                k["RatingxOccurence"] = j.RatingxOccurence;
+                                k["Calculation"] = j.Calculation;
+                                dt.Rows.Add(k);
+                            }
+                            dttemp.Clear();
+                            i++;
+                        }
                     }
-
                     dt = ConsolidateDataTables(ref dt);
-
                 }
                 else
                 {
@@ -588,16 +642,18 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                     {
                         accountid = r["AccountId"],
                         account = r["Account"],
-                        rating = r["Rating"],
-                        primarykpitarget = r["PrimaryKPITarget"]
+                        primarykpi = r["PrimaryKPI"],
+                        primarykpitarget = r["PrimaryKPITarget"],
+                        rating = r["Rating"]
                     } into groupby
                     where groupby.Key.account.ToString().Contains("Total") != true
                     select new
                     {
                         accountid = groupby.Key.accountid,
                         account = groupby.Key.account,
-                        rating = groupby.Key.rating,
+                        primarykpi = groupby.Key.primarykpi,
                         primarykpitarget = groupby.Key.primarykpitarget,
+                        rating = groupby.Key.rating,
                         occurence = groupby.Sum(r => r.Field<int?>("Occurence")),
                         calculation = groupby.ElementAtOrDefault(6)
 
@@ -613,6 +669,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 if (f.accountid != null && f.accountid.ToString().Length > 0) { accountid = f.accountid.ToString(); }
                 r["AccountId"] = accountid;
                 r["Account"] = f.account;
+                r["PrimaryKPI"] = f.primarykpi;
                 r["PrimaryKPITarget"] = f.primarykpitarget;
                 int rating = 0;
                 if (f.rating != null && f.rating.ToString().Length > 0) { rating = Convert.ToInt32(f.rating); }
@@ -739,7 +796,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         cmd.Connection = con;
         cmd.ExecuteNonQuery();
         con.Close();
-        ltlIEX_Management.Text = "IEX Management &nbsp= &nbsp" + "<div class=\"pull-right header\">" + score + "</div>";
+        ltlIEX_Management.Text = "IEX Management &nbsp= &nbsp" ;
+        ltl_IEX_Management.Text = score.ToString();
         clearIEXMgmtScorefields();
     }
     protected void ddlReportee_SelectedIndexChanged(object sender, EventArgs e)
@@ -1695,12 +1753,66 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 }
                 else if (mySkillsets.FirstOrDefault() == 4)
                 {
+                    int i = 0;
                     foreach (var individualKPI in myPrimaryKPIs)
                     {
                         cmd.CommandText = "WFMPMS.get" + individualKPI.kpi.ToString() + "OptimizationSummaryForPACMAN";
 
-                        dt.Merge(my.GetDataTableViaProcedure(ref cmd));
-                        // ToDo: At this point, start merging the grand totals into each other.
+                        if (i == 0)
+                        {
+                            dt = my.GetDataTableViaProcedure(ref cmd);
+                            dt.Columns["PrimaryKPI"].AllowDBNull = true;
+                            dt.Columns["AccountId"].AllowDBNull = true;
+                            dt.Columns["Rating"].AllowDBNull = true;
+                            dt.Columns["Occurence"].AllowDBNull = true;
+                            dt.Columns["RatingxOccurence"].AllowDBNull = true;
+                            dt.Columns["Calculation"].AllowDBNull = true;
+                            dt.Columns["PrimaryKPI"].MaxLength = 500;
+                            i++;
+                        }
+                        else
+                        {
+                            DataTable dttemp = new DataTable();
+                            dttemp = my.GetDataTableViaProcedure(ref cmd);
+
+                            foreach (DataRow r in dttemp.Rows)
+                            {
+                                KPISummary j = new KPISummary();
+                                j.AccountId = r["AccountId"].ToString();
+                                j.Account = r["Account"].ToString();
+                                j.PrimaryKPI = r["PrimaryKPI"].ToString();
+                                j.PrimaryKPITarget = Convert.ToDecimal(r["PrimaryKPITarget"].ToString());
+                                if (r["Rating"].ToString() == "")
+                                { j.Rating = 0; }
+                                else
+                                {
+                                    j.Rating = Convert.ToDecimal(r["Rating"].ToString());
+                                }
+                                if (r["RatingxOccurence"].ToString() == "")
+                                {
+                                    j.RatingxOccurence = 0;
+                                }
+                                else
+                                {
+                                    j.RatingxOccurence = Convert.ToInt32(r["RatingxOccurence"].ToString());
+                                }
+
+                                DataRow k = dt.NewRow();
+                                k["AccountId"] = j.AccountId;
+                                k["Account"] = j.Account;
+                                k["PrimaryKPI"] = j.PrimaryKPI;
+                                k["PrimaryKPITarget"] = j.PrimaryKPITarget;
+                                k["Rating"] = j.Rating;
+                                k["Occurence"] = j.Occurence;
+                                k["RatingxOccurence"] = j.RatingxOccurence;
+                                k["Calculation"] = j.Calculation;
+                                dt.Rows.Add(k);
+
+
+                            }
+                            dttemp.Clear();
+                            i++;
+                        }
                     }
                     dt = ConsolidateDataTables(ref dt);
                     if (dt != null && dt.Rows.Count > 0)
@@ -1902,7 +2014,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 }
                 else
                 {
-                    strSQL = @"SELECT Distinct * FROM [WFMPMS].[tblBTPResults] A 
+                    strSQL = @"SELECT Distinct [AccountID],[Project],[Month],[ActualBTP],[TargetBTP]
+                    ,[BTPAccuracy],[Criteria],[LowerTgt],[UpperTgt],[Rating],0 [Id],[EmpCode],[Name]
+                    ,[SkillsetId],[Skillset],[PrimaryClientID],[Account],0 [Code_A],[FromDate],[ToDate]
+                    ,[Active] FROM [WFMPMS].[tblBTPResults] A 
                     inner join WFMPMS.tblEmp2Account B on A.AccountID = B.PrimaryClientID 
                     and B.EmpCode = @EmpCode where convert(date,[Month]) = DATEADD(M,-1,@StartDate)";
                 }
