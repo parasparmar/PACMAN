@@ -17,8 +17,8 @@ public class Helper
     public string getConnectionString()
     {
         EDCryptor xEDCryptor = new EDCryptor();
-        string xString = ConfigurationManager.ConnectionStrings["constr"].ToString();
-        //string xString = ConfigurationManager.ConnectionStrings["constrProd"].ToString();
+        //string xString = ConfigurationManager.ConnectionStrings["constr"].ToString();
+        string xString = ConfigurationManager.ConnectionStrings["constrProd"].ToString();
         xString = xEDCryptor.DeCrypt(xString);
         return xString;
     }
@@ -82,7 +82,7 @@ public class Helper
     }
     public DataTable GetDataTableViaProcedure(ref SqlCommand cmd)
     {
-        open_db();
+        
         DataTable dt = new DataTable();
         using (cmd)
         {            
