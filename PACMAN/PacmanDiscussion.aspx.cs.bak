@@ -79,8 +79,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         Literal title = (Literal)PageExtensionMethods.FindControlRecursive(Master, "ltlPageTitle");
         title.Text = "PACMAN Discussion";
 
-        btnSubmitPacman.Enabled = true;
-        btnYesDiscussed.Enabled = true;
+        btnSubmitPacman.Enabled = false;
         btnIEXMgmtScoreSubmit.Enabled = true;
         btnAnalyticProjectScoreSubmit.Enabled = true;
         btnCoachingScoreSubmit.Enabled = true;
