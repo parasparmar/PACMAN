@@ -39,29 +39,12 @@ public partial class index : System.Web.UI.Page
         DataTable dt = new DataTable();
         if (myID != "IDNotFound")
         {
-            //
-            //myID = "nchan016"; //Planner
-            //myID = "nrodr05"; //Planner
-            //myID = "vshir001"; 
-            //myID = "mshar034";
-            //myID = "Cpere059";
-            //myID = "utiwa002";
-            myID = "vfern016";
-
-            //myID = "vshir001"; 
-            //myID = "gsing017"; 
-            //myID = "fjaya001";
-            //myID = "smerc021";
-            //myID = "aansa008";
-            //myID = "atike001";
-            //myID = "lagni001";
-            //myID = "ssund007";
-            //myID = "adube010";
-            //myID = "vchoh001";
+             myID = "mchau006"; //ykand001// RTA Vinod Chauhan sbodh001 vfern016  fjaya001 smerc021  vpere018 Pdsou014 vchoh001 nrodr058  mshai066
 
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
+            //myID = "pgora001";//to login as other userk slall002  rshar030 nchan016 utiwa002  aansa012 paloz001 pjite001 g.001 adube010 utiwa002 avish001 vshir001
             cmd.Parameters.AddWithValue("@NT_ID", myID);
-
+            
             try
             {
                 dt = my.GetDataTableViaProcedure(ref cmd);
@@ -69,7 +52,7 @@ public partial class index : System.Web.UI.Page
                 {
 
                     Session["dtEmp"] = dt;
-                    Response.Redirect("pacman.aspx", false);
+                    Response.Redirect("changerole.aspx", false);
                 }
                 else
                 {
@@ -88,7 +71,7 @@ public partial class index : System.Web.UI.Page
             Response.Redirect("lockscreen.aspx", false);
         }
 
-
+        
     }
 
     private DataTable getSkillsetImpersonator()

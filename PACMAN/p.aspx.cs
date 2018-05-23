@@ -11,7 +11,7 @@ using System.Reflection;
 using System.IO;
 using CsvHelper;
 
-public partial class PacmanDiscussion : System.Web.UI.Page
+public partial class p : System.Web.UI.Page
 {
     DataTable dtEmp;
     Helper my;
@@ -19,7 +19,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     private int MyEmpID { get; set; }
     private int ForEmpID { get; set; }
     private int MyRepMgr { get; set; }
-    private int PacmanCycle { get; set; }
+    private int PeriodID { get; set; }
     private int RStage { get; set; }
     private int IsRepMgr { get; set; }
     private int IsManager { get; set; }
@@ -63,7 +63,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 // In Production Use the below
                 MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
-                //MyRepMgr = Convert.ToInt32(dtEmp.Rows[0]["RepMgrCode"].ToString());
                 int LevelID = Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString());
                 if (LevelID <= 80)
                     IsManager = 1;
@@ -79,13 +78,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         Literal title = (Literal)PageExtensionMethods.FindControlRecursive(Master, "ltlPageTitle");
         title.Text = "PACMAN Discussion";
 
-        btnSubmitPacman.Enabled = true;
-        btnYesDiscussed.Enabled = true;
-        btnIEXMgmtScoreSubmit.Enabled = true;
-        btnAnalyticProjectScoreSubmit.Enabled = true;
-        btnCoachingScoreSubmit.Enabled = true;
-        btnRevenue_and_Cost_optimization.Enabled = true;
-
+        //btnSubmitPacman.Enabled = true;
+        //btnYesDiscussed.Enabled = true;
+        //btnIEXMgmtScoreSubmit.Enabled = true;
+        //btnAnalyticProjectScoreSubmit.Enabled = true;
+        //btnCoachingScoreSubmit.Enabled = true;
+        //btnRevenue_and_Cost_optimization.Enabled = true;
         //btnSubmitPacman.Enabled = true;
 
 
@@ -98,23 +96,20 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             if (RStage == 3 || RStage == 4 || RStage == 5)
             {
                 btnYesDiscussed.Enabled = false;
-                //btnNotDiscussed.Enabled = false;
+                
             }
             else if (RStage == 2)
             {
-                btnYesDiscussed.Enabled = false;
-                //btnNotDiscussed.Enabled = false;
+                btnYesDiscussed.Enabled = false;                
                 btnSubmitPacman.Enabled = true;
             }
             else
             {
-                btnYesDiscussed.Enabled = true;
-                //btnNotDiscussed.Enabled = true;
+                btnYesDiscussed.Enabled = true;                
             }
             if (IsRepMgr == 0)
             {
-                btnYesDiscussed.Enabled = false;
-                // btnNotDiscussed.Enabled = false;
+                btnYesDiscussed.Enabled = false;                
             }
 
             DtOfAccountsIHandle = getDtOfAccountsIHandle(ForEmpID);
@@ -226,13 +221,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     private void fillddlReviewPeriod()
     {
-        string strSQL = "WFMPMS.[GetPacmanCycleforPacmanDiscussion]";
-        SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+        string strSQL = "WFMPMS.GetPacmanCycleforPacmanDiscussion_g";
+        SqlCommand cmd = new SqlCommand(strSQL);        
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         ddlReviewPeriod.DataSource = dt;
-        ddlReviewPeriod.DataTextField = "TextDescription";
-        ddlReviewPeriod.DataValueField = "Id";
+        ddlReviewPeriod.DataTextField = "Period";
+        ddlReviewPeriod.DataValueField = "PeriodID";
         ddlReviewPeriod.DataBind();
         ddlReviewPeriod.SelectedIndex = 0;
     }
@@ -270,8 +264,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     protected void ddlReviewPeriod_SelectedIndexChanged(object sender, EventArgs e)
     {
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PeriodID;
         DataTable dt = my.GetData(strSQL);
         StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
         EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
@@ -295,8 +289,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
     private void fillStartAndEndDates()
     {
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PeriodID;
         DataTable dt = my.GetData(strSQL);
         if (dt != null && dt.Rows.Count > 0)
         {
@@ -312,28 +306,27 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     private void fillddlReportee()
     {
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         int stageNo = Convert.ToInt32(ddlStage.SelectedValue);
 
-        string strSQL = "[WFMPMS].[fillEmployeePacmanDiscussion]";
+        string strSQL = "WFMPMS.fillEmployeePacmanDiscussion_g";
         SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
-        cmd.Parameters.AddWithValue("@stageNo", stageNo);
-        cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+        cmd.Parameters.AddWithValue("@RepMgr", MyEmpID);        
+        cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
         DataTable dt2 = my.GetDataTableViaProcedure(ref cmd);
         ddlReportee.DataSource = dt2;
         ddlReportee.DataTextField = "Name";
         ddlReportee.DataValueField = "EmpCode";
         ddlReportee.DataBind();
         showRelevantMetricPanels(ForEmpID);
-        fillRelevantMetricsInPanels(ForEmpID);//////////////////////////////////////////
-        getFinalRating(ForEmpID);
+        //fillRelevantMetricsInPanels(ForEmpID);//////////////////////////////////////////
+        //getFinalRating(ForEmpID);
     }
     private void fillRelevantMetricsInPanels(int ForEmpID)
     {
         if (ForEmpID == 0)
         {
-            ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
+           ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         }
         hideMetricPanels();
         string strSQL = "SELECT Distinct B.id, B.Metrics FROM [CWFM_Umang].[WFMPMS].[tblEmp2Account] A  ";
@@ -380,10 +373,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         //int PreviousStage = Convert.ToInt32(ddlStage.SelectedItem.Value.ToString());
         int PreviousStage = 1;
         int Stage = 2;
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
         cmd.Parameters.AddWithValue("@EmpCode", reportee);
         cmd.Parameters.AddWithValue("@Stage", Stage);
-        cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+        cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
         cmd.Parameters.AddWithValue("@ActionBy", MyEmpID);
         cmd.Parameters.AddWithValue("@PreviousStage", PreviousStage);
 
@@ -428,10 +421,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         //int PreviousStage = Convert.ToInt32(ddlStage.SelectedItem.Value.ToString());
         int PreviousStage = 2;
         int Stage = 3;
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
         cmd.Parameters.AddWithValue("@EmpCode", reportee);
         cmd.Parameters.AddWithValue("@Stage", Stage);
-        cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+        cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
         cmd.Parameters.AddWithValue("@ActionBy", MyEmpID);
         cmd.Parameters.AddWithValue("@PreviousStage", PreviousStage);
 
@@ -445,8 +438,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     {
         int IsSPI = Convert.ToInt32(ddlSPI.SelectedValue.ToString());
         ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PeriodID;
         DataTable dt = my.GetData(strSQL);
         StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
 
@@ -477,7 +470,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
                 SqlCommand cmd = new SqlCommand(strSQL);
                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
                 cmd.Parameters.AddWithValue("@SkillsetId", Convert.ToDecimal(dr["SkillsetId"].ToString()));
                 cmd.Parameters.AddWithValue("@Metric", KPIname);
                 cmd.Parameters.AddWithValue("@DataLevel", dr["DataLevel"].ToString());
@@ -782,12 +775,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         String strSQL = "[WFMPMS].[InsertIEXManagementScore]";
         SqlCommand cmd = new SqlCommand(strSQL, con);
         cmd.CommandType = CommandType.StoredProcedure;
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
         int reportee = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         int score = Convert.ToInt32(ddlIEXMgmtScore.SelectedItem.Value.ToString());
         string comments = txtIEXMgmtComments.Text.ToString();
 
-        cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+        cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
         cmd.Parameters.AddWithValue("@EmpCode", reportee);
         cmd.Parameters.AddWithValue("@Score", score);
         cmd.Parameters.AddWithValue("@Comments", comments);
@@ -832,13 +825,13 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             }
             populateHeaders();
         }
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PeriodID;
         DataTable dt = my.GetData(strSQL);
         StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
         EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
-        fillRelevantMetricsInPanels(ForEmpID);
-        getFinalRating(ForEmpID);
+        //fillRelevantMetricsInPanels(ForEmpID);
+        //getFinalRating(ForEmpID);
         //if (Convert.ToInt32(ltl_IEX_Management.Text) != 0)
         //{
         //    btnIEXMgmtScoreSubmit.Enabled = false;
@@ -852,12 +845,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         String strSQL = "[WFMPMS].[InsertAnalyticsProjectsScore]";
         SqlCommand cmd = new SqlCommand(strSQL, con);
         cmd.CommandType = CommandType.StoredProcedure;
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
         int reportee = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         int scoreProjects = Convert.ToInt32(ddlAnalyticProject.SelectedItem.Value.ToString());
         string commentsProjects = txtAnalyticProject.Text.ToString();
 
-        cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+        cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
         cmd.Parameters.AddWithValue("@EmpCode", reportee);
         cmd.Parameters.AddWithValue("@Score", scoreProjects);
         cmd.Parameters.AddWithValue("@Comments", commentsProjects);
@@ -884,12 +877,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         String strSQL = "[WFMPMS].[InsertAnalyticsCoachingScore]";
         SqlCommand cmd = new SqlCommand(strSQL, con);
         cmd.CommandType = CommandType.StoredProcedure;
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
         int reportee = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         int scoreCoaching = Convert.ToInt32(ddlCoaching.SelectedItem.Value.ToString());
         string commentsCoaching = txtCoachingComments.Text.ToString();
 
-        cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+        cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
         cmd.Parameters.AddWithValue("@EmpCode", reportee);
         cmd.Parameters.AddWithValue("@Score", scoreCoaching);
         cmd.Parameters.AddWithValue("@Comments", commentsCoaching);
@@ -917,7 +910,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
                 SqlDataReader sdr = cmd.ExecuteReader();
                 while (sdr.Read())
                 {
@@ -957,7 +950,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
                 SqlDataReader sdr = cmd.ExecuteReader();
                 while (sdr.Read())
                 {
@@ -998,7 +991,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
                 SqlDataReader sdr = cmd.ExecuteReader();
                 while (sdr.Read())
                 {
@@ -1042,7 +1035,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         //    {
         //        cmd.CommandType = CommandType.StoredProcedure;
         //        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-        //        cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+        //        cmd.Parameters.AddWithValue("@PeriodID", PacmanCycle);
         //        SqlDataReader sdr = cmd.ExecuteReader();
         //        while (sdr.Read())
         //        {
@@ -1110,7 +1103,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
                 SqlDataReader sdr = cmd.ExecuteReader();
                 while (sdr.Read())
                 {
@@ -1143,7 +1136,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
                 SqlDataReader sdr = cmd.ExecuteReader();
                 while (sdr.Read())
                 {
@@ -1294,7 +1287,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
                 SqlDataReader sdr = cmd.ExecuteReader();
                 while (sdr.Read())
                 {
@@ -1354,8 +1347,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         }
         else
         {
-            PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-            string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+            PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+            string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PeriodID;
             DataTable dt = my.GetData(strSQL);
             StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
 
@@ -1416,7 +1409,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
                 cmd.Parameters.AddWithValue("@total", EIRating);
                 cmd.Parameters["@total"].Direction = ParameterDirection.Output;
                 SqlDataAdapter da = new SqlDataAdapter(cmd);
@@ -1954,7 +1947,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+                cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
                 SqlDataReader sdr = cmd.ExecuteReader();
                 while (sdr.Read())
                 {
@@ -1975,8 +1968,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     {
         LinkButton b = sender as LinkButton;
         string Metric = b.ID.ToString().Replace("btn", "");
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PacmanCycle;
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        string strSQL = "SELECT [FromDate],[ToDate] FROM [CWFM_Umang].[WFMPMS].[tblPacmanCycle] where [ID] =" + PeriodID;
         DataTable dt = my.GetData(strSQL);
         ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
@@ -2230,12 +2223,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         String strSQL = "[WFMPMS].[InsertRevenueScore]";
         SqlCommand cmd = new SqlCommand(strSQL, con);
         cmd.CommandType = CommandType.StoredProcedure;
-        PacmanCycle = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedItem.Value.ToString());
         int reportee = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         int score = Convert.ToInt32(ddlRevenue_and_Cost_optimization.SelectedItem.Value.ToString());
         string comments = tbRevenue_and_Cost_optimization.Text.ToString();
 
-        cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
+        cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
         cmd.Parameters.AddWithValue("@EmpCode", reportee);
         cmd.Parameters.AddWithValue("@Score", score);
         cmd.Parameters.AddWithValue("@Comments", comments);
