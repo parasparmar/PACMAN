@@ -126,6 +126,8 @@
                 var message = "";
                 if (value) {
                     if (value < 0 || value > 5) {
+                        value = Math.round(value).toFixed(2);
+                        tbGrace.val(value);
                         message = "A valid Grace should lie between 0 and 5";
                         parentFormGroup.addClass("has-error");
                         btnGrace.attr('disabled', 'disabled');

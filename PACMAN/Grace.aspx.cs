@@ -142,8 +142,7 @@ public partial class Grace : System.Web.UI.Page
         int PeriodID = Convert.ToInt32(ddlPeriod.SelectedValue.ToString());
         int cellIndex = gvr.GetGVCellUsingFieldName("Grace");
         TextBox tbGrace = gvr.Cells[cellIndex].FindControl("tbGrace") as TextBox;
-        decimal Grace = Convert.ToDecimal(tbGrace.Text);
-
+        decimal Grace = Decimal.Round(Convert.ToDecimal(tbGrace.Text),2);
         string strSQL = @"UPDATE [PMS].[Eligibility] SET [Grace] = @Grace   
                         WHERE [PeriodID] = @PeriodID and EmpCode = @EmpCode";
         SqlCommand cmd = new SqlCommand(strSQL);
