@@ -181,19 +181,19 @@ public partial class changerole : System.Web.UI.Page
             Response.Write("Failure Writing Role Change to the system. " + E.Message);
         }
         fillgvTeam(MyEmpID);
-        if(sEID!=null && sEID.Count > 0)
-        {
-            foreach (GridViewRow r in gvTeam.Rows)
-            {
-                TextBox tb = r.Cells[4].FindControlRecursive("tbMsg") as TextBox;
+        //if(sEID!=null && sEID.Count > 0)
+        //{
+        //    foreach (GridViewRow r in gvTeam.Rows)
+        //    {
+        //        TextBox tb = r.Cells[4].FindControlRecursive("tbMsg") as TextBox;
 
-                if (tb != null)
-                {
-                    int EID = Convert.ToInt32(r.Cells[5].Text);
-                    tb.Text = sEID.Find(s => s.EID == EID).Msg.ToString();
-                }
-            }
-        }
+        //        if (tb != null)
+        //        {
+        //            int EID = Convert.ToInt32(r.Cells[5].Text);
+        //            tb.Text = sEID.Find(s => s.EID == EID).Msg.ToString();
+        //        }
+        //    }
+        //}
        
     }
     public class SelectedEID
