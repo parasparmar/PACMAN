@@ -157,7 +157,7 @@
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar"></i>
                             </div>
-                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlStage" OnDataBound="ddlStage_DataBound" runat="server" OnSelectedIndexChanged="ddlStage_SelectedIndexChanged" AutoPostBack="true">
+                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlStage" runat="server" OnSelectedIndexChanged="ddlStage_SelectedIndexChanged" AutoPostBack="true">
                             </asp:DropDownList>
                         </div>
                         <!-- /.input group -->
@@ -230,7 +230,7 @@
                                     </div>
                                     <!-- /.box-header -->
                                     <div class="box-body">
-                                        <asp:Repeater ID="rp" runat="server" OnItemDataBound="rp_ItemDataBound" OnPreRender="rp_PreRender">
+                                        <asp:Repeater ID="rp" runat="server" OnItemDataBound="rp_ItemDataBound">
                                             <HeaderTemplate>
                                                 <div class="box-group" id="accordion">
                                                     <!-- we are adding the .panel class so bootstrap.js collapse plugin detects it -->
@@ -285,7 +285,7 @@
                                                                 <div class="row">
                                                                     <div class="col-md-12">
                                                                         <asp:GridView ID="gvKPI" runat="server" CssClass="table table-condensed" OnPreRender="gv_PreRender" AutoGenerateColumns="true">
-                                                                        </asp:GridView>                                                                        
+                                                                        </asp:GridView>
                                                                     </div>
                                                                 </div>
                                                             </asp:Panel>
@@ -323,34 +323,36 @@
         </section>
         <!-- /.Left col -->
         <!-- /.Left col -->
-        <div class="col-md-6">
-            <div class="box">
-                <div class="box-body">
-                    <div class="form-group">
-                        <h4>Has the above Reportee's PACMAN been discussed?
+        <asp:Panel ID="pnlSubmission" runat="server" Visible="false">
+            <div class="col-md-6">
+                <div class="box">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <h4>Has the above Reportee's PACMAN been discussed?
                  <span class="btn-group pull-right">
                      <%--<asp:Button ID="btnNotDiscussed" runat="server" Text="Not Discussed" CssClass="btn btn-default" />--%>
-                     <asp:Button ID="btnYesDiscussed" runat="server" Text="Discussed" CssClass="btn btn-primary" OnClick="btnYesDiscussed_Click" />
+                     <asp:Button ID="btnYesDiscussed" runat="server" Enabled="false" Text="Discussed" CssClass="btn btn-primary" OnClick="btnYesDiscussed_Click" />
                  </span>
-                        </h4>
+                            </h4>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="col-md-6">
-            <div class="box">
-                <div class="box-body">
-                    <div class="form-group">
-                        <h4>Submit PACMAN for Employee's Acknowledgement
+            <div class="col-md-6">
+                <div class="box">
+                    <div class="box-body">
+                        <div class="form-group">
+                            <h4>Submit PACMAN for Employee's Acknowledgement
                  <span class="btn-group pull-right">
                      <%--<asp:Button ID="btnDoNotAgree" runat="server" Text="I Do Not Agree" CssClass="btn btn-warning" />--%>
-                     <asp:Button ID="btnSubmitPacman" runat="server" Text="Submit" CssClass="btn btn-success" />
+                     <asp:Button ID="btnSubmitPacman" runat="server" Enabled="false" Text="Submit" CssClass="btn btn-success" />
                  </span>
-                        </h4>
+                            </h4>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </asp:Panel>
     </div>
     <!-- /.row (main row) -->
 
