@@ -283,15 +283,40 @@
                                                                     <label class="text-muted well well-sm no-shadow" title="Download Detailed Report">Download Detailed Report</label>
                                                                 </div>
                                                                 <div class="row">
-                                                                    <div class="col-md-12">
+                                                                    <asp:Panel ID="dvKPI" class="col-md-12" runat="server">
                                                                         <asp:GridView ID="gvKPI" runat="server" CssClass="table table-condensed" OnPreRender="gv_PreRender" AutoGenerateColumns="true">
                                                                         </asp:GridView>
+                                                                    </asp:Panel>
+                                                                </div>
+                                                            </asp:Panel>
+                                                            <!--Auto KPI Panel-->
+                                                            <asp:Panel ID="pnlManualKPI" runat="server" Visible="false">
+                                                                <div class="row">
+                                                                    <div class="col-md-3">
+                                                                        <asp:Literal ID="Literal5" runat="server" Text="Select rating"></asp:Literal>
+                                                                        <asp:DropDownList ID="ddlManualScore" runat="server" CssClass="form-control select">
+                                                                            <asp:ListItem Value="5" Text="5" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="4" Text="4" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="3" Text="3" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="2" Text="2" runat="server"></asp:ListItem>
+                                                                            <asp:ListItem Value="1" Text="1" runat="server"></asp:ListItem>
+                                                                        </asp:DropDownList>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <asp:Label ID="label1" runat="server">Please enter comments</asp:Label>
+                                                                        <asp:TextBox ID="txtManualComments" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2"></asp:TextBox>
+                                                                    </div>
+                                                                    <div class="col-md-3">
+                                                                        <asp:Label ID="lbl" Text="." runat="server"></asp:Label>
+                                                                        <asp:Button ID="btnManualScoreSubmit" runat="server" Text="submit" CommandArgument='<%#Eval("KPIID") %>' CssClass="btn btn-primary" OnClick="btnManualScoreSubmit_Click" />
                                                                     </div>
                                                                 </div>
                                                             </asp:Panel>
+                                                            <!--Manual KPI Panel-->
                                                         </div>
                                                     </div>
                                                 </asp:Panel>
+
                                                 <!--Primary KPI-->
                                             </ItemTemplate>
                                             <FooterTemplate>

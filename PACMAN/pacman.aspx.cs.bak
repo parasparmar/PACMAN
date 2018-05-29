@@ -496,7 +496,7 @@ public partial class pacman : System.Web.UI.Page
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
                 cmd.Parameters.AddWithValue("@PacmanCycle", PacmanCycle);
-                CurrentStage = Convert.ToInt32(cmd.ExecuteScalar());
+                //CurrentStage = Convert.ToInt32(cmd.ExecuteScalar());
                 //CurrentStage = 4;
                 if (CurrentStage == 0 || CurrentStage == 2 || CurrentStage == 5)
                 {

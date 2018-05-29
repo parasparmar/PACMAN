@@ -10,7 +10,7 @@ using System.Data.Sql;
 using System.Reflection;
 using System.IO;
 using CsvHelper;
-
+using System.Web.UI.HtmlControls;
 public partial class PacmanDiscussion : System.Web.UI.Page
 {
     DataTable dtEmp;
@@ -24,6 +24,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     private decimal FinalRating { get; set; }
     public bool xShowButtons { get; set; }
     public DataTable DtProcName { get; set; }
+    private List<RF> Transfer2DB = new List<RF>();
     protected void Page_Load(object sender, EventArgs e)
     {
         my = new Helper();
@@ -39,7 +40,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 // In Production Use the below
                 MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
-                
+
 
             }
         }
@@ -56,6 +57,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             fillddlReviewPeriod();
             fillddlStage();
             enableButtons();
+        }
+        else
+        {
+
         }
 
     }
@@ -74,7 +79,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     private void fillddlStage()
     {
-        int PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         string strSQL = @"select * from [PMS].[Lock] where Active = 1";
         SqlCommand cmd = new SqlCommand(strSQL);
 
@@ -107,7 +112,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     private void enableButtons()
     {
-        int PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         string strSQL = "WFMPMS.EnableButtonStates";
         SqlCommand cmd = new SqlCommand(strSQL);
@@ -122,11 +127,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         if (dt1 != null && dt1.Rows.Count == 1)
         {
             btnYesDiscussed.Enabled = dt1.Rows[0]["btnDiscussed"].ToString() == "1" ? true : false;
-            
+
             btnSubmitPacman.Enabled = dt1.Rows[0]["btnSubmit"].ToString() == "1" ? true : false;
             if (btnYesDiscussed.Enabled || btnSubmitPacman.Enabled) { pnlSubmission.Visible = true; }
             //btnAcknowledged.Enabled = dt1.Rows[0]["btnAcknowledged"].ToString() == "1" ? true : false;
-            
+
         }
         else
         {
@@ -157,12 +162,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 Role = drs[0]["Role"].ToString();
             }
             ltlEmployeeBanner.Text = ddlReportee.SelectedItem.Text.ToString() + "( " + ForEmpID + " ) | Role : " + Role;
-            
+
         }
         else
         {
-            ltlEmployeeBanner.Text = "Not found";            
-            
+            ltlEmployeeBanner.Text = "Not found";
+
         }
     }
     private void fillStartAndEndDates()
@@ -174,19 +179,19 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         {
             StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
             EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
-            
+
         }
         else
         {
             StartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             EndDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 31);
- 
+
         }
 
     }
     private void fillddlReportee()
     {
-        int PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         int LockID = Convert.ToInt32(ddlStage.SelectedValue);
         string strSQL = "WFMPMS.getReporteeList";
         SqlCommand cmd = new SqlCommand(strSQL);
@@ -201,10 +206,38 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ddlReportee.DataValueField = "EmpCode";
         ddlReportee.DataBind();
         ddlReportee.Items.Insert(0, new ListItem("Please Select", "0"));
-        
+
     }
     protected void btnYesDiscussed_Click(object sender, EventArgs e)
     {
+        Transfer2DB = Session["Transfer2DB"] as List<RF>;
+        strSQL = "PMS.UpdateReview";
+        SqlCommand cmd = new SqlCommand(strSQL);
+        cmd.CommandType = CommandType.StoredProcedure;
+        int rowsAffected = 0;
+        foreach (var trf in Transfer2DB)
+        {
+            cmd.Parameters.AddWithValue("@PERIODID", trf.PERIODID);
+            cmd.Parameters.AddWithValue("@EMPCODE", trf.EMPCODE);
+            cmd.Parameters.AddWithValue("@KPIIRATING", trf.KPIIRATING);
+            cmd.Parameters.AddWithValue("@KPIID", trf.KPIID);
+            cmd.Parameters.AddWithValue("@IsSPI", trf.IsSPI);
+            rowsAffected += my.ExecuteDMLCommand(ref cmd, strSQL, "S");
+            cmd.Parameters.Clear();
+        }
+        // To do : For this emp, LockID = 1 and SPI = false in PMS.Eligibility against this empcode and periodid
+
+        strSQL = "PMS.UpdateEligibility";
+        cmd = new SqlCommand(strSQL);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@PERIODID", Transfer2DB[0].PERIODID);
+        cmd.Parameters.AddWithValue("@EMPCODE", Transfer2DB[0].EMPCODE);
+        cmd.Parameters.AddWithValue("@Lock", 1);
+        cmd.Parameters.AddWithValue("@IsSPI", Transfer2DB[0].IsSPI);
+        rowsAffected += my.ExecuteDMLCommand(ref cmd, strSQL, "S");
+
+        clearRP();
+        fillddlStage();
 
     }
     protected void ddlReportee_SelectedIndexChanged(object sender, EventArgs e)
@@ -230,8 +263,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         DtProcName = my.GetData(ref cmd);
         rp.DataSource = DtProcName;
         rp.DataBind();
-        
-
     }
     protected void gv_PreRender(object sender, EventArgs e)
     {
@@ -246,72 +277,207 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         }
     }
     protected void rp_ItemDataBound(object sender, RepeaterItemEventArgs e)
-    {        
-        GridView gv = e.Item.FindControlRecursive("gvKPI") as GridView;
-        if (gv != null)
+    {
+        if (e.Item.ItemType.ToString() == "Item" || e.Item.ItemType.ToString() == "AlternatingItem")
         {
-            fillStartAndEndDates();
-            if (DtProcName != null && DtProcName.Rows.Count > 0)
-            {                
-                bool isManual;
-                string procName = string.Empty;
-                string Metric = string.Empty;
-                foreach (DataRow dr in DtProcName.Rows)
+            GridView gv = e.Item.FindControlRecursive("gvKPI") as GridView;
+
+            RF k = new RF();
+            k.EMPCODE = ForEmpID;
+            k.PERIODID = PeriodID;
+            k.IsSPI = Convert.ToInt32(ddlSPI.SelectedValue.ToString());
+            if (gv != null)
+            {
+                fillStartAndEndDates();
+                if (DtProcName != null && DtProcName.Rows.Count > 0)
                 {
-                    isManual = Convert.ToBoolean(dr["isManual"].ToString());
-                    procName = dr["ProcName"].ToString();
-                    Literal ltlKPIName = e.Item.FindControlRecursive("ltlKPIName") as Literal;
-                    Metric = dr["Metric"].ToString();
-                    if (ltlKPIName.Text == Metric)
+                    bool isManual;
+                    string procName = string.Empty;
+                    string Metric = string.Empty;
+                    foreach (DataRow dr in DtProcName.Rows)
                     {
-                        pnlSubmission.Visible = xShowButtons;
-                        if (!isManual && procName.Length > 0)
+                        isManual = Convert.ToBoolean(dr["isManual"].ToString());
+                        procName = dr["ProcName"].ToString();
+                        Literal ltlKPIName = e.Item.FindControlRecursive("ltlKPIName") as Literal;
+                        Metric = dr["Metric"].ToString();
+
+                        if (ltlKPIName.Text == Metric)
                         {
-                            SqlCommand cmd = new SqlCommand();
-                            cmd.CommandText = procName;
-                            cmd.CommandType = CommandType.StoredProcedure;
-                            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                            //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                            //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                            cmd.Parameters.AddWithValue("@StartDate", "20180401");
-                            cmd.Parameters.AddWithValue("@EndDate", "20180430");
-
-                            DataTable dt = my.GetData(ref cmd);
-                            gv.DataSource = dt;
-                            gv.DataBind();
-                            string Rating = string.Empty;
-                            DataRow[] drs = dt.Select("Account = 'Grand Total'");
-                            if (drs.Length == 1)
+                            int KPIId = Convert.ToInt32(dr["KPIID"].ToString());
+                            k.KPIID = KPIId;
+                            pnlSubmission.Visible = xShowButtons;
+                            if (!isManual && procName.Length > 0)
                             {
-                                foreach (DataRow r in drs)
-                                {
-                                    Rating = r["Rating"].ToString();
+                                SqlCommand cmd = new SqlCommand();
+                                cmd.CommandText = procName;
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+                                //cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                                //cmd.Parameters.AddWithValue("@EndDate", EndDate);
+                                cmd.Parameters.AddWithValue("@StartDate", "20180401");
+                                cmd.Parameters.AddWithValue("@EndDate", "20180430");
 
+                                DataTable dt = my.GetData(ref cmd);
+                                gv.DataSource = dt;
+                                gv.DataBind();
+                                string Rating = string.Empty;
+                                DataRow[] drs = dt.Select("Account = 'Grand Total'");
+                                if (drs.Length == 1)
+                                {
+                                    foreach (DataRow r in drs)
+                                    {
+                                        Rating = r["Rating"].ToString();
+                                    }
+                                    Literal ltlfinalScore = e.Item.FindControlRecursive("ltlKPIScore") as Literal;
+                                    ltlfinalScore.Text = Rating.ToString();
+                                    Decimal KPIRating = Convert.ToDecimal(Rating);
+                                    k.KPIIRATING = KPIRating;
+                                    Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
+                                    FinalRating += KPIRating * KPIWtg;
+                                    ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
+                                    xShowButtons = true;
                                 }
-                                Literal ltlfinalScore = e.Item.FindControlRecursive("ltlKPIScore") as Literal;
-                                ltlfinalScore.Text = Rating.ToString();
-                                Decimal KPIRating = Convert.ToDecimal(Rating);
-                                Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
-                                FinalRating += KPIRating * KPIWtg;
-                                ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
-                                xShowButtons = true;
-                            }                            
-                        }                        
+                            }
+                            else
+                            {
+                                Panel pnlKPI = e.Item.FindControlRecursive("pnlKPI") as Panel;
+                                pnlKPI.Visible = false;
+                                Panel pnlManualKPI = e.Item.FindControlRecursive("pnlManualKPI") as Panel;
+                                pnlManualKPI.Visible = true;
+
+
+
+                                //Panel pnlDvKPI = e.Item.FindControlRecursive("dvkpi") as Panel;
+                                //DropDownList ddlManualKPI = new DropDownList();
+                                //ddlManualKPI.ID = "ddl_" + KPIId.ToString();
+                                //ddlManualKPI.CssClass = "form-control select";
+
+                                //for (int i = 1; i <= 5; i++)
+                                //{
+                                //    ListItem j = new ListItem(i.ToString(), i.ToString());
+                                //    ddlManualKPI.Items.Add(j);
+                                //}
+
+
+
+
+                                //Button btnManualScoreSubmit = new Button();
+                                //btnManualScoreSubmit.Text = "submit";
+                                //btnManualScoreSubmit.CssClass = "btn btn-primary btn-flat";
+                                //btnManualScoreSubmit.CommandArgument = KPIId.ToString();
+                                //btnManualScoreSubmit.ID = KPIId.ToString();
+                                //btnManualScoreSubmit.Click += new EventHandler(btnManualScoreSubmit_Click);
+
+                                //Label lbl3 = new Label();
+                                //lbl3.Text = Metric;
+
+                                //HtmlGenericControl br = new HtmlGenericControl("br");
+
+                                //Label lbl2 = new Label();
+                                //lbl2.Text = "Please enter comments";
+
+                                //Label lbl1 = new Label();
+                                //lbl1.Text = "Select Rating";
+
+                                //TextBox tbManualKPIComments = new TextBox();
+                                //tbManualKPIComments.CssClass = "form-control select";
+                                //tbManualKPIComments.TextMode = TextBoxMode.MultiLine;
+                                //tbManualKPIComments.Rows = 2;
+                                //tbManualKPIComments.ID = "tb" + KPIId.ToString();
+
+                                //HtmlGenericControl d = new HtmlGenericControl("div");
+                                //d.Attributes.Add("class", "col-md-3");
+                                //d.Controls.Add(lbl3);
+                                //d.Controls.Add(br);
+                                //d.Controls.Add(btnManualScoreSubmit);
+
+                                //HtmlGenericControl f = new HtmlGenericControl("div");
+                                //f.Attributes.Add("class", "form-group");
+
+                                //HtmlGenericControl c = new HtmlGenericControl("div");
+                                //c.Attributes.Add("class", "col-md-6");
+                                //c.Controls.Add(lbl2);
+                                //c.Controls.Add(tbManualKPIComments);
+
+                                //HtmlGenericControl b = new HtmlGenericControl("div");
+                                //b.Attributes.Add("class", "col-md-3");
+                                //b.Controls.Add(lbl1);
+                                //b.Controls.Add(ddlManualKPI);
+
+                                //HtmlGenericControl a = new HtmlGenericControl("div");
+                                //f.Attributes.Add("class", "row");
+                                //f.Controls.Add(b);
+                                //f.Controls.Add(c);
+                                //f.Controls.Add(d);
+                                //a.Controls.Add(f);
+                                //pnlDvKPI.Controls.Add(a);
+
+                            }
+                        }
                     }
                 }
+                else
+                {
+                    rp.Visible = false;
+                    ltlFinalRating.Text = "0";
+                }
             }
-            else
-            {
-                rp.Visible = false;
-                ltlFinalRating.Text = "0";
-            }
+
+            Transfer2DB.Add(k);
+            Session["Transfer2DB"] = Transfer2DB;
+            pnlSubmission.Visible = xShowButtons;
         }
-        pnlSubmission.Visible = xShowButtons;
     }
+
+  
+  
+
+
     private void clearRP()
     {
         rp.Visible = false;
         ltlFinalRating.Text = "0";
         ltlEmployeeBanner.Text = string.Empty;
     }
+
+    protected void btnManualScoreSubmit_Click(object sender, EventArgs e)
+    {
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
+        Button btn = sender as Button;
+        int KPIID = Convert.ToInt32(btn.CommandArgument.ToString());
+        DropDownList ddl = Page.FindControlRecursive("ddlManualScore") as DropDownList;
+        TextBox tb = Page.FindControlRecursive("txtManualComments") as TextBox;
+        if (ddl != null && tb != null)
+        {
+            decimal KPIRating = Convert.ToDecimal(ddl.SelectedValue.ToString());
+            string KPIComments = tb.Text;
+
+            string strSQL = "PMS.SaveKPIManualRating";
+            SqlCommand cmd = new SqlCommand(strSQL);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+            cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
+            cmd.Parameters.AddWithValue("@KPIID", KPIID);
+            cmd.Parameters.AddWithValue("@KPIRating", KPIRating);
+            cmd.Parameters.AddWithValue("@KPIComments", KPIComments);
+            cmd.Parameters.AddWithValue("@ActionedBy", MyEmpID);
+            int rowsAffected = my.ExecuteDMLCommand(ref cmd, strSQL, "S");
+
+        }
+
+
+
+
+
+    }
+}
+
+class RF
+{
+    public int PERIODID { get; set; }
+    public int EMPCODE { get; set; }
+    public decimal KPIIRATING { get; set; }
+    public int KPIID { get; set; }
+    public int IsSPI { get; set; }
 }
