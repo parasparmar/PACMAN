@@ -8,7 +8,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data.Sql;
 using System.Data.SqlClient;
-
+ 
 
 public partial class EscalationsInitiatives : System.Web.UI.Page
 {
@@ -90,14 +90,24 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         else
         { empId = emp; }
 
-        strSQL = "CWFM_UMANG.[WFMPMS].[GetPacmanCycle]";
+        //strSQL = "CWFM_UMANG.[WFMPMS].[GetPacmanCycle]";
+
+        //SqlCommand cmd = new SqlCommand(strSQL);
+        //cmd.Parameters.AddWithValue("@EmpCode", Convert.ToInt32(empId));
+        //DataTable dt1 = my.GetDataTableViaProcedure(ref cmd);
+        //ddlPacmanCycle.DataSource = dt1;
+        //ddlPacmanCycle.DataTextField = "TextDescription";
+        //ddlPacmanCycle.DataValueField = "ID";
+        //ddlPacmanCycle.DataBind();
+
+        strSQL = "WFMPMS.GetPacmanCycleforPacmanDiscussion_g";
 
         SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.Parameters.AddWithValue("@EmpCode", Convert.ToInt32(empId));
+        //cmd.Parameters.AddWithValue("@EmpCode", Convert.ToInt32(empId));
         DataTable dt1 = my.GetDataTableViaProcedure(ref cmd);
         ddlPacmanCycle.DataSource = dt1;
-        ddlPacmanCycle.DataTextField = "TextDescription";
-        ddlPacmanCycle.DataValueField = "ID";
+        ddlPacmanCycle.DataTextField = "Period";
+        ddlPacmanCycle.DataValueField = "PeriodID";
         ddlPacmanCycle.DataBind();
 
 

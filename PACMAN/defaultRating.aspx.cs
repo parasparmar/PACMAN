@@ -116,7 +116,7 @@ public partial class defaultRating : System.Web.UI.Page
 
     private void fillddlPeriod()
     {
-        string strSQL = "WFMPMS.GetPacmanCycleforPacmanDiscussion_g ";
+        string strSQL = "WFMPMS.GetPacmanCycleforPacmanDiscussion_g";
         SqlCommand cmd = new SqlCommand(strSQL);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         ddlPeriod.DataSource = dt;

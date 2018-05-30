@@ -54,8 +54,7 @@ public partial class MasterPage : System.Web.UI.MasterPage
 
     private void fillddlImpersonator()
     {
-        string myNTID = PageExtensionMethods.getMyWindowsID();
-        
+        string myNTID = PageExtensionMethods.getMyWindowsID();        
         if (PageExtensionMethods.AllowedIds().Contains<string>(myNTID))
         {
             pnlImpersonator.Visible = true;
@@ -66,7 +65,6 @@ public partial class MasterPage : System.Web.UI.MasterPage
             ddlImpersonator.DataBind();
             ddlImpersonator.DataValueField = "EmpCode";
             ddlImpersonator.DataTextField = "Name";
-
         }
         else
         {

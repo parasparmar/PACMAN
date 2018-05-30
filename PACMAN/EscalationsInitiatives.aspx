@@ -125,7 +125,7 @@
                     </div>
                     <asp:TextBox ID="txtEscalation" TextMode="multiline" Columns="74" Rows="4" runat="server" CssClass="form-control" placeholder="Enter Escalation..."></asp:TextBox>
                     <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" Display="Dynamic" ErrorMessage="Escalation Description required" ForeColor="Red" ControlToValidate="txtEscalation" ValidationGroup="Escalation"></asp:RequiredFieldValidator>
-                    <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" Display="Dynamic" ControlToValidate="txtEscalation" ErrorMessage="enter valid reason" ForeColor="Red" ValidationExpression="^[a-zA-Z ]+$" ValidationGroup="Escalation"></asp:RegularExpressionValidator>
+                    <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" Display="Dynamic" ControlToValidate="txtEscalation" ErrorMessage="enter valid reason" ForeColor="Red" ValidationExpression="^[a-zA-Z0-9 ]+$" ValidationGroup="Escalation"></asp:RegularExpressionValidator>
                     <br />
                     <div class="pull-left" style="margin-top: 1%">
                         <asp:FileUpload ID="FileUploadAttachMailEsc" runat="server"  accept=".msg" />

@@ -24,7 +24,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     private decimal FinalRating { get; set; }
     public bool xShowButtons { get; set; }
     public DataTable DtProcName { get; set; }
-    private List<RF> Transfer2DB = new List<RF>();
+    private List<ReviewUpdate> Transfer2DB = new List<ReviewUpdate>();
     protected void Page_Load(object sender, EventArgs e)
     {
         my = new Helper();
@@ -40,8 +40,14 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 // In Production Use the below
                 MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
-
-
+                if (pnlIsPacmanDiscussion.Visible == false)
+                {
+                    ForEmpID = MyEmpID;
+                }
+                else if (ddlReportee.SelectedIndex > 0)
+                {
+                    ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
+                }
             }
         }
         catch (Exception Ex)
@@ -113,7 +119,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     private void enableButtons()
     {
         PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
+
         string strSQL = "WFMPMS.EnableButtonStates";
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.CommandType = CommandType.StoredProcedure;
@@ -210,16 +216,16 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     protected void btnYesDiscussed_Click(object sender, EventArgs e)
     {
-        Transfer2DB = Session["Transfer2DB"] as List<RF>;
+        Transfer2DB = Session["Transfer2DB"] as List<ReviewUpdate>;
         strSQL = "PMS.UpdateReview";
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.CommandType = CommandType.StoredProcedure;
         int rowsAffected = 0;
         foreach (var trf in Transfer2DB)
         {
-            cmd.Parameters.AddWithValue("@PERIODID", trf.PERIODID);
-            cmd.Parameters.AddWithValue("@EMPCODE", trf.EMPCODE);
-            cmd.Parameters.AddWithValue("@KPIIRATING", trf.KPIIRATING);
+            cmd.Parameters.AddWithValue("@PeriodID", trf.PeriodID);
+            cmd.Parameters.AddWithValue("@EmpCode", trf.EmpCode);
+            cmd.Parameters.AddWithValue("@KPIIRATING", trf.KPIRating);
             cmd.Parameters.AddWithValue("@KPIID", trf.KPIID);
             cmd.Parameters.AddWithValue("@IsSPI", trf.IsSPI);
             rowsAffected += my.ExecuteDMLCommand(ref cmd, strSQL, "S");
@@ -230,8 +236,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         strSQL = "PMS.UpdateEligibility";
         cmd = new SqlCommand(strSQL);
         cmd.CommandType = CommandType.StoredProcedure;
-        cmd.Parameters.AddWithValue("@PERIODID", Transfer2DB[0].PERIODID);
-        cmd.Parameters.AddWithValue("@EMPCODE", Transfer2DB[0].EMPCODE);
+        cmd.Parameters.AddWithValue("@PeriodID", Transfer2DB[0].PeriodID);
+        cmd.Parameters.AddWithValue("@EmpCode", Transfer2DB[0].EmpCode);
         cmd.Parameters.AddWithValue("@Lock", 1);
         cmd.Parameters.AddWithValue("@IsSPI", Transfer2DB[0].IsSPI);
         rowsAffected += my.ExecuteDMLCommand(ref cmd, strSQL, "S");
@@ -282,9 +288,9 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         {
             GridView gv = e.Item.FindControlRecursive("gvKPI") as GridView;
 
-            RF k = new RF();
-            k.EMPCODE = ForEmpID;
-            k.PERIODID = PeriodID;
+            ReviewUpdate k = new ReviewUpdate();
+            k.EmpCode = ForEmpID;
+            k.PeriodID = PeriodID;
             k.IsSPI = Convert.ToInt32(ddlSPI.SelectedValue.ToString());
             if (gv != null)
             {
@@ -330,11 +336,16 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                                     }
                                     Literal ltlfinalScore = e.Item.FindControlRecursive("ltlKPIScore") as Literal;
                                     ltlfinalScore.Text = Rating.ToString();
-                                    Decimal KPIRating = Convert.ToDecimal(Rating);
-                                    k.KPIIRATING = KPIRating;
-                                    Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
-                                    FinalRating += KPIRating * KPIWtg;
-                                    ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
+                                    if (!string.IsNullOrEmpty(Rating))
+                                    {
+                                        Decimal KPIRating = Convert.ToDecimal(Rating);
+                                        k.KPIRating = KPIRating;
+                                        Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
+                                        FinalRating += KPIRating * KPIWtg;
+                                        ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
+                                    }
+                                    else
+                                    { ltlFinalRating.Text = string.Empty; }
                                     xShowButtons = true;
                                 }
                             }
@@ -344,74 +355,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                                 pnlKPI.Visible = false;
                                 Panel pnlManualKPI = e.Item.FindControlRecursive("pnlManualKPI") as Panel;
                                 pnlManualKPI.Visible = true;
-
-
-
-                                //Panel pnlDvKPI = e.Item.FindControlRecursive("dvkpi") as Panel;
-                                //DropDownList ddlManualKPI = new DropDownList();
-                                //ddlManualKPI.ID = "ddl_" + KPIId.ToString();
-                                //ddlManualKPI.CssClass = "form-control select";
-
-                                //for (int i = 1; i <= 5; i++)
-                                //{
-                                //    ListItem j = new ListItem(i.ToString(), i.ToString());
-                                //    ddlManualKPI.Items.Add(j);
-                                //}
-
-
-
-
-                                //Button btnManualScoreSubmit = new Button();
-                                //btnManualScoreSubmit.Text = "submit";
-                                //btnManualScoreSubmit.CssClass = "btn btn-primary btn-flat";
-                                //btnManualScoreSubmit.CommandArgument = KPIId.ToString();
-                                //btnManualScoreSubmit.ID = KPIId.ToString();
-                                //btnManualScoreSubmit.Click += new EventHandler(btnManualScoreSubmit_Click);
-
-                                //Label lbl3 = new Label();
-                                //lbl3.Text = Metric;
-
-                                //HtmlGenericControl br = new HtmlGenericControl("br");
-
-                                //Label lbl2 = new Label();
-                                //lbl2.Text = "Please enter comments";
-
-                                //Label lbl1 = new Label();
-                                //lbl1.Text = "Select Rating";
-
-                                //TextBox tbManualKPIComments = new TextBox();
-                                //tbManualKPIComments.CssClass = "form-control select";
-                                //tbManualKPIComments.TextMode = TextBoxMode.MultiLine;
-                                //tbManualKPIComments.Rows = 2;
-                                //tbManualKPIComments.ID = "tb" + KPIId.ToString();
-
-                                //HtmlGenericControl d = new HtmlGenericControl("div");
-                                //d.Attributes.Add("class", "col-md-3");
-                                //d.Controls.Add(lbl3);
-                                //d.Controls.Add(br);
-                                //d.Controls.Add(btnManualScoreSubmit);
-
-                                //HtmlGenericControl f = new HtmlGenericControl("div");
-                                //f.Attributes.Add("class", "form-group");
-
-                                //HtmlGenericControl c = new HtmlGenericControl("div");
-                                //c.Attributes.Add("class", "col-md-6");
-                                //c.Controls.Add(lbl2);
-                                //c.Controls.Add(tbManualKPIComments);
-
-                                //HtmlGenericControl b = new HtmlGenericControl("div");
-                                //b.Attributes.Add("class", "col-md-3");
-                                //b.Controls.Add(lbl1);
-                                //b.Controls.Add(ddlManualKPI);
-
-                                //HtmlGenericControl a = new HtmlGenericControl("div");
-                                //f.Attributes.Add("class", "row");
-                                //f.Controls.Add(b);
-                                //f.Controls.Add(c);
-                                //f.Controls.Add(d);
-                                //a.Controls.Add(f);
-                                //pnlDvKPI.Controls.Add(a);
-
                             }
                         }
                     }
@@ -428,22 +371,15 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             pnlSubmission.Visible = xShowButtons;
         }
     }
-
-  
-  
-
-
     private void clearRP()
     {
         rp.Visible = false;
         ltlFinalRating.Text = "0";
         ltlEmployeeBanner.Text = string.Empty;
     }
-
     protected void btnManualScoreSubmit_Click(object sender, EventArgs e)
     {
         PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         Button btn = sender as Button;
         int KPIID = Convert.ToInt32(btn.CommandArgument.ToString());
         DropDownList ddl = Page.FindControlRecursive("ddlManualScore") as DropDownList;
@@ -465,19 +401,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             int rowsAffected = my.ExecuteDMLCommand(ref cmd, strSQL, "S");
 
         }
-
-
-
-
-
     }
 }
 
-class RF
-{
-    public int PERIODID { get; set; }
-    public int EMPCODE { get; set; }
-    public decimal KPIIRATING { get; set; }
-    public int KPIID { get; set; }
-    public int IsSPI { get; set; }
-}

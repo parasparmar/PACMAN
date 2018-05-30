@@ -1,7 +1,23 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="PacmanDiscussion.aspx.cs" Inherits="PacmanDiscussion" %>
 
-
 <%@ MasterType VirtualPath="~/MasterPage.master" %>
+
+<asp:Content ID="Content4" ContentPlaceHolderID="pageheader" runat="Server">
+    <ol class="breadcrumb">
+        <li><a href="index.aspx"><i class="iconfa-home"></i>Home</a></li>
+        <li class="active"><a href="PacmanDiscussion.aspx"><i class="fa fa-file-text"></i>Pacman Discussion</a></li>
+    </ol>
+
+    <div class="pageheader">
+        <div class="pageicon"><span class="fa fa-file-text"></span></div>
+        <div class="pagetitle">
+            <h5>Discussion of Monthly Performance</h5>
+            <h1>PACMAN Discussion</h1>
+        </div>
+    </div>
+    <!--pageheader-->
+</asp:Content>
+
 
 <asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" runat="Server">
     <link href="Sitel/plugins/bootstrap-toggle/css/bootstrap-toggle.min.css" rel="stylesheet" />
@@ -26,23 +42,6 @@
             display: none;
         }
     </style>
-</asp:Content>
-
-
-<asp:Content ID="Content4" ContentPlaceHolderID="pageheader" runat="Server">
-    <ol class="breadcrumb">
-        <li><a href="index.aspx"><i class="iconfa-home"></i>Home</a></li>
-        <li class="active"><a href="PacmanDiscussion.aspx"><i class="fa fa-file-text"></i>Pacman Discussion</a></li>
-    </ol>
-
-    <div class="pageheader">
-        <div class="pageicon"><span class="fa fa-file-text"></span></div>
-        <div class="pagetitle">
-            <h5>Discussion of Monthly Performance</h5>
-            <h1>PACMAN Discussion</h1>
-        </div>
-    </div>
-    <!--pageheader-->
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
 
@@ -149,52 +148,51 @@
                         <!-- /.input group -->
                     </div>
                 </div>
-
-                <div class="col-lg-3">
-                    <div class="form-group">
-                        <label>Select Review Stage</label>
-                        <div class="input-group">
-                            <div class="input-group-addon">
-                                <i class="fa fa-calendar"></i>
+                <asp:Panel ID="pnlIsPacmanDiscussion" runat="server" Visible="true">
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label>Select Review Stage</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-calendar"></i>
+                                </div>
+                                <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlStage" runat="server" OnSelectedIndexChanged="ddlStage_SelectedIndexChanged" AutoPostBack="true">
+                                </asp:DropDownList>
                             </div>
-                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlStage" runat="server" OnSelectedIndexChanged="ddlStage_SelectedIndexChanged" AutoPostBack="true">
-                            </asp:DropDownList>
+                            <!-- /.input group -->
                         </div>
-                        <!-- /.input group -->
                     </div>
-                </div>
-
-
-                <div class="col-lg-3">
-                    <div class="form-group">
-                        <label>Select Reportee</label>
-                        <div class="input-group">
-                            <div class="input-group-addon">
-                                <i class="fa fa-user"></i>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label>Select Reportee</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-user"></i>
+                                </div>
+                                <asp:DropDownList ItemType="text" CssClass="form-control select2" ID="ddlReportee"
+                                    runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlReportee_SelectedIndexChanged">
+                                </asp:DropDownList>
                             </div>
-                            <asp:DropDownList ItemType="text" CssClass="form-control select2" ID="ddlReportee"
-                                runat="server" AutoPostBack="true" OnSelectedIndexChanged="ddlReportee_SelectedIndexChanged">
-                            </asp:DropDownList>
+                            <!-- /.input group -->
                         </div>
-                        <!-- /.input group -->
                     </div>
-                </div>
-                <div class="col-lg-3">
-                    <div class="form-group">
-                        <label>Is SPI</label>
-                        <div class="input-group">
-                            <div class="input-group-addon">
-                                <i class="fa fa-user"></i>
+                    <div class="col-lg-3">
+                        <div class="form-group">
+                            <label>Is SPI</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">
+                                    <i class="fa fa-user"></i>
+                                </div>
+                                <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlSPI" runat="server">
+                                    <%--<asp:ListItem Enabled="true" Selected="True" Text="Select SPI Status" Value="2"></asp:ListItem>--%>
+                                    <asp:ListItem Enabled="true" Text="False" Value="0"></asp:ListItem>
+                                    <asp:ListItem Enabled="true" Text="True" Value="1"></asp:ListItem>
+                                </asp:DropDownList>
                             </div>
-                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlSPI" runat="server">
-                                <%--<asp:ListItem Enabled="true" Selected="True" Text="Select SPI Status" Value="2"></asp:ListItem>--%>
-                                <asp:ListItem Enabled="true" Text="False" Value="0"></asp:ListItem>
-                                <asp:ListItem Enabled="true" Text="True" Value="1"></asp:ListItem>
-                            </asp:DropDownList>
+                            <!-- /.input group -->
                         </div>
-                        <!-- /.input group -->
                     </div>
-                </div>
+                </asp:Panel>
             </div>
         </div>
     </div>

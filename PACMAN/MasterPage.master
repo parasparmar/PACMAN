@@ -246,7 +246,7 @@
                             <ul class="nav navbar-nav">
                                 <!-- Tasks: style can be found in dropdown.less -->
 
-                                <asp:Panel ID="pnlImpersonator" runat="server" CssClass="col-md-3 col-xs-8 col-lg-2" Style="width: 250px">
+                                <asp:Panel ID="pnlImpersonator" runat="server" CssClass="col-md-3 col-xs-8 col-lg-2" Style="width: 250px" Visible="true">
                                     <asp:DropDownList ID="ddlImpersonator" runat="server" Visible="false" CssClass="form-control" Style="width: 100%" OnSelectedIndexChanged="ddlImpersonator_SelectedIndexChanged">
                                     </asp:DropDownList>
                                 </asp:Panel>
@@ -317,9 +317,10 @@
                         <ul class="sidebar-menu" data-widget="tree">
                             <%--<li class="header">MAIN NAVIGATION</li>--%>
                             <li>
-                                <a href="../IA/index.aspx">
-                                    <i class="fa fa-home"></i><span>iAccess</span>
-                                </a>
+                               <%-- <a href="http://iaccess">--%>
+                                    <asp:HyperLink ID="home" runat="server" Text="~IA/index.aspx">
+                                    <i class="fa fa-home"></i><span>iAccess</span></asp:HyperLink>
+                                <%--</a>--%>
                             </li>
                             <li>
                                 <a href="pacman.aspx">
@@ -361,7 +362,15 @@
                                     <i class="fa fa-calendar-check-o"></i><span>Employee Report</span>
                                 </a>
                             </li>
-
+                            <li>
+                                <a href="defaultRating.aspx">
+                                    <i class="fa  fa-sign-in"></i><span>Default Ratings</span>
+                                </a>
+                            </li><li>
+                                <a href="period.aspx">
+                                    <i class="fa fa-hourglass-half"></i><span>Set Pacman Period</span>
+                                </a>
+                            </li>
 
                         </ul>
                     </section>

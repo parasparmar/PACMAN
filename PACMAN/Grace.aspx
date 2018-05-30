@@ -64,7 +64,7 @@
                     </div>--%>
                 </div>
                 <div class="box-body">
-                    <asp:GridView ID="gvEmpList" runat="server" CssClass=" DataTable table table-condensed table-responsive 
+                    <asp:GridView ID="gvEmpList" runat="server" CssClass=" GraceDataTable table table-condensed table-responsive 
                     datatable display compact hover stripe"
                         AutoGenerateColumns="false"
                         OnPreRender="gv_PreRender" ShowHeader="true" BorderStyle="None" OnRowCommand="gvEmpList_RowCommand" DataKeyNames="EmpCode">
@@ -169,5 +169,30 @@
                 }
             });
         };
+
+        function dtbl() {
+            $('.GraceDataTable').DataTable({
+                "sPaginationType": "full_numbers",
+                "lengthMenu": [ 50, 75, 100],
+                "aaSortingFixed": [[0, 'asc']],
+                "bSort": false,
+                //dom: 'Bfrltip',
+                "columnDefs": [{ "orderable": false, "targets": 0 }],
+                buttons: [
+                    { extend: 'copyHtml5', text: 'Copy Data' },
+                    { extend: 'excelHtml5', text: 'Export to Excel' },
+                    { extend: 'csvHtml5', text: 'Export to CSV' },
+                    { extend: 'pdfHtml5', text: 'Export to PDF' },
+                ],
+                "columnDefs": [{
+                    "targets": [8], //Comma separated values
+                    "visible": false,
+                    "searchable": false
+                }
+                ],
+
+            });
+        }
+
     </script>
 </asp:Content>
