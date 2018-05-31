@@ -33,14 +33,11 @@ public partial class Grace : System.Web.UI.Page
                 else
                 {
                     // In Production Use the below
+
                     MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
                     MyName = dtEmp.Rows[0]["First_Name"].ToString() + " " + dtEmp.Rows[0]["Middle_Name"].ToString() + " " + dtEmp.Rows[0]["Last_Name"].ToString();
                     MyRepMgr = Convert.ToInt32(dtEmp.Rows[0]["RepMgrCode"].ToString());
-                    //int LevelID = Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString());
-                    //if (LevelID <= 80)
-                    //    IsManager = 1;
-                    //else
-                    //    IsManager = 0;
+                    
                 }
             }
             catch (Exception Ex)
@@ -68,11 +65,7 @@ public partial class Grace : System.Web.UI.Page
                     // In Production Use the below
                     MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
                     MyRepMgr = Convert.ToInt32(dtEmp.Rows[0]["RepMgrCode"].ToString());
-                    //int LevelID = Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString());
-                    //if (LevelID <= 80)
-                    //    IsManager = 1;
-                    //else
-                    //    IsManager = 0;
+                    
                 }
             }
             catch (Exception Ex)
@@ -82,8 +75,17 @@ public partial class Grace : System.Web.UI.Page
             }
         }
 
+        string orginalUrl = HttpContext.Current.Request.Url.AbsolutePath;
+        
+
+        if (!PageExtensionMethods.AmIAllowedThisPage(MyEmpID, orginalUrl ))
+        {
+            Response.Redirect("404.aspx");
+        }
+        
     }
 
+    
 
 
     private void fillEmpList()

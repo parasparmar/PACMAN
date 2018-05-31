@@ -259,6 +259,26 @@ public class Helper
 
     }
 
+    public int getSingleton(ref SqlCommand cmd)
+    {
+        cmd.Connection = open_db();
+        cmd.CommandType = CommandType.StoredProcedure;
+        var the_result = cmd.ExecuteScalar();
+        int result = 0;
+        close_conn();
+
+        if (Int32.TryParse(the_result.ToString(), out result))
+        {
+
+            return result;
+        }
+        else
+        {
+            return 0;
+        };
+        
+    }
+
     public string getFirstResult(string strSQL)
     {
         open_db();

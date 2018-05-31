@@ -32,14 +32,13 @@ public partial class index : System.Web.UI.Page
         }
 
     }
-
     private void RedirectBasedOnNTNameLookup(string myID)
     {
 
         DataTable dt = new DataTable();
         if (myID != "IDNotFound")
         {
-            myID = "mchau006"; // vchoh001 mchau006 ykand001// RTA Vinod Chauhan sbodh001 vfern016  fjaya001 smerc021  vpere018 Pdsou014  nrodr058  mshai066
+            //myID = "Pdsou014"; // vchoh001 mchau006 ykand001// RTA Vinod Chauhan sbodh001 vfern016  fjaya001 smerc021  vpere018 Pdsou014  nrodr058  mshai066
 
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
             //myID = "pgora001";//to login as other userk slall002  rshar030 nchan016 utiwa002  aansa012 paloz001 pjite001 g.001 adube010 utiwa002 avish001 vshir001
@@ -50,7 +49,6 @@ public partial class index : System.Web.UI.Page
                 dt = my.GetDataTableViaProcedure(ref cmd);
                 if (dt != null && dt.Rows.Count > 0)
                 {
-
                     Session["dtEmp"] = dt;
                     Response.Redirect("pacman.aspx", false);
                 }
@@ -73,12 +71,13 @@ public partial class index : System.Web.UI.Page
 
 
     }
-
-
-
     private string getMyImpersonatorsNTID(string QueryString)
     {
-        myID = PageExtensionMethods.getMyWindowsID().ToString();
+        //myID = PageExtensionMethods.getMyWindowsID().ToString();
+        string myID = Request.QueryString["q"].ToString();
         return myID;
     }
+
+
+
 }

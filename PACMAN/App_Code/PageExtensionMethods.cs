@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Data.SqlClient;
 using System.Text;
 using System.Web;
 using System.Web.UI;
@@ -35,6 +36,19 @@ public static class PageExtensionMethods
 
             // If we reach here, control was not found
             return null;
+        }
+    }
+
+    public static Int32 ToInt32(this object ctrl)
+    {
+        int returnInt = 0;
+        string ConvertMeToInt32 = ctrl.ToString();
+        if (Int32.TryParse(ConvertMeToInt32, out returnInt)){
+            return returnInt;
+        }
+        else
+        {
+            throw new InvalidCastException("The given String ${ConvertMeToInt32} cannot be parsed to an Integer.");            
         }
     }
 
@@ -91,7 +105,7 @@ public static class PageExtensionMethods
 
     public static string[] AllowedIds()
     {
-        string[] allowedNTIDs = { "pparm001", "ktriv003" };
+        string[] allowedNTIDs = { "pparm001", "ktriv003", "gsing017" };
         return allowedNTIDs;
     }
 
@@ -127,6 +141,28 @@ public static class PageExtensionMethods
         return GetGVCellUsingFieldName((GridView)row.Parent.Parent, fieldHandle);
     }
 
+
+    public static bool AmIAllowedThisPage(int myEmpID, string orginalUrl)
+    {
+
+        var oURL = orginalUrl.Split('/');
+        orginalUrl = oURL[oURL.Length - 1].ToString();
+
+        bool Allowed = false;
+        string strSQL = "PMS.AmIAllowedThisPage";
+        SqlCommand cmd = new SqlCommand(strSQL);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@EmpCode", myEmpID);
+        cmd.Parameters.AddWithValue("@URL", orginalUrl);
+        Helper my = new Helper();
+        int allowedInt = my.getSingleton(ref cmd);
+        if (allowedInt == 1)
+        {
+            Allowed = true;
+        }       
+        
+        return Allowed;
+    }
 
 }
 
