@@ -34,7 +34,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
             }
             else
             {
-                MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
+                MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
             }
 
         }
@@ -259,7 +259,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         //}
 
 
-        MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
+        MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
         reportee = ddlSelectEmployee.SelectedItem.Value.ToString();
         string type="Escalation";
         string description = txtEscalation.Text.ToString();
@@ -310,7 +310,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         SqlCommand cmd = new SqlCommand(strSQL, con);
         cmd.CommandType = CommandType.StoredProcedure;
 
-        MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
+        MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
         reportee = ddlSelectEmployee.SelectedItem.Value.ToString();
         string type = "Initiative";
         string description = txtInitiative.Text.ToString();

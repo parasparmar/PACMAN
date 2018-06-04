@@ -25,7 +25,8 @@ public partial class pacman : System.Web.UI.Page
     private decimal FinalRating { get; set; }
     public bool xShowButtons { get; set; }
     public DataTable DtProcName { get; set; }
-    private List<ReviewUpdate> Transfer2DB = new List<ReviewUpdate>();
+
+
     protected void Page_Load(object sender, EventArgs e)
     {
         my = new Helper();
@@ -40,7 +41,7 @@ public partial class pacman : System.Web.UI.Page
             else
             {
                 // In Production Use the below
-                MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
+                MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
                 ForEmpID = MyEmpID;
             }
         }
@@ -57,6 +58,7 @@ public partial class pacman : System.Web.UI.Page
             fillddlReviewPeriod();
             enableButtons();
         }
+
     }
     private void fillddlReviewPeriod()
     {
@@ -69,25 +71,29 @@ public partial class pacman : System.Web.UI.Page
         ddlReviewPeriod.DataTextField = "Period";
         ddlReviewPeriod.DataValueField = "PeriodID";
         ddlReviewPeriod.DataBind();
+        ddlReviewPeriod.Items.Insert(0, new ListItem("Please Select", "0"));
         ddlReviewPeriod.SelectedIndex = 0;
     }
     protected void ddlReviewPeriod_SelectedIndexChanged(object sender, EventArgs e)
     {
         clearRP();
         PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        string strSQL = "SELECT [FromDate],[ToDate] FROM [PMS].[PeriodMst] where [PeriodID] =" + PeriodID;
-        DataTable dt = my.GetData(strSQL);
-        StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
-        EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
-        populateHeaders();
-        populateHeaders();
-        fillRP(ForEmpID);
-        enableButtons();
+        if (PeriodID > 0)
+        {
+            string strSQL = "SELECT [FromDate],[ToDate] FROM [PMS].[PeriodMst] where [PeriodID] =" + PeriodID;
+            DataTable dt = my.GetData(strSQL);
+            StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
+            EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
+            populateHeaders();
+            populateHeaders();
+            fillRP(ForEmpID);
+            enableButtons();
+        }
     }
     private void enableButtons()
     {
         PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        string strSQL = "WFMPMS.EnableButtonStates";
+        string strSQL = "PMS.EnableAcknowledgeButton";
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.CommandType = CommandType.StoredProcedure;
         cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
@@ -96,17 +102,12 @@ public partial class pacman : System.Web.UI.Page
 
         if (dt1 != null && dt1.Rows.Count == 1)
         {
-            btnYesDiscussed.Enabled = dt1.Rows[0]["btnDiscussed"].ToString() == "1" ? true : false;
-
-            btnSubmitPacman.Enabled = dt1.Rows[0]["btnSubmit"].ToString() == "1" ? true : false;
-            if (btnYesDiscussed.Enabled || btnSubmitPacman.Enabled) { pnlSubmission.Visible = true; }
-            //btnAcknowledged.Enabled = dt1.Rows[0]["btnAcknowledged"].ToString() == "1" ? true : false;
-
+            btnAcknowledged.Enabled = dt1.Rows[0]["btnAcknowledged"].ToString() == "1" ? true : false;
+            if (btnAcknowledged.Enabled) { pnlSubmission.Visible = true; }
         }
         else
         {
-            btnYesDiscussed.Enabled = false;
-            btnSubmitPacman.Enabled = false;
+            btnAcknowledged.Enabled = false;
             pnlSubmission.Visible = false;
         }
 
@@ -115,7 +116,7 @@ public partial class pacman : System.Web.UI.Page
     {
         ltlFinalRating.Text = "0";
         string strSQL = "Select Distinct SKILLSET as Role from getKPIWiseResponsibilities() where Employee_id = @EmpCode";
-        SqlCommand cmd = new SqlCommand(strSQL);        
+        SqlCommand cmd = new SqlCommand(strSQL);
         cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
         DataTable dtReportee = my.GetData(ref cmd);
         if (dtReportee != null)
@@ -148,37 +149,19 @@ public partial class pacman : System.Web.UI.Page
         }
 
     }
-    protected void btnYesDiscussed_Click(object sender, EventArgs e)
+    protected void btnAcknowledged_Click(object sender, EventArgs e)
     {
-        Transfer2DB = Session["Transfer2DB"] as List<ReviewUpdate>;
-        strSQL = "PMS.UpdateReview";
-        SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.CommandType = CommandType.StoredProcedure;
-        int rowsAffected = 0;
-        foreach (var trf in Transfer2DB)
-        {
-            cmd.Parameters.AddWithValue("@PeriodID", trf.PeriodID);
-            cmd.Parameters.AddWithValue("@EmpCode", trf.EmpCode);
-            cmd.Parameters.AddWithValue("@KPIIRATING", trf.KPIRating);
-            cmd.Parameters.AddWithValue("@KPIID", trf.KPIID);
-            cmd.Parameters.AddWithValue("@IsSPI", trf.IsSPI);
-            rowsAffected += my.ExecuteDMLCommand(ref cmd, strSQL, "S");
-            cmd.Parameters.Clear();
-        }
+
         // To do : For this emp, LockID = 1 and SPI = false in PMS.Eligibility against this empcode and periodid
 
-        strSQL = "PMS.UpdateEligibility";
-        cmd = new SqlCommand(strSQL);
+        strSQL = "[PMS].[SubmitAcknowledgement]";
+        SqlCommand cmd = new SqlCommand(strSQL);
         cmd.CommandType = CommandType.StoredProcedure;
-        cmd.Parameters.AddWithValue("@PeriodID", Transfer2DB[0].PeriodID);
-        cmd.Parameters.AddWithValue("@EmpCode", Transfer2DB[0].EmpCode);
-        cmd.Parameters.AddWithValue("@Lock", 1);
-        cmd.Parameters.AddWithValue("@IsSPI", Transfer2DB[0].IsSPI);
-        rowsAffected += my.ExecuteDMLCommand(ref cmd, strSQL, "S");
-
+        cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
+        cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+        cmd.Parameters.AddWithValue("@ActionedBy", MyEmpID);
+        my.ExecuteDMLCommand(ref cmd, strSQL, "S");
         clearRP();
-
-
     }
     private void fillRP(int ForEmpID)
     {
@@ -195,6 +178,7 @@ public partial class pacman : System.Web.UI.Page
         DtProcName = my.GetData(ref cmd);
         rp.DataSource = DtProcName;
         rp.DataBind();
+        populateGVOverall();
     }
     protected void gv_PreRender(object sender, EventArgs e)
     {
@@ -213,11 +197,8 @@ public partial class pacman : System.Web.UI.Page
         if (e.Item.ItemType.ToString() == "Item" || e.Item.ItemType.ToString() == "AlternatingItem")
         {
             GridView gv = e.Item.FindControlRecursive("gvKPI") as GridView;
+            gv.Columns.Clear();
 
-            ReviewUpdate k = new ReviewUpdate();
-            k.EmpCode = ForEmpID;
-            k.PeriodID = PeriodID;
-            //k.IsSPI = Convert.ToInt32(ddlSPI.SelectedValue.ToString());
             if (gv != null)
             {
                 fillStartAndEndDates();
@@ -236,7 +217,7 @@ public partial class pacman : System.Web.UI.Page
                         if (ltlKPIName.Text == Metric)
                         {
                             int KPIId = Convert.ToInt32(dr["KPIID"].ToString());
-                            k.KPIID = KPIId;
+
                             pnlSubmission.Visible = xShowButtons;
                             if (!isManual && procName.Length > 0)
                             {
@@ -262,20 +243,17 @@ public partial class pacman : System.Web.UI.Page
                                     }
                                     Literal ltlfinalScore = e.Item.FindControlRecursive("ltlKPIScore") as Literal;
                                     ltlfinalScore.Text = Rating.ToString();
-                                    Decimal KPIRating = Convert.ToDecimal(Rating);
-                                    k.KPIRating = KPIRating;
-                                    Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
-                                    FinalRating += KPIRating * KPIWtg;
-                                    ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
+                                    if (!string.IsNullOrEmpty(Rating))
+                                    {
+                                        Decimal KPIRating = Convert.ToDecimal(Rating);
+                                        Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
+                                        FinalRating += KPIRating * KPIWtg;
+                                        ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
+                                    }
+                                    else
+                                    { ltlFinalRating.Text = string.Empty; }
                                     xShowButtons = true;
                                 }
-                            }
-                            else
-                            {
-                                Panel pnlKPI = e.Item.FindControlRecursive("pnlKPI") as Panel;
-                                pnlKPI.Visible = false;
-                                Panel pnlManualKPI = e.Item.FindControlRecursive("pnlManualKPI") as Panel;
-                                pnlManualKPI.Visible = true;
                             }
                         }
                     }
@@ -286,9 +264,6 @@ public partial class pacman : System.Web.UI.Page
                     ltlFinalRating.Text = "0";
                 }
             }
-
-            Transfer2DB.Add(k);
-            Session["Transfer2DB"] = Transfer2DB;
             pnlSubmission.Visible = xShowButtons;
         }
     }
@@ -322,6 +297,30 @@ public partial class pacman : System.Web.UI.Page
             int rowsAffected = my.ExecuteDMLCommand(ref cmd, strSQL, "S");
 
         }
+    }
+    private void populateGVOverall()
+    {
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        string strSQL = "PMS.ShowEmpPacmanDetails";
+        SqlConnection cn = new SqlConnection(my.getConnectionString());
+        cn.Open();
+        SqlCommand cmd = new SqlCommand(strSQL, cn);
+
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+        cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
+        SqlDataAdapter da = new SqlDataAdapter(cmd);
+        DataSet ds = new DataSet();
+        da.Fill(ds);
+        DataTable dtOverall = ds.Tables[0];
+        DataTable dtPhase = ds.Tables[1];
+        gvOverAll.DataSource = dtOverall;
+        gvOverAll.DataBind();
+
+        ltlOverAll.Text = dtPhase.Rows[0][0].ToString();
+
+
+
     }
 }
 

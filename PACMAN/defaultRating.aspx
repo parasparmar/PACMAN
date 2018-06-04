@@ -71,8 +71,8 @@
                 </div>
                 <div class="box-body">
                     <div class="form-group">
-                        <asp:GridView ID="gv_EmpList" runat="server" CssClass=" DataTable table table-condensed table-responsive datatable display compact hover stripe" AutoGenerateColumns="false"
-                            OnPreRender="gv_PreRender" ShowHeader="true" Style="border: none"  OnRowDataBound="gv_EmpList_RowDataBound">
+                        <asp:GridView ID="gv_EmpList" runat="server" CssClass=" ReportDataTable table table-condensed table-responsive datatable display compact hover stripe" AutoGenerateColumns="false"
+                            OnPreRender="gv_PreRender" ShowHeader="true" Style="border: none" OnRowDataBound="gv_EmpList_RowDataBound">
                             <Columns>
                                 <asp:BoundField DataField="EmpCode" HeaderText="Emp_ID" />
                                 <asp:BoundField DataField="Name" HeaderText="Name" />
@@ -88,9 +88,8 @@
                                 <asp:BoundField DataField="IsDefault" HeaderText="IsDefault" />
                                 <asp:TemplateField HeaderText="Default Rating" HeaderStyle-CssClass="mid">
                                     <ItemTemplate>
-                                        <asp:DropDownList ID="ddlSelectDefaultRating" CssClass="form-control" Style="width: 100%" runat="server"
-                                            
-                                            > <%--DataSourceID="SqlDataSource1" DataTextField="DefaultRating"--%>
+                                        <asp:DropDownList ID="ddlSelectDefaultRating" CssClass="form-control" Style="width: 100%" runat="server">
+                                            <%--DataSourceID="SqlDataSource1" DataTextField="DefaultRating"--%>
                                             <%--<asp:SqlDataSource ID="SqlDataSource1" runat="server" ConnectionString=" constr " SelectCommand="select case when IsDefault=1 then FinalRating else 0 end as DefaultRating from pms.Eligibility"></asp:SqlDataSource>--%>
                                             <asp:ListItem Value="0" Text="--" runat="server"></asp:ListItem>
                                             <asp:ListItem Value="1" Text="1" runat="server"></asp:ListItem>
@@ -109,7 +108,7 @@
                                 </asp:TemplateField>
                                 <asp:TemplateField HeaderText="Submit" HeaderStyle-CssClass="mid">
                                     <ItemTemplate>
-                                        <asp:Button ID="btn_DRSubmit" runat="server" CssClass="btn btn-xs btn-primary" Text="Submit" OnClick="btn_DRSubmit_Click"/>
+                                        <asp:Button ID="btn_DRSubmit" runat="server" CssClass="btn btn-xs btn-primary" Text="Submit" OnClick="btn_DRSubmit_Click" />
                                     </ItemTemplate>
                                 </asp:TemplateField>
                                 <asp:BoundField DataField="Status" HeaderText="Status" />
@@ -133,26 +132,16 @@
             <asp:AsyncPostBackTrigger ControlID="ddlPeriod" EventName="SelectedIndexChanged" />
         </Triggers>
     </asp:UpdatePanel>
-    <%--    <asp:Panel ID="pnlModal" runat="server" CssClass="modal modal-primary fade" Visible="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title"></h4>
-                </div>
-                <div class="modal-body">
-                    <p>
-                        <asp:Label ID="lblResult" runat="server"></asp:Label>&hellip;
-                    </p>
-                </div>
-                <div class="modal-footer">
-                </div>
-            </div>
-            <!-- /.modal-content -->
-        </div>
-        <!-- /.modal-dialog -->
-    </asp:Panel>--%>
+
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
+    <script>
+        $(function () {
+            $('.ReportDataTable').dataTable({
+                "bPaginate": false,
+            });
+            //Date range picker
+        });
+    </script>
+
 </asp:Content>

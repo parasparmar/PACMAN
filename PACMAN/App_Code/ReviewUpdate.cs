@@ -8,13 +8,7 @@ using System.Web;
 /// </summary>
 public class ReviewUpdate
 {
-    public ReviewUpdate()
-    {
-        //
-        // TODO: Add constructor logic here
-        //
-    }
-
+   
     public int PeriodID { get; set; }
     public int EmpCode { get; set; }
     public decimal KPIRating { get; set; }

@@ -29,14 +29,12 @@ public partial class period : System.Web.UI.Page
                 else
                 {
                     // In Production Use the below
-                    MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
-                    //MyName = dtEmp.Rows[0]["First_Name"].ToString() + " " + dtEmp.Rows[0]["Middle_Name"].ToString() + " " + dtEmp.Rows[0]["Last_Name"].ToString();
-                    //MyRepMgr = Convert.ToInt32(dtEmp.Rows[0]["RepMgrCode"].ToString());
-                    //int LevelID = Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString());
-                    //if (LevelID <= 80)
-                    //    IsManager = 1;
-                    //else
-                    //    IsManager = 0;
+                    MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
+                    // Check if I am allowed access to the admin pages.
+                    if (!PageExtensionMethods.AmIAllowedThisPage(MyEmpID, HttpContext.Current.Request.Url.AbsolutePath))
+                    {
+                        Response.Redirect("404.aspx", false);
+                    }
                 }
             }
             catch (Exception Ex)
@@ -63,7 +61,7 @@ public partial class period : System.Web.UI.Page
                 else
                 {
                     // In Production Use the below
-                    MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
+                    MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
                     //MyRepMgr = Convert.ToInt32(dtEmp.Rows[0]["RepMgrCode"].ToString());
                     //int LevelID = Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString());
                     //if (LevelID <= 80)

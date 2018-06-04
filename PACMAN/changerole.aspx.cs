@@ -38,7 +38,7 @@ public partial class changerole : System.Web.UI.Page
             else
             {
                 // In Production Use the below
-                MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
+                MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
                 int LevelID = Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString());
                 if (LevelID <= 80)
                     IsManager = 1;
@@ -170,7 +170,7 @@ public partial class changerole : System.Web.UI.Page
                     cmd.Parameters["@Msg"].Direction = ParameterDirection.Output;
 
                     rowsAffected = cmd.ExecuteNonQuery();
-                    s.Msg = cmd.Parameters["@Msg"].ToString();
+                    s.Msg = cmd.Parameters["@Msg"].Value.ToString();
                 }
 
 

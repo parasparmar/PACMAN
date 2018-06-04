@@ -197,6 +197,24 @@
         </div>
     </div>
 
+    <asp:Panel ID="pnlOverall" CssClass="box" runat="server" Visible="true">
+        <div class="box-body">
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label>
+                            <asp:Literal ID="ltlOverAll" runat="server" Text="Pacman Cycle"></asp:Literal></label>
+                        <asp:GridView ID="gvOverAll" runat="server"
+                            CssClass="table table-condensed table-bordered table-responsive PageSpecificDataTable"
+                            AutoGenerateColumns="true"
+                            OnPreRender="gv_PreRender">
+                        </asp:GridView>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </asp:Panel>
+
     <!-- Main row -->
     <div class="row">
         <!-- Left col -->
@@ -259,13 +277,18 @@
                                                                     </h4>
                                                                 </a>
                                                             </div>
-                                                            <%--<div class="col-md-4">
-                                                                <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                                                                    <h4 class="box-title">WeightedScore (Score x Weightage):
-                                                                    <asp:Literal ID="ltl_KPIWeightedScore" Text="" runat="server"></asp:Literal>
-                                                                    </h4>
-                                                                </a>
-                                                            </div>--%>
+                                                            <div class="col-md-3">
+                                                                <div class="btn-group">
+                                                                    <div class="btn-group-addon">
+                                                                        <span class="fa fa-download">
+                                                                            <asp:Button ID="btnKPI" CssClass="btn btn-primary btn-flat"
+                                                                                CommandArgument='<%# Eval("KPIID") %>' Text="Download Details"
+                                                                                runat="server" CausesValidation="false" OnClick="btnKPI_Click" />
+                                                                        </span>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                         <!-- /.box-tools -->
                                                     </div>
@@ -273,17 +296,10 @@
                                                     <div id="collapse<%# Eval("KPIID") %>" class="panel-collapse collapse">
                                                         <div class="box-body">
                                                             <asp:Panel ID="pnlKPI" runat="server">
-                                                                <div class="btn-group pull-right">
-                                                                    <asp:LinkButton ID="btnKPI" runat="server"
-                                                                        CssClass="btn btn-lg btn-primary">
-                                                                    <i class="fa fa-download"></i>
-                                                                    </asp:LinkButton>
-                                                                    <label class="text-muted well well-sm no-shadow" title="Download Detailed Report">Download Detailed Report</label>
-                                                                </div>
+
                                                                 <div class="row">
                                                                     <asp:Panel ID="dvKPI" class="col-md-12" runat="server">
-                                                                        <asp:GridView ID="gvKPI" runat="server" CssClass="table table-condensed" OnPreRender="gv_PreRender" AutoGenerateColumns="true">
-                                                                        </asp:GridView>
+                                                                        <asp:GridView ID="gvKPI" runat="server" CssClass="table table-condensed"></asp:GridView>
                                                                     </asp:Panel>
                                                                 </div>
                                                             </asp:Panel>
@@ -343,39 +359,48 @@
                 <div class="box-footer"></div>
             </div>
             <!-- /.nav-tabs-custom -->
+
+            <!-- /.Left col -->
+            <asp:Panel ID="pnlSubmission" runat="server" Visible="false">
+                <div class="row">
+                    <div class="col-md-12">
+                        <!-- quick email widget -->
+                        <div class="box box-info">
+                            <div class="box-header">
+                                <i class="fa fa-envelope"></i>
+                                <h3 class="box-title">Feedback</h3>
+                            </div>
+                            <div class="box-body">
+                                <div>
+                                    <asp:TextBox ID="tbFeedback" CssClass="textarea" TextMode="MultiLine" placeholder="Feedback" runat="server" MaxLength="254"
+                                        Style="width: 100%; height: 125px; font-size: 14px; line-height: 18px; border: 1px solid #dddddd; padding: 10px;"></asp:TextBox>
+                                    <asp:RequiredFieldValidator ID="rfv" runat="server" ErrorMessage="Feedback is mandatory." ForeColor="Red" ControlToValidate="tbFeedback"></asp:RequiredFieldValidator>
+                                    <asp:RegularExpressionValidator ID="RegExp1" runat="server"
+                                        ErrorMessage="Character length should not exceed 254 characters" ForeColor="Red"
+                                        ControlToValidate="tbFeedback"
+                                        ValidationExpression="^.{10,254}$" />
+                                </div>
+                                <input type="text" style="width: 50px; border: none;" class="pull-right" readonly="readonly" disabled id="tbChLength" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="box">
+                            <div class="box-body">
+                                <div class="form-group">
+                                    <h4>Has the above Reportee's PACMAN been discussed?
+                 <span class="btn-group pull-right">
+                     <asp:Button ID="btnAcknowledged" runat="server" Enabled="false" Text="Discussed" CssClass="btn btn-primary" OnClick="btnAcknowledged_Click" />
+                 </span>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </asp:Panel>
         </section>
         <!-- /.Left col -->
-        <!-- /.Left col -->
-        <asp:Panel ID="pnlSubmission" runat="server" Visible="false">
-            <div class="col-md-6">
-                <div class="box">
-                    <div class="box-body">
-                        <div class="form-group">
-                            <h4>Has the above Reportee's PACMAN been discussed?
-                 <span class="btn-group pull-right">
-                     <%--<asp:Button ID="btnNotDiscussed" runat="server" Text="Not Discussed" CssClass="btn btn-default" />--%>
-                     <asp:Button ID="btnYesDiscussed" runat="server" Enabled="false" Text="Discussed" CssClass="btn btn-primary" OnClick="btnYesDiscussed_Click" />
-                 </span>
-                            </h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="box">
-                    <div class="box-body">
-                        <div class="form-group">
-                            <h4>Submit PACMAN for Employee's Acknowledgement
-                 <span class="btn-group pull-right">
-                     <%--<asp:Button ID="btnDoNotAgree" runat="server" Text="I Do Not Agree" CssClass="btn btn-warning" />--%>
-                     <asp:Button ID="btnSubmitPacman" runat="server" Enabled="false" Text="Submit" CssClass="btn btn-success" />
-                 </span>
-                            </h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </asp:Panel>
     </div>
     <!-- /.row (main row) -->
 
@@ -384,7 +409,15 @@
 
     <!-- Bootstrap WYSIHTML5 -->
     <script src="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
+    <script>
+        $(function () {
+            $("#tbFeedback").change(function () {
+                $("#tbChLength").val($(this).text().length);
+            });
 
+        });
+
+    </script>
 
 </asp:Content>
 

@@ -33,7 +33,7 @@ public partial class CoachingFeedback : System.Web.UI.Page
             }
             else
             {
-                MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
+                MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
             }
 
         }

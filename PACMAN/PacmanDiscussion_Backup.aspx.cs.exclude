@@ -62,7 +62,7 @@ public partial class PacmanDiscussion_Backup : System.Web.UI.Page
             else
             {
                 // In Production Use the below
-                MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
+                MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
                 //MyRepMgr = Convert.ToInt32(dtEmp.Rows[0]["RepMgrCode"].ToString());
                 int LevelID = Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString());
                 if (LevelID <= 80)
@@ -375,7 +375,7 @@ public partial class PacmanDiscussion_Backup : System.Web.UI.Page
         SqlCommand cmd = new SqlCommand(strSQL, con);
         cmd.CommandType = CommandType.StoredProcedure;
 
-        MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
+        MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
         int reportee = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         //int PreviousStage = Convert.ToInt32(ddlStage.SelectedItem.Value.ToString());
         int PreviousStage = 1;
@@ -423,7 +423,7 @@ public partial class PacmanDiscussion_Backup : System.Web.UI.Page
         SqlCommand cmd = new SqlCommand(strSQL, con);
         cmd.CommandType = CommandType.StoredProcedure;
 
-        MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
+        MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
         int reportee = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         //int PreviousStage = Convert.ToInt32(ddlStage.SelectedItem.Value.ToString());
         int PreviousStage = 2;

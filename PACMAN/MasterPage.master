@@ -773,6 +773,17 @@
             overflow: hidden; /*hidden*/
         }
 
+        .PageSpecificDataTable > thead {
+            font-weight: 900;
+        color: #ffffff;
+        background: #3c8dbc;
+        }
+
+        .PageSpecificDataTable > thead > tr > th
+        .PageSpecificDataTable > tbody > tr > td {
+            width: 20%;
+        }
+
         .DataTables_filter > label,
         .DataTables_length > label,
         .dt-buttons {

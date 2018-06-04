@@ -32,11 +32,11 @@
 <asp:Content ID="Content4" ContentPlaceHolderID="pageheader" runat="Server">
     <ol class="breadcrumb">
         <li><a href="index.aspx"><i class="iconfa-home"></i>Home</a></li>
-        <li class="active"><a href="PacmanDiscussion.aspx"><i class="fa fa-film"></i>Change Role</a></li>
+        <li class="active"><a href="PacmanDiscussion.aspx"><i class="fa fa-graduation-cap"></i>Change Role</a></li>
     </ol>
 
     <div class="pageheader">
-        <div class="pageicon"><span class="fa fa-film"></span></div>
+        <div class="pageicon"><span class="fa fa-graduation-cap"></span></div>
         <div class="pagetitle">
             <h5>Assign & Change roles for your team for this PACMAN cycle</h5>
             <h1>Change Role</h1>

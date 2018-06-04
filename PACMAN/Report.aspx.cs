@@ -16,8 +16,6 @@ public partial class Report : System.Web.UI.Page
     private int MyEmpID { get; set; }
     protected void Page_Load(object sender, EventArgs e)
     {
-        
-
         if (!IsPostBack)
         {
             try
@@ -30,14 +28,11 @@ public partial class Report : System.Web.UI.Page
                 else
                 {
                     // In Production Use the below
-                    MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
-                    //MyName = dtEmp.Rows[0]["First_Name"].ToString() + " " + dtEmp.Rows[0]["Middle_Name"].ToString() + " " + dtEmp.Rows[0]["Last_Name"].ToString();
-                    //MyRepMgr = Convert.ToInt32(dtEmp.Rows[0]["RepMgrCode"].ToString());
-                    //int LevelID = Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString());
-                    //if (LevelID <= 80)
-                    //    IsManager = 1;
-                    //else
-                    //    IsManager = 0;
+                    MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
+                    if (!PageExtensionMethods.AmIAllowedThisPage(MyEmpID, HttpContext.Current.Request.Url.AbsolutePath))
+                    {
+                        Response.Redirect("404.aspx", false);
+                    }
                 }
             }
             catch (Exception Ex)
@@ -63,13 +58,8 @@ public partial class Report : System.Web.UI.Page
                 else
                 {
                     // In Production Use the below
-                    //MyEmpID = Convert.ToInt32(dtEmp.Rows[0]["Employee_Id"].ToString());
-                    //MyRepMgr = Convert.ToInt32(dtEmp.Rows[0]["RepMgrCode"].ToString());
-                    //int LevelID = Convert.ToInt32(dtEmp.Rows[0]["LevelIDnumber"].ToString());
-                    //if (LevelID <= 80)
-                    //    IsManager = 1;
-                    //else
-                    //    IsManager = 0;
+                    MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
+
                 }
             }
             catch (Exception Ex)
@@ -78,11 +68,7 @@ public partial class Report : System.Web.UI.Page
                 Response.Redirect(ViewState["PreviousPageUrl"] != null ? ViewState["PreviousPageUrl"].ToString() : "index.aspx", false);
             }
         }
-        string orginalUrl = HttpContext.Current.Request.Url.AbsolutePath;
-        if (!PageExtensionMethods.AmIAllowedThisPage(MyEmpID, orginalUrl))
-        {
-            Response.Redirect("404.aspx");
-        }
+
     }
 
 
@@ -93,6 +79,7 @@ public partial class Report : System.Web.UI.Page
         string strSQL = "PMS.fillEmpReport";
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.Parameters.AddWithValue("@PeriodID", Period);
+        cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         gv_EmpList.DataSource = dt;
         gv_EmpList.DataBind();

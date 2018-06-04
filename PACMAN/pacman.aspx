@@ -45,10 +45,12 @@
             display: none;
         }
     </style>
+    
+    
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
 
-    <!-- Small boxes (Stat box) -->
+
     <%--<div class="row">
         <div class="col-lg-2 col-xs-4">
             <!-- small box -->
@@ -134,6 +136,8 @@
         </div>
         <!-- ./col -->
     </div>--%>
+    <!-- Small boxes (Stat box) -->
+
     <!-- /.row -->
     <div class="box">
         <div class="box-body">
@@ -154,8 +158,28 @@
             </div>
         </div>
     </div>
+    <!-- Review Selection Row -->
 
-    <!-- Main row -->
+    <asp:Panel ID="pnlOverall" CssClass="box" runat="server" Visible="true">
+        <div class="box-body">
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label>
+                            <asp:Literal ID="ltlOverAll" runat="server" Text="Pacman Cycle"></asp:Literal></label>
+                        <asp:GridView ID="gvOverAll" runat="server"
+                            CssClass="table table-condensed table-bordered table-responsive PageSpecificDataTable"
+                            AutoGenerateColumns="true"
+                            OnPreRender="gv_PreRender">
+                            
+                        </asp:GridView>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </asp:Panel>
+
+
     <div class="row">
         <!-- Left col -->
         <section class="col-lg-12 connectedSortable">
@@ -163,7 +187,6 @@
             <div class="nav-tabs-custom">
                 <!-- Tabs within a box -->
                 <ul class="nav nav-tabs pull-right">
-                    <li><a href="#itemized-details" data-toggle="tab">Itemized Details</a></li>
                     <li class="active"><a href="#monthly-scorecard" data-toggle="tab">Overall Scorecard</a></li>
 
                     <li class="pull-left header"><i class="fa fa-inbox"></i>
@@ -172,7 +195,7 @@
                 </ul>
                 <div class="tab-content no-padding">
                     <!-- Morris chart - Sales -->
-                    <div class="box-body tab-pane active" id="monthly-scorecard" style="position: relative; height: 300px;">
+                    <div class="box-body tab-pane active" id="monthly-scorecard" style="position: relative; min-height: 300px;">
                         <!-- START ACCORDION & CAROUSEL-->
                         <%--<h2 class="page-header"></h2>--%>
 
@@ -196,7 +219,7 @@
                                                 <asp:Panel ID="pnl_KPI" CssClass="panel box box-primary" runat="server" Visible="true">
                                                     <div class="box-header with-border">
                                                         <div class="row">
-                                                            <div class="col-md-3">
+                                                            <div class="col-md-4">
                                                                 <h4 class="box-title">
                                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">KPI Name :
                                                                         <asp:Literal ID="ltlKPIName" Text='<%#Eval("Metric") %>' runat="server"></asp:Literal>
@@ -240,35 +263,12 @@
                                                                 </div>
                                                                 <div class="row">
                                                                     <asp:Panel ID="dvKPI" class="col-md-12" runat="server">
-                                                                        <asp:GridView ID="gvKPI" runat="server" CssClass="table table-condensed" OnPreRender="gv_PreRender" AutoGenerateColumns="true">
+                                                                        <asp:GridView ID="gvKPI" runat="server" CssClass="table table-condensed DataTable" OnPreRender="gv_PreRender" AutoGenerateColumns="true">
                                                                         </asp:GridView>
                                                                     </asp:Panel>
                                                                 </div>
                                                             </asp:Panel>
                                                             <!--Auto KPI Panel-->
-                                                            <asp:Panel ID="pnlManualKPI" runat="server" Visible="false">
-                                                                <div class="row">
-                                                                    <div class="col-md-3">
-                                                                        <asp:Literal ID="Literal5" runat="server" Text="Select rating"></asp:Literal>
-                                                                        <asp:DropDownList ID="ddlManualScore" runat="server" CssClass="form-control select">
-                                                                            <asp:ListItem Value="5" Text="5" runat="server"></asp:ListItem>
-                                                                            <asp:ListItem Value="4" Text="4" runat="server"></asp:ListItem>
-                                                                            <asp:ListItem Value="3" Text="3" runat="server"></asp:ListItem>
-                                                                            <asp:ListItem Value="2" Text="2" runat="server"></asp:ListItem>
-                                                                            <asp:ListItem Value="1" Text="1" runat="server"></asp:ListItem>
-                                                                        </asp:DropDownList>
-                                                                    </div>
-                                                                    <div class="col-md-6">
-                                                                        <asp:Label ID="label1" runat="server">Please enter comments</asp:Label>
-                                                                        <asp:TextBox ID="txtManualComments" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2"></asp:TextBox>
-                                                                    </div>
-                                                                    <div class="col-md-3">
-                                                                        <asp:Label ID="lbl" Text="." runat="server"></asp:Label>
-                                                                        <asp:Button ID="btnManualScoreSubmit" runat="server" Text="submit" CommandArgument='<%#Eval("KPIID") %>' CssClass="btn btn-primary" OnClick="btnManualScoreSubmit_Click" />
-                                                                    </div>
-                                                                </div>
-                                                            </asp:Panel>
-                                                            <!--Manual KPI Panel-->
                                                         </div>
                                                     </div>
                                                 </asp:Panel>
@@ -288,61 +288,38 @@
                         </div>
                         <!-- /.row -->
                         <!-- END ACCORDION & CAROUSEL-->
-
                     </div>
-                    <%--<div class="chart tab-pane" id="itemized-details" style="position: relative">
-                        <asp:GridView ID="tblKPI" runat="server" CssClass="table table-condensed table-bordered table-responsive"
-                            AutoGenerateColumns="true">
-                        </asp:GridView>
-
-                    </div>--%>
-                    <%--<div class="chart tab-pane" id="itemized-details2" style="position: relative; height: 300px;"></div>--%>
                 </div>
-                <div class="box-footer"></div>
             </div>
             <!-- /.nav-tabs-custom -->
+            <asp:Panel ID="pnlSubmission" CssClass="row" runat="server" Visible="false">
+
+                <div class="col-md-6">
+                    <div class="box">
+                        <div class="box-body">
+                            <div class="form-group">
+                                <h4>I acknowledge
+                             <span class="btn-group pull-right">
+                                 <asp:Button ID="btnAcknowledged" runat="server" Enabled="false" Text="Acknowledged" CssClass="btn btn-primary" OnClick="btnAcknowledged_Click" />
+                             </span>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </asp:Panel>
         </section>
         <!-- /.Left col -->
-        <!-- /.Left col -->
-        <asp:Panel ID="pnlSubmission" runat="server" Visible="false">
-            <div class="col-md-6">
-                <div class="box">
-                    <div class="box-body">
-                        <div class="form-group">
-                            <h4>Has the above Reportee's PACMAN been discussed?
-                 <span class="btn-group pull-right">
-                     <%--<asp:Button ID="btnNotDiscussed" runat="server" Text="Not Discussed" CssClass="btn btn-default" />--%>
-                     <asp:Button ID="btnYesDiscussed" runat="server" Enabled="false" Text="Discussed" CssClass="btn btn-primary" OnClick="btnYesDiscussed_Click" />
-                 </span>
-                            </h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="box">
-                    <div class="box-body">
-                        <div class="form-group">
-                            <h4>Submit PACMAN for Employee's Acknowledgement
-                 <span class="btn-group pull-right">
-                     <%--<asp:Button ID="btnDoNotAgree" runat="server" Text="I Do Not Agree" CssClass="btn btn-warning" />--%>
-                     <asp:Button ID="btnSubmitPacman" runat="server" Enabled="false" Text="Submit" CssClass="btn btn-success" />
-                 </span>
-                            </h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </asp:Panel>
     </div>
+    <!-- KPI Breakup Row -->
     <!-- /.row (main row) -->
-
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
 
     <!-- Bootstrap WYSIHTML5 -->
     <script src="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
-
+    
 
 </asp:Content>
 

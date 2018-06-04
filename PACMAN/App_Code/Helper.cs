@@ -287,6 +287,17 @@ public class Helper
         close_conn();
         return the_result;
     }
+
+    public string getFirstResult(ref SqlCommand cmd)
+    {
+        cmd.Connection = open_db();
+        cmd.CommandType = CommandType.StoredProcedure;
+        var the_result = Convert.ToString(cmd.ExecuteScalar());
+        close_conn();
+        return the_result;
+    }
+
+
     public void fill_dropdown(Control drp_name, string sp_name, string datatextfield, string datavaluefield, string defaultitem, string parameters, string tran_type)
     {
         open_db();
