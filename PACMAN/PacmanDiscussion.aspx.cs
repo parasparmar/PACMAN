@@ -94,6 +94,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ddlReviewPeriod.DataTextField = "Period";
         ddlReviewPeriod.DataValueField = "PeriodID";
         ddlReviewPeriod.DataBind();
+        ddlReviewPeriod.Items.Insert(0,new ListItem("Please Select", "0"));
         ddlReviewPeriod.SelectedIndex = 0;
     }
     private void fillddlStage()
@@ -345,10 +346,9 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                                 cmd.CommandText = procName;
                                 cmd.CommandType = CommandType.StoredProcedure;
                                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                                //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                                //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                                cmd.Parameters.AddWithValue("@StartDate", "20180401");
-                                cmd.Parameters.AddWithValue("@EndDate", "20180430");
+                                cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                                cmd.Parameters.AddWithValue("@EndDate", EndDate);
+
 
                                 DataTable dt = my.GetData(ref cmd);
                                 gv.DataSource = dt;
@@ -467,10 +467,9 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         gvOverAll.DataBind();
         ltlOverAll.Text = dtPhase.Rows[0][0].ToString();
     }
-
     protected void btnKPI_Click(object sender, EventArgs e)
     {
-        Button btnKPI = sender as Button;
+        LinkButton btnKPI = sender as LinkButton;
         PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         if (btnKPI != null)
         {
@@ -552,6 +551,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
     }
 
-    
+//    TO DO
+//1	Find Reportees
+//2	Find KPIs Per Reportee
+//3	Create Sets of Employees per KPI
+//3	Run KPI Specific Procedures for employee sets
+
 }
 

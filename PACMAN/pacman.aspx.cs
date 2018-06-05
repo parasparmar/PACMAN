@@ -318,7 +318,87 @@ public partial class pacman : System.Web.UI.Page
         gvOverAll.DataBind();
 
         ltlOverAll.Text = dtPhase.Rows[0][0].ToString();
+    }
+    protected void btnKPI_Click(object sender, EventArgs e)
+    {
+        LinkButton btnKPI = sender as LinkButton;
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+        if (btnKPI != null)
+        {
+            string MyName = my.getFirstResult("select dbo.getFullName(" + ForEmpID + ") as FullName");
 
+            int KPIID = btnKPI.CommandArgument.ToInt32();
+            string strSQL = "PMS.FillKPI";
+            SqlCommand cmd = new SqlCommand(strSQL);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+            cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
+            cmd.Parameters.AddWithValue("@KPIID", KPIID);
+            DataTable dt = my.GetData(ref cmd);
+            fillStartAndEndDates();
+            string KPIName = dt.Rows[0]["Metric"].ToString();
+            string ProcName = dt.Rows[0]["DetailedKPI"].ToString();
+            string FileName = MyName + "'s " + KPIName + " for " + StartDate.ToString("MMM yyyy") + " downloaded " + DateTime.Now.ToString("dd-MMM-yyyy HH-mm-ss") + ".csv";
+
+            cmd.Parameters.Clear();
+            cmd = new SqlCommand(ProcName);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Connection = my.open_db();
+            cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+            cmd.Parameters.AddWithValue("@StartDate", StartDate);
+            cmd.Parameters.AddWithValue("@EndDate", EndDate);
+
+            SqlDataAdapter da = new SqlDataAdapter(cmd);
+
+            DataSet ds = new DataSet();
+            da.Fill(ds);
+
+            foreach (DataTable d in ds.Tables)
+            {
+                d.TableName = FileName;
+
+                //Get the physical path to the file.
+                string FilePath = Server.MapPath("Sitel//metric_downloads//" + FileName);
+                using (var textWriter = File.CreateText(FilePath))
+                {
+                    using (var csv = new CsvWriter(textWriter))
+                    {
+                        // Write columns
+                        foreach (DataColumn column in d.Columns)
+                        {
+                            csv.WriteField(column.ColumnName);
+                        }
+                        csv.NextRecord();
+
+                        // Write row values
+                        foreach (DataRow row in d.Rows)
+                        {
+                            for (var i = 0; i < d.Columns.Count; i++)
+                            {
+                                csv.WriteField(row[i]);
+                            }
+                            csv.NextRecord();
+                        }
+                    }
+                }
+
+                //Send the CSV file as a Download.
+                Response.Clear();
+                Response.Buffer = true;
+                Response.AddHeader("content-disposition", "attachment;filename=" + FileName);
+                Response.Charset = "";
+                Response.ContentType = "application/text";
+                Response.Output.Write(File.ReadAllText(FilePath));
+                Response.Flush();
+                Response.End();
+
+                File.Delete(FilePath);
+            }
+
+
+
+
+        }
 
 
     }

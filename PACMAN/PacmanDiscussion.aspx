@@ -277,17 +277,13 @@
                                                                     </h4>
                                                                 </a>
                                                             </div>
-                                                            <div class="col-md-3">
-                                                                <div class="btn-group">
-                                                                    <div class="btn-group-addon">
-                                                                        <span class="fa fa-download">
-                                                                            <asp:Button ID="btnKPI" CssClass="btn btn-primary btn-flat"
-                                                                                CommandArgument='<%# Eval("KPIID") %>' Text="Download Details"
-                                                                                runat="server" CausesValidation="false" OnClick="btnKPI_Click" />
-                                                                        </span>
-                                                                    </div>
+                                                            <div class="col-md-2">
 
-                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-1">
+                                                                <asp:LinkButton ID="btnKPI" CssClass="btn btn-primary btn-flat pull-right"
+                                                                    CommandArgument='<%# Eval("KPIID") %>' Text="Download Details"
+                                                                    runat="server" CausesValidation="false" OnClick="btnKPI_Click"><i class="fa fa-download"></i></asp:LinkButton>
                                                             </div>
                                                         </div>
                                                         <!-- /.box-tools -->
@@ -330,7 +326,6 @@
                                                         </div>
                                                     </div>
                                                 </asp:Panel>
-
                                                 <!--Primary KPI-->
                                             </ItemTemplate>
                                             <FooterTemplate>
