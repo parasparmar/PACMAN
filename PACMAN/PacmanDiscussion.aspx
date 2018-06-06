@@ -46,91 +46,7 @@
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
 
     <!-- Small boxes (Stat box) -->
-    <%--<div class="row">
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-green">
-                <div class="inner">
-                    <h3>3.59</h3>
-                    <p>service level</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-yellow">
-                <div class="inner">
-                    <h3>2.48<sup style="font-size: 20px"></sup></h3>
 
-                    <p>btp</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-green">
-                <div class="inner">
-                    <h3>3.6</h3>
-
-                    <p>coaching</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-aqua">
-                <div class="inner">
-                    <h3>5.0</h3>
-
-                    <p>escalations</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-aqua">
-                <div class="inner">
-                    <h3>5.0</h3>
-
-                    <p>attendance</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-green">
-                <div class="inner">
-                    <h3>3.0</h3>
-
-                    <p>rta optimization</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-    </div>--%>
     <!-- /.row -->
     <div class="box">
         <div class="box-body">
@@ -197,22 +113,43 @@
         </div>
     </div>
 
-    <asp:Panel ID="pnlOverall" CssClass="box" runat="server" Visible="true">
-        <div class="box-body">
-            <div class="form-group">
-                <div class="col-lg-12">
-                    <div class="form-group">
-                        <label>
-                            <asp:Literal ID="ltlOverAll" runat="server" Text="Pacman Cycle"></asp:Literal></label>
-                        <asp:GridView ID="gvOverAll" runat="server"
-                            CssClass="table table-condensed table-bordered table-responsive PageSpecificDataTable"
-                            AutoGenerateColumns="true"
-                            OnPreRender="gv_PreRender">
-                        </asp:GridView>
+    <asp:Panel ID="pnlOverall" runat="server" Visible="true">
+        <div class="col-md-4">
+            <!-- Widget: user widget style 1 -->
+            <div class="box box-widget widget-user-2">
+                <!-- Add the bg color to the header using any of the bg-* classes -->
+                <div class="widget-user-header bg-yellow">
+                    <div class="widget-user-image">                        
+                        <asp:Image ID="imgbtnUserImage" CssClass="img-circle" AlternateText="User Avatar" runat="server" />
                     </div>
+                    <!-- /.widget-user-image -->
+                    <h3 class="widget-user-username"><asp:Label ID="lblName" runat="server"></asp:Label></h3>
+                    <h5 class="widget-user-desc"><asp:Label ID="lblRole" runat="server"></asp:Label></h5>
+                </div>
+                <div class="box-footer no-padding">
+                    <ul class="nav nav-stacked">
+                        <li><a href="#">Reporting Manager Score <span class="pull-right badge bg-blue">2.5</span></a></li>
+                        <li><a href="#">Reporting Manager Rating <span class="pull-right badge bg-blue">3</span></a></li>
+                        <li><a href="#">Grace <span class="pull-right badge bg-yellow">0.6</span></a></li>
+                        <li><a href="#">Final Score <span class="pull-right badge bg-green">3.10</span></a></li>
+                        <li><a href="#">Final Rating <span class="pull-right badge bg-green">3</span></a></li>
+                    </ul>
                 </div>
             </div>
+            <!-- /.widget-user -->
         </div>
+       
+
+            <label>
+            <asp:Literal ID="ltlOverAll" runat="server" Text="Pacman Cycle"></asp:Literal>
+            </label>
+            <asp:GridView ID="gvOverAll" runat="server"
+                CssClass="table table-condensed table-bordered table-responsive PageSpecificDataTable"
+                AutoGenerateColumns="true"
+                OnPreRender="gv_PreRender">
+            </asp:GridView>
+
+       
     </asp:Panel>
 
     <!-- Main row -->
@@ -278,7 +215,6 @@
                                                                 </a>
                                                             </div>
                                                             <div class="col-md-2">
-
                                                             </div>
                                                             <div class="col-md-1">
                                                                 <asp:LinkButton ID="btnKPI" CssClass="btn btn-primary btn-flat pull-right"

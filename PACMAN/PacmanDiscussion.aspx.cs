@@ -25,6 +25,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     private DateTime EndDate { get; set; }
     private decimal FinalRating { get; set; }
     public bool xShowButtons { get; set; }
+    public string myUserImage { get; set; }
     public DataTable DtProcName { get; set; }
 
     private DataTable dtTrf2DB;
@@ -43,6 +44,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 // In Production Use the below
                 MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
+                myUserImage = dtEmp.Rows[0]["UserImage"].ToString();
+                lblName.Text = dtEmp.Rows[0]["First_Name"].ToString();
+                imgbtnUserImage.ImageUrl = "sitel/user_images/" + myUserImage;
+
                 if (pnlIsPacmanDiscussion.Visible == false)
                 {
                     ForEmpID = MyEmpID;
@@ -283,6 +288,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         rp.DataSource = DtProcName;
         rp.DataBind();
         filltbFeedback();
+        populateGVOverall();
     }
     private void filltbFeedback() {
 
