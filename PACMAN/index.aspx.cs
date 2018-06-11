@@ -38,7 +38,7 @@ public partial class index : System.Web.UI.Page
         DataTable dt = new DataTable();
         if (myID != "IDNotFound")
         {
-            //myID = "smogo001"; // Pdsou014 vchoh001 mchau006 ykand001// RTA Vinod Chauhan sbodh001 vfern016  fjaya001 smerc021  vpere018 Pdsou014  nrodr058  mshai066
+            //myID = "cpere059"; // atike001 Pdsou014 vchoh001 mchau006 ykand001// RTA Vinod Chauhan sbodh001 vfern016  fjaya001 smerc021  vpere018 Pdsou014  nrodr058  mshai066
 
             SqlCommand cmd = new SqlCommand("WFMP.getEmployeeData");
             //myID = "pgora001";//to login as other userk slall002  rshar030 nchan016 utiwa002  aansa012 paloz001 pjite001 g.001 adube010 utiwa002 avish001 vshir001
@@ -50,7 +50,7 @@ public partial class index : System.Web.UI.Page
                 if (dt != null && dt.Rows.Count > 0)
                 {
                     Session["dtEmp"] = dt;
-                    Response.Redirect("pacmandiscussion.aspx", false);
+                    Response.Redirect("pacman.aspx", false);
                 }
                 else
                 {

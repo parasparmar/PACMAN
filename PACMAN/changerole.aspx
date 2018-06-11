@@ -193,7 +193,7 @@
                         </div>
                         <div class="box-body">
                             <asp:GridView ID="gvTeam" runat="server" DataKeyNames="EligibilityID"
-                                CssClass="table table-condensed table-bordered table-striped table-hover table-responsive DataTable" AutoGenerateColumns="false" OnPreRender="gv_PreRender">
+                                CssClass="table table-condensed table-bordered table-striped table-hover table-responsive xDataTable" AutoGenerateColumns="false" OnPreRender="gv_PreRender">
                                 <Columns>
                                     <asp:TemplateField>
                                         <HeaderTemplate>
@@ -233,7 +233,8 @@
     <script src="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
     <script>
         function pluginsInitializer() {
-            $('.Datatable').DataTable({
+            $('.xDatatable').DataTable({
+		destroy: true,
                 "sPaginationType": "full_numbers",
                 "lengthMenu": [100, 5, 10, 25, 50, 75],
                 "aaSortingFixed": [[0, 'asc']],

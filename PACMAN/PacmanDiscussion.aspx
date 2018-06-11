@@ -113,12 +113,12 @@
         </div>
     </div>
 
-    <asp:Panel ID="pnlOverall" runat="server" Visible="true">
-        <div class="col-md-4">
+    <asp:Panel ID="pnlOverall" runat="server" Visible="false">
+        <div class="col-md-2">
             <!-- Widget: user widget style 1 -->
             <div class="box box-widget widget-user-2">
                 <!-- Add the bg color to the header using any of the bg-* classes -->
-                <div class="widget-user-header bg-yellow">
+                <div class="widget-user-header bg-navy">
                     <div class="widget-user-image">                        
                         <asp:Image ID="imgbtnUserImage" CssClass="img-circle" AlternateText="User Avatar" runat="server" />
                     </div>
@@ -128,11 +128,10 @@
                 </div>
                 <div class="box-footer no-padding">
                     <ul class="nav nav-stacked">
-                        <li><a href="#">Reporting Manager Score <span class="pull-right badge bg-blue">2.5</span></a></li>
-                        <li><a href="#">Reporting Manager Rating <span class="pull-right badge bg-blue">3</span></a></li>
-                        <li><a href="#">Grace <span class="pull-right badge bg-yellow">0.6</span></a></li>
-                        <li><a href="#">Final Score <span class="pull-right badge bg-green">3.10</span></a></li>
-                        <li><a href="#">Final Rating <span class="pull-right badge bg-green">3</span></a></li>
+                        <li><a href="#">&nbsp &nbsp Rep. Mgr. Score <span class="pull-right badge bg-blue">2.5</span></a></li>                        
+                        <li><a href="#">&nbsp + Grace <span class="pull-right badge bg-yellow">0.6</span></a></li>
+                        <li><a href="#">&nbsp = Final Score <span class="pull-right badge bg-green">3.10</span></a></li>
+                        <li><a href="#">&nbsp ~ Final Rating <span class="pull-right badge bg-green">3</span></a></li>
                     </ul>
                 </div>
             </div>

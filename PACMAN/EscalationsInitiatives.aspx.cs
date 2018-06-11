@@ -139,7 +139,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         reportee=ddlSelectEmployee.SelectedItem.Value.ToString();//int report = 835064;
         pacmancycle = ddlPacmanCycle.SelectedItem.Value.ToString();//int pc = 1;
 
-        strSQL = "CWFM_UMANG.[WFMPMS].[GetEscalationLog]";
+        strSQL = "[WFMPMS].[GetEscalationLog]";
 
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.Parameters.AddWithValue("@EmpCode", Convert.ToInt32(reportee));
@@ -174,7 +174,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         reportee = ddlSelectEmployee.SelectedItem.Value.ToString();//int report = 835064;
         pacmancycle = ddlPacmanCycle.SelectedItem.Value.ToString();//int pc = 1;
 
-        strSQL = "CWFM_UMANG.[WFMPMS].[GetInitiativeLog]";
+        strSQL = "[WFMPMS].[GetInitiativeLog]";
 
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.Parameters.AddWithValue("@EmpCode", Convert.ToInt32(reportee));
@@ -229,7 +229,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         SqlConnection con = new SqlConnection(my.getConnectionString());
         con.Open();
 
-        String strSQL = "CWFM_UMANG.[WFMPMS].[InsertEscalationInitiative]";
+        String strSQL = "[WFMPMS].[InsertEscalationInitiative]";
         SqlCommand cmd = new SqlCommand(strSQL, con);
         cmd.CommandType = CommandType.StoredProcedure;
 

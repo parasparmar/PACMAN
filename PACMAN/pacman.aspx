@@ -187,7 +187,6 @@
                 <!-- Tabs within a box -->
                 <ul class="nav nav-tabs pull-right">
                     <li class="active"><a href="#monthly-scorecard" data-toggle="tab">Overall Scorecard</a></li>
-
                     <li class="pull-left header"><i class="fa fa-inbox"></i>
                         <asp:Literal ID="ltlEmployeeBanner" runat="server"></asp:Literal>
                     </li>
@@ -197,13 +196,11 @@
                     <div class="box-body tab-pane active" id="monthly-scorecard" style="position: relative; height: 300px;">
                         <!-- START ACCORDION & CAROUSEL-->
                         <%--<h2 class="page-header"></h2>--%>
-
                         <div class="row" id="one" runat="server">
                             <div class="col-md-12">
                                 <div class="box box-solid">
                                     <div class="box-header with-border">
-                                        <h3 class="box-title">Overall Score :
-                                            <asp:Literal ID="ltlFinalRating" Text="0" runat="server"></asp:Literal>
+                                        <h3 class="box-title">Overall Score : <asp:Literal ID="ltlFinalRating" Text="0" runat="server"></asp:Literal>
                                         </h3>
                                     </div>
                                     <!-- /.box-header -->
@@ -264,7 +261,7 @@
                                                             <asp:Panel ID="pnlManualKPI" runat="server" Visible="false">
                                                                 <div class="row">
                                                                     <div class="col-md-3">
-                                                                        <asp:Literal ID="Literal5" runat="server" Text="Select rating"></asp:Literal>
+                                                                        <label>Select Rating</label>
                                                                         <asp:DropDownList ID="ddlManualScore" runat="server" CssClass="form-control select">
                                                                             <asp:ListItem Value="5" Text="5" runat="server"></asp:ListItem>
                                                                             <asp:ListItem Value="4" Text="4" runat="server"></asp:ListItem>

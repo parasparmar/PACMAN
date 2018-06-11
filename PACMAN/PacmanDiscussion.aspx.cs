@@ -44,9 +44,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             {
                 // In Production Use the below
                 MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
-                myUserImage = dtEmp.Rows[0]["UserImage"].ToString();
-                lblName.Text = dtEmp.Rows[0]["First_Name"].ToString();
-                imgbtnUserImage.ImageUrl = "sitel/user_images/" + myUserImage;
+
 
                 if (pnlIsPacmanDiscussion.Visible == false)
                 {
@@ -99,7 +97,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ddlReviewPeriod.DataTextField = "Period";
         ddlReviewPeriod.DataValueField = "PeriodID";
         ddlReviewPeriod.DataBind();
-        ddlReviewPeriod.Items.Insert(0,new ListItem("Please Select", "0"));
+        ddlReviewPeriod.Items.Insert(0, new ListItem("Please Select", "0"));
         ddlReviewPeriod.SelectedIndex = 0;
     }
     private void fillddlStage()
@@ -151,12 +149,12 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         if (dt1 != null && dt1.Rows.Count == 1)
         {
             btnAcknowledged.Enabled = dt1.Rows[0]["btnDiscussed"].ToString() == "1" ? true : false;
-            
-            if (btnAcknowledged.Enabled ) { pnlSubmission.Visible = true; }
+
+            if (btnAcknowledged.Enabled) { pnlSubmission.Visible = true; }
         }
         else
         {
-            btnAcknowledged.Enabled = false;            
+            btnAcknowledged.Enabled = false;
             pnlSubmission.Visible = false;
         }
 
@@ -290,7 +288,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         filltbFeedback();
         populateGVOverall();
     }
-    private void filltbFeedback() {
+    private void filltbFeedback()
+    {
 
         int PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue.ToString());
         fillStartAndEndDates();
@@ -391,6 +390,18 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                                 pnlKPI.Visible = false;
                                 Panel pnlManualKPI = e.Item.FindControlRecursive("pnlManualKPI") as Panel;
                                 pnlManualKPI.Visible = true;
+                                Literal ltlKPIScore = e.Item.FindControlRecursive("ltlKPIScore") as Literal;
+                                DataTable dtManualKPI = my.GetData("select KPIRating, Comments from PMS.tblKPIManualRating where EmpCode=" + ForEmpID + " and PeriodID=" + PeriodID + " and KPIId = " + KPIId);
+                                if (dtManualKPI != null && dtManualKPI.Rows.Count > 0)
+                                {
+                                    ltlKPIScore.Text = dtManualKPI.Rows[0]["KPIRating"].ToString();
+
+                                    DropDownList ddlManualScore = e.Item.FindControlRecursive("ddlManualScore") as DropDownList;
+                                    ddlManualScore.SelectedValue = ltlKPIScore.Text;
+
+                                    TextBox txtManualComments = e.Item.FindControlRecursive("txtManualComments") as TextBox;
+                                    txtManualComments.Text = dtManualKPI.Rows[0]["Comments"].ToString();
+                                }
                             }
                         }
                     }
@@ -438,7 +449,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         if (ddl != null && tb != null)
         {
             decimal KPIRating = Convert.ToDecimal(ddl.SelectedValue.ToString());
-            string KPIComments = tb.Text;
+            string KPIComments = tb.Text.ToString();
 
             string strSQL = "PMS.SaveKPIManualRating";
             SqlCommand cmd = new SqlCommand(strSQL);
@@ -450,7 +461,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             cmd.Parameters.AddWithValue("@KPIComments", KPIComments);
             cmd.Parameters.AddWithValue("@ActionedBy", MyEmpID);
             int rowsAffected = my.ExecuteDMLCommand(ref cmd, strSQL, "S");
-
+            fillRP(ForEmpID);
         }
     }
     private void populateGVOverall()
@@ -472,7 +483,18 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         gvOverAll.DataSource = dtOverall;
         gvOverAll.DataBind();
         ltlOverAll.Text = dtPhase.Rows[0][0].ToString();
+        //fillpnlOverall();
     }
+
+    private void fillpnlOverall()
+    {
+        myUserImage = dtEmp.Rows[0]["UserImage"].ToString();
+        lblName.Text = my.getFirstResult("select dbo.getfullname(931040) as Name");
+        imgbtnUserImage.ImageUrl = "sitel/user_images/" + myUserImage;
+        lblRole.Text = dtEmp.Rows[0]["SkillSet"].ToString();
+
+    }
+
     protected void btnKPI_Click(object sender, EventArgs e)
     {
         LinkButton btnKPI = sender as LinkButton;
@@ -503,11 +525,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             cmd.Parameters.AddWithValue("@EndDate", EndDate);
 
             SqlDataAdapter da = new SqlDataAdapter(cmd);
-            
+
             DataSet ds = new DataSet();
             da.Fill(ds);
 
-            foreach(DataTable d in ds.Tables)
+            foreach (DataTable d in ds.Tables)
             {
                 d.TableName = FileName;
 
@@ -545,23 +567,23 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 Response.Output.Write(File.ReadAllText(FilePath));
                 Response.Flush();
                 Response.End();
-                
+
                 File.Delete(FilePath);
             }
-            
 
-            
+
+
 
         }
-        
+
 
     }
 
-//    TO DO
-//1	Find Reportees
-//2	Find KPIs Per Reportee
-//3	Create Sets of Employees per KPI
-//3	Run KPI Specific Procedures for employee sets
+    //    TO DO
+    //1	Find Reportees
+    //2	Find KPIs Per Reportee
+    //3	Create Sets of Employees per KPI
+    //3	Run KPI Specific Procedures for employee sets
 
 }
 

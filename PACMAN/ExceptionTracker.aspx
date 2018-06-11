@@ -202,7 +202,7 @@
                                <asp:BoundField DataField="ToInterval" HeaderText="ToInterval" ></asp:BoundField>
                                <%--<asp:HyperLinkField DataNavigateUrlFields="Attachment" DataTextField="Attachment" HeaderText ="Attachment" />--%>
                                <%--<asp:BoundField DataField="Attachment" HeaderText="Attachment" ></asp:BoundField>--%>                     
-                               <asp:TemplateField HeaderText="Attcahment" >
+                               <asp:TemplateField HeaderText="Attachment" >
                                    <ItemTemplate>
                                        <asp:LinkButton ID="lbDownload" Text="download" CommandArgument='<%# Eval("Attachment") %>' runat="server" OnClick="lbDownload_Click"></asp:LinkButton>
                                    </ItemTemplate>
@@ -373,7 +373,7 @@
                 ],
                 "columnDefs": [{
                     "targets": [0,16], //Comma separated values
-                    "visible": false,
+                    "visible": true,
                     "searchable": false
                 }
                 ],
