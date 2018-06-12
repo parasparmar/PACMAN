@@ -125,7 +125,7 @@
                     </div>
                     <asp:TextBox ID="txtEscalation" TextMode="multiline" Columns="74" Rows="4" runat="server" CssClass="form-control" placeholder="Enter Escalation..."></asp:TextBox>
                     <asp:RequiredFieldValidator ID="RequiredFieldValidator1" runat="server" Display="Dynamic" ErrorMessage="Escalation Description required" ForeColor="Red" ControlToValidate="txtEscalation" ValidationGroup="Escalation"></asp:RequiredFieldValidator>
-                    <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" Display="Dynamic" ControlToValidate="txtEscalation" ErrorMessage="enter valid reason" ForeColor="Red" ValidationExpression="^[a-zA-Z0-9 ]+$" ValidationGroup="Escalation"></asp:RegularExpressionValidator>
+                    <asp:RegularExpressionValidator ID="RegularExpressionValidator2" runat="server" Display="Dynamic" ControlToValidate="txtEscalation" ErrorMessage="enter valid reason" ForeColor="Red" ValidationExpression="^[a-zA-Z0-9., ]+$" ValidationGroup="Escalation"></asp:RegularExpressionValidator>
                     <br />
                     <div class="pull-left" style="margin-top: 1%">
                         <asp:FileUpload ID="FileUploadAttachMailEsc" runat="server"  accept=".msg" />
@@ -206,7 +206,7 @@
                     </div>
                     <asp:TextBox ID="txtInitiative" TextMode="multiline" Columns="74" Rows="4" runat="server" CssClass="form-control" placeholder="Enter Initiative..."></asp:TextBox>
                     <asp:RequiredFieldValidator ID="RequiredFieldValidator3" runat="server" Display="Dynamic" ErrorMessage="Initiative Description required" ForeColor="Red" ControlToValidate="txtInitiative" ValidationGroup="Initiative"></asp:RequiredFieldValidator>
-                    <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" Display="Dynamic" ControlToValidate="txtInitiative" ErrorMessage="enter valid reason" ForeColor="Red" ValidationExpression="^[a-zA-Z ]+$" ValidationGroup="Initiative"></asp:RegularExpressionValidator>
+                    <asp:RegularExpressionValidator ID="RegularExpressionValidator1" runat="server" Display="Dynamic" ControlToValidate="txtInitiative" ErrorMessage="enter valid reason" ForeColor="Red" ValidationExpression="^[a-zA-Z0-9., ]+$" ValidationGroup="Initiative"></asp:RegularExpressionValidator>
                     <br />
                     <div class="pull-left" style="margin-top: 1%">
                         <asp:FileUpload ID="FileUploadAttachMailIni" runat="server"  accept=".msg" />

@@ -21,8 +21,6 @@ public partial class ExceptionTracker : System.Web.UI.Page
     //string pacmancycle { get; set; }
 
     EmailSender Email = new EmailSender();
-
-
     protected void Page_Load(object sender, EventArgs e)
     {
         my = new Helper();
@@ -259,7 +257,11 @@ public partial class ExceptionTracker : System.Web.UI.Page
         string fileName = Path.GetFileName(AttachExceptionMail.FileName);
         //string filename1 = fileName.Replace(" ", String.Empty);
         // AttachExceptionMail.SaveAs(folderPath + Server.HtmlEncode(Path.GetFileName(AttachExceptionMail.FileName)));
+        string folderPath = Server.MapPath("~/Sitel/mails/");
+        AttachExceptionMail.SaveAs(folderPath + Path.GetFileName(AttachExceptionMail.FileName));
+
         string Attachment = "Sitel/mails/" + fileName;
+
         string notes = txtException.Text.ToString();
         cmd.Parameters.AddWithValue("@AccountId", AccountId);
         cmd.Parameters.AddWithValue("@Account", AccountName);

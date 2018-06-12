@@ -249,11 +249,11 @@
                                                                     </div>
                                                                     <div class="col-md-6">
                                                                         <asp:Label ID="label1" runat="server">Please enter comments</asp:Label>
-                                                                        <asp:TextBox ID="txtManualComments" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2"></asp:TextBox>
+                                                                        <asp:TextBox ID="txtManualComments" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2" CausesValidation="false"></asp:TextBox>
                                                                     </div>
                                                                     <div class="col-md-3">
                                                                         <asp:Label ID="lbl" Text="." runat="server"></asp:Label>
-                                                                        <asp:Button ID="btnManualScoreSubmit" runat="server" Text="submit" CommandArgument='<%#Eval("KPIID") %>' CssClass="btn btn-primary" OnClick="btnManualScoreSubmit_Click" />
+                                                                        <asp:Button ID="btnManualScoreSubmit" runat="server" Text="submit" CommandArgument='<%#Eval("KPIID") %>' CssClass="btn btn-primary" OnClick="btnManualScoreSubmit_Click" CausesValidation="false"/>
                                                                     </div>
                                                                 </div>
                                                             </asp:Panel>
