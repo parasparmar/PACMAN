@@ -235,13 +235,15 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.CommandType = CommandType.StoredProcedure;
         int rowsAffected = 0;
+        int SPI = ddlSPI.SelectedValue.ToString().ToInt32();
         foreach (DataRow trf in dtTrf2DB.Rows)
         {
             cmd.Parameters.AddWithValue("@PeriodID", trf["PeriodID"].ToInt32());
             cmd.Parameters.AddWithValue("@EmpCode", trf["EmpCode"].ToInt32());
-            cmd.Parameters.AddWithValue("@KPIIRATING", Convert.ToDecimal(trf["KPIRating"].ToString()));
+            cmd.Parameters.AddWithValue("@KPIIRATING", trf["KPIRating"].ToString());
             cmd.Parameters.AddWithValue("@KPIID", trf["KPIID"].ToInt32());
-            cmd.Parameters.AddWithValue("@IsSPI", trf["IsSPI"].ToInt32());
+            trf["isSPI"] = SPI;
+            cmd.Parameters.AddWithValue("@IsSPI", SPI);
             rowsAffected += my.ExecuteDMLCommand(ref cmd, strSQL, "S");
             cmd.Parameters.Clear();
         }
@@ -255,7 +257,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@ActionedBy", MyEmpID);
 
         cmd.Parameters.AddWithValue("@Lock", 1);
-        cmd.Parameters.AddWithValue("@IsSPI", dtTrf2DB.Rows[0]["IsSPI"].ToInt32());
+        cmd.Parameters.AddWithValue("@IsSPI", SPI);
         rowsAffected += my.ExecuteDMLCommand(ref cmd, strSQL, "S");
 
         clearRP();
@@ -325,6 +327,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             k.EmpCode = ForEmpID;
             k.PeriodID = PeriodID;
             k.IsSPI = Convert.ToInt32(ddlSPI.SelectedValue.ToString());
+            string Rating = "0";
             if (gv != null)
             {
                 fillStartAndEndDates();
@@ -337,7 +340,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                     {
                         isManual = Convert.ToBoolean(dr["isManual"].ToString());
                         procName = dr["ProcName"].ToString();
-                        Literal ltlKPIName = e.Item.FindControlRecursive("ltlKPIName") as Literal;
+                        Label ltlKPIName = e.Item.FindControlRecursive("ltlKPIName") as Label;
                         Metric = dr["Metric"].ToString();
 
                         if (ltlKPIName.Text == Metric)
@@ -358,7 +361,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                                 DataTable dt = my.GetData(ref cmd);
                                 gv.DataSource = dt;
                                 gv.DataBind();
-                                string Rating = string.Empty;
+                                
                                 DataRow[] drs = dt.Select("Account = 'Grand Total'");
                                 if (drs.Length == 1)
                                 {
@@ -366,21 +369,24 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                                     {
                                         Rating = r["Rating"].ToString();
                                     }
-                                    Literal ltlfinalScore = e.Item.FindControlRecursive("ltlKPIScore") as Literal;
+                                    Label ltlfinalScore = e.Item.FindControlRecursive("ltlKPIScore") as Label;
+
                                     //Literal ltlWeightedScore = e.Item.FindControlRecursive("ltlWeightedScore") as Literal;
                                     ltlfinalScore.Text = Rating.ToString();
                                     //Button btn = e.Item.FindControlRecursive("btnKPI") as Button;
                                     if (!string.IsNullOrEmpty(Rating))
                                     {
+                                        
                                         //btn.ID = "btnKPI" + KPIId;
                                         Decimal KPIRating = Convert.ToDecimal(Rating);
+                                        
                                         k.KPIRating = KPIRating;
                                         Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
                                         FinalRating += KPIRating * KPIWtg;
                                         ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
                                     }
                                     else
-                                    { ltlFinalRating.Text = string.Empty; }
+                                    { ltlFinalRating.Text = "0"; }
                                     xShowButtons = true;
                                 }
                             }
@@ -390,7 +396,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                                 pnlKPI.Visible = false;
                                 Panel pnlManualKPI = e.Item.FindControlRecursive("pnlManualKPI") as Panel;
                                 pnlManualKPI.Visible = true;
-                                Literal ltlKPIScore = e.Item.FindControlRecursive("ltlKPIScore") as Literal;
+                                Label ltlKPIScore = e.Item.FindControlRecursive("ltlKPIScore") as Label;
                                 DataTable dtManualKPI = my.GetData("select KPIRating, Comments from PMS.tblKPIManualRating where EmpCode=" + ForEmpID + " and PeriodID=" + PeriodID + " and KPIId = " + KPIId);
                                 if (dtManualKPI != null && dtManualKPI.Rows.Count > 0)
                                 {
@@ -398,9 +404,21 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
                                     DropDownList ddlManualScore = e.Item.FindControlRecursive("ddlManualScore") as DropDownList;
                                     ddlManualScore.SelectedValue = ltlKPIScore.Text;
-
+                                    
                                     TextBox txtManualComments = e.Item.FindControlRecursive("txtManualComments") as TextBox;
                                     txtManualComments.Text = dtManualKPI.Rows[0]["Comments"].ToString();
+                                    Rating = ltlKPIScore.Text.ToString();
+                                    if (!string.IsNullOrEmpty(Rating.ToString()))
+                                    {
+                                        //btn.ID = "btnKPI" + KPIId;
+                                        Decimal KPIRating = Convert.ToDecimal(Rating);
+                                        k.KPIRating = KPIRating;
+                                        Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
+                                        FinalRating += KPIRating * KPIWtg;
+                                        ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
+                                    }
+                                    else
+                                    { ltlFinalRating.Text = "0"; }
                                 }
                             }
                         }
@@ -412,11 +430,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                     ltlFinalRating.Text = "0";
                 }
             }
-
             Transfer2DB.Add(k);
-
-
-
             foreach (ReviewUpdate l in Transfer2DB)
             {
                 DataRow dtr = dtTrf2DB.NewRow();
@@ -428,7 +442,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 dtTrf2DB.Rows.Add(dtr);
             }
             Session["Transfer2DB"] = dtTrf2DB;
-
             pnlSubmission.Visible = xShowButtons;
         }
     }
@@ -444,8 +457,9 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         Button btn = sender as Button;
         int KPIID = Convert.ToInt32(btn.CommandArgument.ToString());
-        DropDownList ddl = Page.FindControlRecursive("ddlManualScore") as DropDownList;
-        TextBox tb = Page.FindControlRecursive("txtManualComments") as TextBox;
+        Panel pnlManualKPI = btn.NamingContainer.FindControl("pnlManualKPI") as Panel; 
+        DropDownList ddl = pnlManualKPI.FindControlRecursive("ddlManualScore") as DropDownList;
+        TextBox tb = pnlManualKPI.FindControlRecursive("txtManualComments") as TextBox;
         if (ddl != null && tb != null)
         {
             decimal KPIRating = Convert.ToDecimal(ddl.SelectedValue.ToString());
@@ -485,16 +499,14 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ltlOverAll.Text = dtPhase.Rows[0][0].ToString();
         //fillpnlOverall();
     }
-
     private void fillpnlOverall()
     {
-        myUserImage = dtEmp.Rows[0]["UserImage"].ToString();
-        lblName.Text = my.getFirstResult("select dbo.getfullname(931040) as Name");
-        imgbtnUserImage.ImageUrl = "sitel/user_images/" + myUserImage;
-        lblRole.Text = dtEmp.Rows[0]["SkillSet"].ToString();
+        //myUserImage = dtEmp.Rows[0]["UserImage"].ToString();
+        //lblName.Text = my.getFirstResult("select dbo.getfullname(931040) as Name");
+        //imgbtnUserImage.ImageUrl = "sitel/user_images/" + myUserImage;
+        //lblRole.Text = dtEmp.Rows[0]["SkillSet"].ToString();
 
     }
-
     protected void btnKPI_Click(object sender, EventArgs e)
     {
         LinkButton btnKPI = sender as LinkButton;

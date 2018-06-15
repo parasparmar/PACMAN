@@ -150,30 +150,25 @@ public partial class changerole : System.Web.UI.Page
                 f.EID = Convert.ToInt32(g.Cells[EIDIndex].Text);
                 f.PeriodID = PeriodID;
                 f.RoleID = RoleID;
+                f.Msg = "ADDED";
                 sEID.Add(f);
             }
         }
         try
         {
-           
+
             int rowsAffected = 0;
             foreach (var s in sEID)
-            {                
-                
-                using (SqlCommand cmd = new SqlCommand("PMS.ChangeRole", my.open_db()))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@EID", s.EID);
-                    cmd.Parameters.AddWithValue("@PeriodID", s.PeriodID);
-                    cmd.Parameters.AddWithValue("@RoleID", s.RoleID);
-                    cmd.Parameters.AddWithValue("@Msg",string.Empty);
-                    cmd.Parameters["@Msg"].Direction = ParameterDirection.Output;
-
-                    rowsAffected = cmd.ExecuteNonQuery();
-                    s.Msg = cmd.Parameters["@Msg"].Value.ToString();
-                }
-
-
+            {
+                SqlCommand cmd = new SqlCommand("PMS.ChangeRole");
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@EID", s.EID);
+                cmd.Parameters.AddWithValue("@PeriodID", s.PeriodID);
+                cmd.Parameters.AddWithValue("@RoleID", s.RoleID);
+                cmd.Parameters.AddWithValue("@Msg", "");
+                cmd.Parameters["@Msg"].Direction = ParameterDirection.Output;
+                rowsAffected = my.ExecuteDMLCommand(ref cmd, "PMS.ChangeRole", "S");
+                s.Msg = cmd.Parameters["@Msg"].Value.ToString();
             }
         }
         catch (Exception E)
@@ -181,27 +176,29 @@ public partial class changerole : System.Web.UI.Page
             Response.Write("Failure Writing Role Change to the system. " + E.Message);
         }
         fillgvTeam(MyEmpID);
-        if(sEID!=null && sEID.Count > 0)
+        if (sEID != null && sEID.Count > 0)
         {
             foreach (GridViewRow r in gvTeam.Rows)
             {
-                TextBox tb = r.Cells[4].FindControlRecursive("tbMsg") as TextBox;
 
-                if (tb != null)
+
+
+                int EID = Convert.ToInt32(r.Cells[5].Text);
+                foreach (var s in sEID)
                 {
-                    int EID = Convert.ToInt32(r.Cells[5].Text);
-                    foreach(var s in sEID)
+                    if (s.EID.ToString() == EID.ToString())
                     {
-                        if(s.EID.ToString() == EID.ToString())
+                        TextBox tb = r.Cells[4].FindControlRecursive("tbMsg") as TextBox;
+                        if (tb != null)
                         {
                             tb.Text = s.Msg.ToString();
                         }
                     }
-                    
+
                 }
             }
         }
-       
+
     }
     public class SelectedEID
     {

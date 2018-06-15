@@ -113,22 +113,40 @@
         </div>
     </div>
 
-    <asp:Panel ID="pnlOverall" runat="server" Visible="false">
-        <div class="col-md-2">
+    <asp:Panel ID="pnlOverall" CssClass="box" runat="server" Visible="true">
+        <div class="box-body">
+            <div class="form-group">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label>
+                            <asp:Literal ID="ltlOverAll" runat="server" Text="Pacman Cycle"></asp:Literal></label>
+                        <asp:GridView ID="gvOverAll" runat="server"
+                            CssClass="table table-condensed table-bordered table-responsive PageSpecificDataTable"
+                            AutoGenerateColumns="true"
+                            OnPreRender="gv_PreRender">
+                        </asp:GridView>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </asp:Panel>
+    <%--     <div class="col-md-2">
             <!-- Widget: user widget style 1 -->
             <div class="box box-widget widget-user-2">
                 <!-- Add the bg color to the header using any of the bg-* classes -->
                 <div class="widget-user-header bg-navy">
-                    <div class="widget-user-image">                        
+                    <div class="widget-user-image">
                         <asp:Image ID="imgbtnUserImage" CssClass="img-circle" AlternateText="User Avatar" runat="server" />
                     </div>
                     <!-- /.widget-user-image -->
-                    <h3 class="widget-user-username"><asp:Label ID="lblName" runat="server"></asp:Label></h3>
-                    <h5 class="widget-user-desc"><asp:Label ID="lblRole" runat="server"></asp:Label></h5>
+                    <h3 class="widget-user-username">
+                        <asp:Label ID="lblName" runat="server"></asp:Label></h3>
+                    <h5 class="widget-user-desc">
+                        <asp:Label ID="lblRole" runat="server"></asp:Label></h5>
                 </div>
                 <div class="box-footer no-padding">
                     <ul class="nav nav-stacked">
-                        <li><a href="#">&nbsp &nbsp Rep. Mgr. Score <span class="pull-right badge bg-blue">2.5</span></a></li>                        
+                        <li><a href="#">&nbsp &nbsp Rep. Mgr. Score <span class="pull-right badge bg-blue">2.5</span></a></li>
                         <li><a href="#">&nbsp + Grace <span class="pull-right badge bg-yellow">0.6</span></a></li>
                         <li><a href="#">&nbsp = Final Score <span class="pull-right badge bg-green">3.10</span></a></li>
                         <li><a href="#">&nbsp ~ Final Rating <span class="pull-right badge bg-green">3</span></a></li>
@@ -136,20 +154,8 @@
                 </div>
             </div>
             <!-- /.widget-user -->
-        </div>
-       
+        </div>--%>
 
-            <label>
-            <asp:Literal ID="ltlOverAll" runat="server" Text="Pacman Cycle"></asp:Literal>
-            </label>
-            <asp:GridView ID="gvOverAll" runat="server"
-                CssClass="table table-condensed table-bordered table-responsive PageSpecificDataTable"
-                AutoGenerateColumns="true"
-                OnPreRender="gv_PreRender">
-            </asp:GridView>
-
-       
-    </asp:Panel>
 
     <!-- Main row -->
     <div class="row">
@@ -195,21 +201,21 @@
                                                             <div class="col-md-3">
                                                                 <h4 class="box-title">
                                                                     <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">KPI Name :
-                                                                        <asp:Literal ID="ltlKPIName" Text='<%#Eval("Metric") %>' runat="server"></asp:Literal>
+                                                                        <asp:Label ID="ltlKPIName" Text='<%#Eval("Metric") %>' runat="server"></asp:Label>
                                                                     </a>
                                                                 </h4>
                                                             </div>
                                                             <div class="col-md-3">
                                                                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">
                                                                     <h4 class="box-title">Weightage %:
-                                                                    <asp:Literal ID="ltlKPIWeightage" Text='<%#Convert.ToDecimal(Eval("KPIWtg"))*100 %>' runat="server"></asp:Literal>
+                                                                    <asp:Label ID="ltlKPIWeightage" Text='<%#Convert.ToDecimal(Eval("KPIWtg"))*100 %>' runat="server"></asp:Label>
                                                                     </h4>
                                                                 </a>
                                                             </div>
                                                             <div class="col-md-3">
                                                                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">
                                                                     <h4 class="box-title">Score :
-                                                                    <asp:Literal ID="ltlKPIScore" Text="0" runat="server"></asp:Literal>
+                                                                    <asp:Label ID="ltlKPIScore" Text="0" runat="server"></asp:Label>
                                                                     </h4>
                                                                 </a>
                                                             </div>
@@ -237,24 +243,27 @@
                                                             <!--Auto KPI Panel-->
                                                             <asp:Panel ID="pnlManualKPI" runat="server" Visible="false">
                                                                 <div class="row">
-                                                                    <div class="col-md-3">
-                                                                        <asp:Literal ID="Literal5" runat="server" Text="Select rating"></asp:Literal>
-                                                                        <asp:DropDownList ID="ddlManualScore" runat="server" CssClass="form-control select">
-                                                                            <asp:ListItem Value="5" Text="5" runat="server"></asp:ListItem>
-                                                                            <asp:ListItem Value="4" Text="4" runat="server"></asp:ListItem>
-                                                                            <asp:ListItem Value="3" Text="3" runat="server"></asp:ListItem>
-                                                                            <asp:ListItem Value="2" Text="2" runat="server"></asp:ListItem>
-                                                                            <asp:ListItem Value="1" Text="1" runat="server"></asp:ListItem>
-                                                                        </asp:DropDownList>
+                                                                    <div class="form-group">
+                                                                        <div class="col-md-3">
+                                                                            <asp:Literal ID="Literal5" runat="server" Text="Select rating"></asp:Literal>
+                                                                            <asp:DropDownList ID="ddlManualScore" runat="server" CssClass="form-control select">
+                                                                                <asp:ListItem Value="5" Text="5" runat="server"></asp:ListItem>
+                                                                                <asp:ListItem Value="4" Text="4" runat="server"></asp:ListItem>
+                                                                                <asp:ListItem Value="3" Text="3" runat="server"></asp:ListItem>
+                                                                                <asp:ListItem Value="2" Text="2" runat="server"></asp:ListItem>
+                                                                                <asp:ListItem Value="1" Text="1" runat="server"></asp:ListItem>
+                                                                            </asp:DropDownList>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <asp:Label ID="label1" runat="server">Please enter comments</asp:Label>
+                                                                            <asp:TextBox ID="txtManualComments" runat="server" CssClass='form-control' TextMode="MultiLine" Rows="2" CausesValidation="false"></asp:TextBox>
+                                                                        </div>
+                                                                        <div class="col-md-3">
+                                                                            <asp:Label ID="lbl" Text="." runat="server"></asp:Label>
+                                                                            <asp:Button ID="btnManualScoreSubmit" runat="server" Text="submit" CommandArgument='<%#Eval("KPIID") %>' CssClass="btn btn-primary" OnClick="btnManualScoreSubmit_Click" CausesValidation="false" />
+                                                                        </div>
                                                                     </div>
-                                                                    <div class="col-md-6">
-                                                                        <asp:Label ID="label1" runat="server">Please enter comments</asp:Label>
-                                                                        <asp:TextBox ID="txtManualComments" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2" CausesValidation="false"></asp:TextBox>
-                                                                    </div>
-                                                                    <div class="col-md-3">
-                                                                        <asp:Label ID="lbl" Text="." runat="server"></asp:Label>
-                                                                        <asp:Button ID="btnManualScoreSubmit" runat="server" Text="submit" CommandArgument='<%#Eval("KPIID") %>' CssClass="btn btn-primary" OnClick="btnManualScoreSubmit_Click" CausesValidation="false"/>
-                                                                    </div>
+
                                                                 </div>
                                                             </asp:Panel>
                                                             <!--Manual KPI Panel-->
