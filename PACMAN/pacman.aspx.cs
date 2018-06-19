@@ -85,7 +85,6 @@ public partial class pacman : System.Web.UI.Page
             StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
             EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
             populateHeaders();
-            populateHeaders();
             fillRP(ForEmpID);
             enableButtons();
         }
@@ -151,9 +150,8 @@ public partial class pacman : System.Web.UI.Page
     }
     protected void btnAcknowledged_Click(object sender, EventArgs e)
     {
-
         // To do : For this emp, LockID = 1 and SPI = false in PMS.Eligibility against this empcode and periodid
-
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         strSQL = "[PMS].[SubmitAcknowledgement]";
         SqlCommand cmd = new SqlCommand(strSQL);
         cmd.CommandType = CommandType.StoredProcedure;
@@ -161,7 +159,7 @@ public partial class pacman : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
         cmd.Parameters.AddWithValue("@ActionedBy", MyEmpID);
         my.ExecuteDMLCommand(ref cmd, strSQL, "S");
-        clearRP();
+        //clearRP();
     }
     private void fillRP(int ForEmpID)
     {
@@ -178,7 +176,12 @@ public partial class pacman : System.Web.UI.Page
         DtProcName = my.GetData(ref cmd);
         rp.DataSource = DtProcName;
         rp.DataBind();
-        populateGVOverall();
+        int Phase = DtProcName.Rows[0]["Phase"].ToInt32();
+        if (Phase >= 2)
+        {
+            populateGVOverall();
+        }
+
     }
     protected void gv_PreRender(object sender, EventArgs e)
     {
@@ -198,7 +201,7 @@ public partial class pacman : System.Web.UI.Page
         {
             GridView gv = e.Item.FindControlRecursive("gvKPI") as GridView;
             gv.Columns.Clear();
-
+            string Rating = "0";
             if (gv != null)
             {
                 fillStartAndEndDates();
@@ -225,15 +228,13 @@ public partial class pacman : System.Web.UI.Page
                                 cmd.CommandText = procName;
                                 cmd.CommandType = CommandType.StoredProcedure;
                                 cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
-                                //cmd.Parameters.AddWithValue("@StartDate", StartDate);
-                                //cmd.Parameters.AddWithValue("@EndDate", EndDate);
-                                cmd.Parameters.AddWithValue("@StartDate", "20180401");
-                                cmd.Parameters.AddWithValue("@EndDate", "20180430");
+                                cmd.Parameters.AddWithValue("@StartDate", StartDate);
+                                cmd.Parameters.AddWithValue("@EndDate", EndDate);
 
                                 DataTable dt = my.GetData(ref cmd);
                                 gv.DataSource = dt;
                                 gv.DataBind();
-                                string Rating = string.Empty;
+
                                 DataRow[] drs = dt.Select("Account = 'Grand Total'");
                                 if (drs.Length == 1)
                                 {
@@ -242,17 +243,56 @@ public partial class pacman : System.Web.UI.Page
                                         Rating = r["Rating"].ToString();
                                     }
                                     Literal ltlfinalScore = e.Item.FindControlRecursive("ltlKPIScore") as Literal;
+                                    //Literal ltlWeightedScore = e.Item.FindControlRecursive("ltlWeightedScore") as Literal;
                                     ltlfinalScore.Text = Rating.ToString();
                                     if (!string.IsNullOrEmpty(Rating))
                                     {
                                         Decimal KPIRating = Convert.ToDecimal(Rating);
                                         Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
                                         FinalRating += KPIRating * KPIWtg;
+                                        //  ltlWeightedScore.Text = FinalRating.ToString();
                                         ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
                                     }
                                     else
-                                    { ltlFinalRating.Text = string.Empty; }
+                                    { ltlFinalRating.Text = "0"; }
                                     xShowButtons = true;
+                                }
+
+                            }
+                            else
+                            {
+                                //Populate the Manual KPI Rating if available
+                                Panel pnlKPI = e.Item.FindControlRecursive("pnlKPI") as Panel;
+                                pnlKPI.Visible = false;
+                                Panel pnlManualKPI = e.Item.FindControlRecursive("pnlManualKPI") as Panel;
+                                pnlManualKPI.Visible = true;
+                                Literal ltlKPIScore = e.Item.FindControlRecursive("ltlKPIScore") as Literal;
+                                //Literal ltlWeightedScore = e.Item.FindControlRecursive("ltlWeightedScore") as Literal;
+                                DataTable dtManualKPI = my.GetData("select KPIRating, Comments from PMS.tblKPIManualRating where EmpCode=" + ForEmpID + " and PeriodID=" + PeriodID + " and KPIId = " + KPIId);
+                                if (dtManualKPI != null && dtManualKPI.Rows.Count > 0)
+                                {
+                                    ltlKPIScore.Text = dtManualKPI.Rows[0]["KPIRating"].ToString();
+
+                                    DropDownList ddlManualScore = e.Item.FindControlRecursive("ddlManualScore") as DropDownList;
+                                    ddlManualScore.SelectedValue = ltlKPIScore.Text;
+                                    ddlManualScore.Enabled = false;
+
+                                    TextBox txtManualComments = e.Item.FindControlRecursive("txtManualComments") as TextBox;
+                                    txtManualComments.Text = dtManualKPI.Rows[0]["Comments"].ToString();
+                                    txtManualComments.ReadOnly = true;
+                                    Rating = ltlKPIScore.Text.ToString();
+                                    if (!string.IsNullOrEmpty(Rating.ToString()))
+                                    {
+
+                                        Decimal KPIRating = Convert.ToDecimal(Rating);
+
+                                        Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
+                                        FinalRating += KPIRating * KPIWtg;
+                                        //ltlWeightedScore.Text = FinalRating.ToString();
+                                        ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
+                                    }
+                                    else
+                                    { ltlFinalRating.Text = "0"; }
                                 }
                             }
                         }
@@ -317,7 +357,7 @@ public partial class pacman : System.Web.UI.Page
         gvOverAll.DataSource = dtOverall;
         gvOverAll.DataBind();
 
-        ltlOverAll.Text = dtPhase.Rows[0][0].ToString();
+        lblOverAll.Text = dtPhase.Rows[0][0].ToString();
     }
     protected void btnKPI_Click(object sender, EventArgs e)
     {
@@ -352,11 +392,10 @@ public partial class pacman : System.Web.UI.Page
 
             DataSet ds = new DataSet();
             da.Fill(ds);
-
+            
             foreach (DataTable d in ds.Tables)
             {
                 d.TableName = FileName;
-
                 //Get the physical path to the file.
                 string FilePath = Server.MapPath("Sitel//metric_downloads//" + FileName);
                 using (var textWriter = File.CreateText(FilePath))
@@ -379,6 +418,7 @@ public partial class pacman : System.Web.UI.Page
                             }
                             csv.NextRecord();
                         }
+                        
                     }
                 }
 
@@ -394,6 +434,9 @@ public partial class pacman : System.Web.UI.Page
 
                 File.Delete(FilePath);
             }
+                
+           
+            
         }
     }
 }

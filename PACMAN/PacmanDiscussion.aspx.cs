@@ -86,6 +86,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             dtTrf2DB.Columns.Add(new DataColumn("IsSPI"));
         }
     }
+
     private void fillddlReviewPeriod()
     {
         string strSQL = "WFMPMS.GetPacmanCycleforPacmanDiscussion_g";
@@ -118,18 +119,22 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     protected void ddlStage_SelectedIndexChanged(object sender, EventArgs e)
     {
+        ddlSPI.SelectedIndex = 0;
         clearRP();
         fillddlReportee();
         enableButtons();
+        
     }
     protected void ddlReviewPeriod_SelectedIndexChanged(object sender, EventArgs e)
     {
+        ddlSPI.SelectedIndex = 0;
         clearRP();
         PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         string strSQL = "SELECT [FromDate],[ToDate] FROM [PMS].[PeriodMst] where [PeriodID] =" + PeriodID;
         DataTable dt = my.GetData(strSQL);
         StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
         EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
+        
         fillddlStage();
         populateHeaders();
     }
@@ -266,6 +271,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     protected void ddlReportee_SelectedIndexChanged(object sender, EventArgs e)
     {
+        ddlSPI.SelectedIndex = 0;
         clearRP();
         ForEmpID = Convert.ToInt32(ddlReportee.SelectedItem.Value.ToString());
         populateHeaders();
@@ -361,7 +367,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                                 DataTable dt = my.GetData(ref cmd);
                                 gv.DataSource = dt;
                                 gv.DataBind();
-                                
+
                                 DataRow[] drs = dt.Select("Account = 'Grand Total'");
                                 if (drs.Length == 1)
                                 {
@@ -370,19 +376,15 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                                         Rating = r["Rating"].ToString();
                                     }
                                     Label ltlfinalScore = e.Item.FindControlRecursive("ltlKPIScore") as Label;
-
                                     //Literal ltlWeightedScore = e.Item.FindControlRecursive("ltlWeightedScore") as Literal;
                                     ltlfinalScore.Text = Rating.ToString();
-                                    //Button btn = e.Item.FindControlRecursive("btnKPI") as Button;
                                     if (!string.IsNullOrEmpty(Rating))
                                     {
-                                        
-                                        //btn.ID = "btnKPI" + KPIId;
                                         Decimal KPIRating = Convert.ToDecimal(Rating);
-                                        
                                         k.KPIRating = KPIRating;
                                         Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
                                         FinalRating += KPIRating * KPIWtg;
+                                        //ltlWeightedScore.Text = FinalRating.ToString();
                                         ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
                                     }
                                     else
@@ -397,6 +399,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                                 Panel pnlManualKPI = e.Item.FindControlRecursive("pnlManualKPI") as Panel;
                                 pnlManualKPI.Visible = true;
                                 Label ltlKPIScore = e.Item.FindControlRecursive("ltlKPIScore") as Label;
+                                //Literal ltlWeightedScore = e.Item.FindControlRecursive("ltlWeightedScore") as Literal;
+
                                 DataTable dtManualKPI = my.GetData("select KPIRating, Comments from PMS.tblKPIManualRating where EmpCode=" + ForEmpID + " and PeriodID=" + PeriodID + " and KPIId = " + KPIId);
                                 if (dtManualKPI != null && dtManualKPI.Rows.Count > 0)
                                 {
@@ -404,7 +408,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
                                     DropDownList ddlManualScore = e.Item.FindControlRecursive("ddlManualScore") as DropDownList;
                                     ddlManualScore.SelectedValue = ltlKPIScore.Text;
-                                    
+
                                     TextBox txtManualComments = e.Item.FindControlRecursive("txtManualComments") as TextBox;
                                     txtManualComments.Text = dtManualKPI.Rows[0]["Comments"].ToString();
                                     Rating = ltlKPIScore.Text.ToString();
@@ -415,6 +419,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                                         k.KPIRating = KPIRating;
                                         Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
                                         FinalRating += KPIRating * KPIWtg;
+                                        //ltlWeightedScore.Text = FinalRating.ToString();
                                         ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
                                     }
                                     else
@@ -457,7 +462,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         Button btn = sender as Button;
         int KPIID = Convert.ToInt32(btn.CommandArgument.ToString());
-        Panel pnlManualKPI = btn.NamingContainer.FindControl("pnlManualKPI") as Panel; 
+        Panel pnlManualKPI = btn.NamingContainer.FindControl("pnlManualKPI") as Panel;
         DropDownList ddl = pnlManualKPI.FindControlRecursive("ddlManualScore") as DropDownList;
         TextBox tb = pnlManualKPI.FindControlRecursive("txtManualComments") as TextBox;
         if (ddl != null && tb != null)

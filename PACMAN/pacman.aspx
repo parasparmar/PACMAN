@@ -164,9 +164,8 @@
         <div class="box-body">
             <div class="form-group">
                 <div class="col-lg-12">
-                    <div class="form-group">
-                        <label>
-                            <asp:Literal ID="ltlOverAll" runat="server" Text="Pacman Cycle"></asp:Literal></label>
+                    <div class="form-group">                        
+                            <asp:Label ID="lblOverAll" runat="server" Text="Pacman Cycle"></asp:Label>
                         <asp:GridView ID="gvOverAll" runat="server"
                             CssClass="table table-condensed table-bordered table-responsive PageSpecificDataTable"
                             AutoGenerateColumns="true"
@@ -237,6 +236,11 @@
                                                                 </a>
                                                             </div>
                                                             <div class="col-md-2">
+                                                                <%--<a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">
+                                                                    <h4 class="box-title">Wtd Score :
+                                                                    <asp:Literal ID="ltlWeightedScore" Text="0" runat="server"></asp:Literal>
+                                                                    </h4>
+                                                                </a>--%>
                                                             </div>
                                                             <div class="col-md-1">
                                                                 <asp:LinkButton ID="btnKPI" CssClass="btn btn-primary btn-flat pull-right"
@@ -274,10 +278,7 @@
                                                                         <asp:Label ID="label1" runat="server">Please enter comments</asp:Label>
                                                                         <asp:TextBox ID="txtManualComments" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2"></asp:TextBox>
                                                                     </div>
-                                                                    <div class="col-md-3">
-                                                                        <asp:Label ID="lbl" Text="." runat="server"></asp:Label>
-                                                                        <asp:Button ID="btnManualScoreSubmit" runat="server" Text="submit" CommandArgument='<%#Eval("KPIID") %>' CssClass="btn btn-primary" OnClick="btnManualScoreSubmit_Click" />
-                                                                    </div>
+                                                                   
                                                                 </div>
                                                             </asp:Panel>
                                                             <!--Manual KPI Panel-->

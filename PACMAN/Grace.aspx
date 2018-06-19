@@ -64,7 +64,7 @@
                     </div>--%>
                 </div>
                 <div class="box-body">
-                    <asp:GridView ID="gvEmpList" runat="server" CssClass=" GraceDataTable table table-condensed table-responsive 
+                    <asp:GridView ID="gvEmpList" runat="server" CssClass="GraceDataTable table table-condensed table-responsive 
                     datatable display compact hover stripe"
                         AutoGenerateColumns="false"
                         OnPreRender="gv_PreRender" ShowHeader="true" BorderStyle="None" OnRowCommand="gvEmpList_RowCommand" DataKeyNames="EmpCode">

@@ -220,6 +220,11 @@
                                                                 </a>
                                                             </div>
                                                             <div class="col-md-2">
+                                                                <%--<a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">
+                                                                    <h4 class="box-title">Wtd Score :
+                                                                    <asp:Literal ID="ltlWeightedScore" Text="0" runat="server"></asp:Literal>
+                                                                    </h4>
+                                                                </a>--%>
                                                             </div>
                                                             <div class="col-md-1">
                                                                 <asp:LinkButton ID="btnKPI" CssClass="btn btn-primary btn-flat pull-right"
