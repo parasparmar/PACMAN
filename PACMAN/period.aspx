@@ -173,7 +173,7 @@
 
             <div class="box box-solid box-primary" style="height: auto;">
                 <div class="box-header with-border">
-                    <h4 class="box-title">View all Periods </h4>
+                    <h4 class="box-title">View all Periods</h4>
                     <%--                           <div class="box-tools pull-right">
                                 <button class="btn btn-box-tool" type="button" data-widget="collapse">
                                     <i class="fa fa-minus"></i>
@@ -182,7 +182,7 @@
                 </div>
                 <div class="box-body">
                     <div class="form-group">
-                        <asp:GridView ID="gv_PeriodList" runat="server" CssClass="DataTable table table-condensed table-responsive display compact hover stripe" AutoGenerateColumns="false"
+                        <asp:GridView ID="gv_PeriodList" runat="server" CssClass="table table-condensed table-responsive display compact hover stripe" AutoGenerateColumns="false"
                              ShowHeader="true" Style="border: none" OnRowCommand="gv_PeriodList_RowCommand" OnPreRender="gv_PreRender">
                             <Columns>
                                 <asp:TemplateField HeaderText="Select" HeaderStyle-CssClass="mid">

@@ -17,8 +17,8 @@ public class Helper
     public string getConnectionString()
     {
         EDCryptor xEDCryptor = new EDCryptor();
-        string xString = ConfigurationManager.ConnectionStrings["constr"].ToString();
-        //string xString = ConfigurationManager.ConnectionStrings["constrProd"].ToString();
+        //string xString = ConfigurationManager.ConnectionStrings["constr"].ToString();
+        string xString = ConfigurationManager.ConnectionStrings["constrProd"].ToString();
         xString = xEDCryptor.DeCrypt(xString);
         return xString;
     }
@@ -530,7 +530,7 @@ public class EmailSender
                                 EmailType = (int)emailtype.Development;
                             }
                         }
-                        cmd.Parameters.AddWithValue("@xEmailType", EmailType);
+                        cmd.Parameters.AddWithValue("@xEmailType", 1);
                         sentId = cmd.ExecuteNonQuery();
                     }
                 }

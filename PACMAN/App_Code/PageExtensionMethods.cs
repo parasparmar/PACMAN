@@ -38,7 +38,6 @@ public static class PageExtensionMethods
             return null;
         }
     }
-
     public static Int32 ToInt32(this object ctrl)
     {
         int returnInt = 0;
@@ -48,7 +47,47 @@ public static class PageExtensionMethods
         }
         else
         {
-            throw new InvalidCastException("The given String ${ConvertMeToInt32} cannot be parsed to an Integer.");            
+            throw new InvalidCastException("The given String " + ConvertMeToInt32 + " cannot be parsed to an Int32 Value.");
+        }
+    }
+    public static DateTime ToDateTime(this object ctrl)
+    {
+        DateTime returnDateTime;
+        string ConvertMeToDateTime = ctrl.ToString();
+        if (DateTime.TryParse(ConvertMeToDateTime, out returnDateTime))
+        {
+            return returnDateTime;
+        }
+        else
+        {
+            throw new InvalidCastException("The given String " + ConvertMeToDateTime + " cannot be parsed to a DateTime Value.");
+        }
+    }
+    public static Decimal ToDecimal(this object ctrl)
+    {
+        Decimal returnDecimal;
+        string ConvertMeToDecimal = ctrl.ToString();
+        if (Decimal.TryParse(ConvertMeToDecimal, out returnDecimal))
+        {
+            return returnDecimal;
+        }
+        else
+        {
+            throw new InvalidCastException("The given String " + ConvertMeToDecimal + " cannot be parsed to a Decimal Value.");
+        }
+    }
+
+    public static Boolean ToBool(this object ctrl)
+    {
+        Boolean returnBoolean;
+        string ConvertMeToBoolean = ctrl.ToString();
+        if (Boolean.TryParse(ConvertMeToBoolean, out returnBoolean))
+        {
+            return returnBoolean;
+        }
+        else
+        {
+            throw new InvalidCastException("The given String "+ ConvertMeToBoolean + " cannot be parsed to a Boolean Value.");
         }
     }
 
@@ -75,7 +114,6 @@ public static class PageExtensionMethods
         }
         return sb.ToString();
     }
-
     public static string getMyWindowsID()
     {
         string myid = HttpContext.Current.User.Identity.Name;
@@ -87,7 +125,6 @@ public static class PageExtensionMethods
         }
         else { return "IDNotFound"; }        
     }
-
     public static int getMyEmployeeID()
     {
         string myid = HttpContext.Current.User.Identity.Name;
@@ -102,13 +139,11 @@ public static class PageExtensionMethods
         }
         else { return 0; }
     }
-
     public static string[] AllowedIds()
     {
         string[] allowedNTIDs = { "pparm001", "ktriv003", "gsing017" };
         return allowedNTIDs;
     }
-
     /// <summary>
     /// Gets the ordinal index of a TableCell in a rendered GridViewRow, using a text fieldHandle (e.g. the corresponding column's DataFieldName/SortExpression/HeaderText)
     /// </summary>
@@ -132,7 +167,6 @@ public static class PageExtensionMethods
         }
         return iCellIndex;
     }
-
     /// <summary>
     /// Gets the ordinal index of a TableCell in a rendered GridViewRow, using a text fieldHandle (e.g. the corresponding column's DataFieldName/SortExpression/HeaderText)
     /// </summary>
@@ -140,8 +174,6 @@ public static class PageExtensionMethods
     {
         return GetGVCellUsingFieldName((GridView)row.Parent.Parent, fieldHandle);
     }
-
-
     public static bool AmIAllowedThisPage(int myEmpID, string orginalUrl)
     {
 
@@ -163,7 +195,6 @@ public static class PageExtensionMethods
         
         return Allowed;
     }
-
 }
 
 
