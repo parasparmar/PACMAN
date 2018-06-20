@@ -55,7 +55,7 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (response) {
-                    alert("Success : " + response.status);
+                    //alert("Success : " + response.status);
                     OnSuccessDrawChart(response.d);
                 },
                 failure: function (response) {
