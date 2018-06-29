@@ -12,7 +12,8 @@ using System.IO;
 using CsvHelper;
 using System.Web.UI.HtmlControls;
 using System.Web.Services;
-
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 public partial class PacmanDiscussion : System.Web.UI.Page
 {
     DataTable dtEmp;
@@ -123,7 +124,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         clearRP();
         fillddlReportee();
         enableButtons();
-        
+
     }
     protected void ddlReviewPeriod_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -134,7 +135,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         DataTable dt = my.GetData(strSQL);
         StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
         EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
-        
+
         fillddlStage();
         populateHeaders();
     }
@@ -514,6 +515,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     protected void btnKPI_Click(object sender, EventArgs e)
     {
+
         LinkButton btnKPI = sender as LinkButton;
         PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
         if (btnKPI != null)
@@ -531,7 +533,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             fillStartAndEndDates();
             string KPIName = dt.Rows[0]["Metric"].ToString();
             string ProcName = dt.Rows[0]["DetailedKPI"].ToString();
-            string FileName = MyName + "'s " + KPIName + " for " + StartDate.ToString("MMM yyyy") + " downloaded " + DateTime.Now.ToString("dd-MMM-yyyy HH-mm-ss") + ".csv";
+            string FileName = MyName + "'s " + KPIName + " for " + StartDate.ToString("MMM yyyy") + " downloaded " + DateTime.Now.ToString("dd-MMM-yyyy HH-mm-ss") + ".xlsx";
 
             cmd.Parameters.Clear();
             cmd = new SqlCommand(ProcName);
@@ -545,56 +547,65 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
             DataSet ds = new DataSet();
             da.Fill(ds);
-
-            foreach (DataTable d in ds.Tables)
+            string FilePath = Server.MapPath("Sitel//metric_downloads//" + FileName);
+            using (ExcelPackage pck = new ExcelPackage())
             {
-                d.TableName = FileName;
-
-                //Get the physical path to the file.
-                string FilePath = Server.MapPath("Sitel//metric_downloads//" + FileName);
-                using (var textWriter = File.CreateText(FilePath))
+                pck.Workbook.Properties.Author = "iaccess_support@sitel.com";
+                pck.Workbook.Properties.Title = KPIName;
+                int validSheetCount = 0;
+                foreach (DataTable d in ds.Tables)
                 {
-                    using (var csv = new CsvWriter(textWriter))
-                    {
-                        // Write columns
-                        foreach (DataColumn column in d.Columns)
-                        {
-                            csv.WriteField(column.ColumnName);
-                        }
-                        csv.NextRecord();
 
-                        // Write row values
-                        foreach (DataRow row in d.Rows)
+                    if (d != null && d.Rows.Count > 0)
+                    {
+                        int recordCount = d.Rows.Count;
+                        int columnCount = d.Columns.Count;
+                        string currentKPI = KPIName;
+                        if (KPIName == "KPI")
                         {
-                            for (var i = 0; i < d.Columns.Count; i++)
-                            {
-                                csv.WriteField(row[i]);
-                            }
-                            csv.NextRecord();
+                            d.Rows[0]["PrimaryKPI"].ToString();
                         }
+                        //Get the physical path to the file.
+                        ExcelWorksheet ws = pck.Workbook.Worksheets.Add(currentKPI);
+                        validSheetCount++;
+                        ws.Cells["A1"].LoadFromDataTable(d, true);
+                        ws.Cells[2, 12, recordCount + 1, 17].Style.Numberformat.Format = "dd-mmm-yyyy HH:mm:ss";
+                        ws.Cells[2, 18, recordCount + 1, 18].Style.Numberformat.Format = "dd-mmm-yyyy";
+                        ws.Cells[2, 19, recordCount + 1, 19].Style.Numberformat.Format = "HH:mm:ss";
+                        ws.Cells[1, 1, recordCount, columnCount].AutoFitColumns(15);
+
+                        pck.Save();
+                        var shape = ws.Drawings.AddShape("KPI", eShapeStyle.Rect);
+                        shape.SetPosition(50, 200);
+                        shape.SetSize(200, 100);
+                        shape.Text = FileName;
+
+
+
+                        //Send the CSV file as a Download.
+
+                        //Response.Buffer = true;
+                        //Response.AddHeader("content-disposition", "attachment;filename=" + FileName);
+                        //Response.Charset = "";
+                        //Response.ContentType = "application/text";
+                        //Response.Output.Write(File.ReadAllText(FilePath));
+
                     }
                 }
-
-                //Send the CSV file as a Download.
-                Response.Clear();
-                Response.Buffer = true;
-                Response.AddHeader("content-disposition", "attachment;filename=" + FileName);
-                Response.Charset = "";
-                Response.ContentType = "application/text";
-                Response.Output.Write(File.ReadAllText(FilePath));
-                Response.Flush();
-                Response.End();
-
-                File.Delete(FilePath);
+                if (validSheetCount > 0)
+                {
+                    pck.SaveAs(Response.OutputStream);
+                    Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                    Response.AddHeader("content-disposition", "attachment;  filename=" + FileName);
+                    File.Delete(FilePath);
+                }
             }
 
 
-
-
         }
-
-
     }
+
+
 
     //    TO DO
     //1	Find Reportees
