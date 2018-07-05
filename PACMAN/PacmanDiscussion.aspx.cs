@@ -236,6 +236,11 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     protected void btnAcknowledged_Click(object sender, EventArgs e)
     {
+        string tbFeedbackText = tbFeedback.Text.ToString();
+        if (my.checkForSQLInjection(tbFeedbackText))
+        {
+            tbFeedbackText = HttpUtility.HtmlEncode(tbFeedbackText);
+        }
         DataTable dtTrf2DB = Session["Transfer2DB"] as DataTable;
         strSQL = "PMS.UpdateReview";
         SqlCommand cmd = new SqlCommand(strSQL);
@@ -246,7 +251,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         {
             cmd.Parameters.AddWithValue("@PeriodID", trf["PeriodID"].ToInt32());
             cmd.Parameters.AddWithValue("@EmpCode", trf["EmpCode"].ToInt32());
-            cmd.Parameters.AddWithValue("@KPIIRATING", trf["KPIRating"].ToString());
+            cmd.Parameters.AddWithValue("@KPIIRATING", trf["KPIRating"].ToString());            
             cmd.Parameters.AddWithValue("@KPIID", trf["KPIID"].ToInt32());
             trf["isSPI"] = SPI;
             cmd.Parameters.AddWithValue("@IsSPI", SPI);
@@ -261,7 +266,8 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@PeriodID", dtTrf2DB.Rows[0]["PeriodID"].ToInt32());
         cmd.Parameters.AddWithValue("@EmpCode", dtTrf2DB.Rows[0]["EmpCode"].ToInt32());
         cmd.Parameters.AddWithValue("@ActionedBy", MyEmpID);
-
+        cmd.Parameters.AddWithValue("@RepMgrComments", tbFeedbackText);
+        // TO DO Change Lock to 1 once testing is complete
         cmd.Parameters.AddWithValue("@Lock", 1);
         cmd.Parameters.AddWithValue("@IsSPI", SPI);
         rowsAffected += my.ExecuteDMLCommand(ref cmd, strSQL, "S");

@@ -58,6 +58,7 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
 
 
+
     <style type="text/css">
         /************************************************************************/
         /* PSEUDO-TOGGLE BUTTON MADE OF ASP.NET CHECKBOX AND CSS3*/
@@ -775,14 +776,13 @@
 
         .PageSpecificDataTable > thead {
             font-weight: 900;
-        color: #ffffff;
-        background: #3c8dbc;
+            color: #ffffff;
+            background: #3c8dbc;
         }
 
-        .PageSpecificDataTable > thead > tr > th
-        .PageSpecificDataTable > tbody > tr > td {
-            width: 20%;
-        }
+            .PageSpecificDataTable > thead > tr > th .PageSpecificDataTable > tbody > tr > td {
+                width: 20%;
+            }
 
         .DataTables_filter > label,
         .DataTables_length > label,

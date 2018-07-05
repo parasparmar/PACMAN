@@ -373,7 +373,7 @@
                 ],
                 "columnDefs": [{
                     "targets": [0,16], //Comma separated values
-                    "visible": true,
+                    "visible": false,
                     "searchable": false
                 }
                 ],

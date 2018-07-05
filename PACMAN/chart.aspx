@@ -14,8 +14,18 @@
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar-check-o"></i>
                             </div>
-                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlReviewPeriod" runat="server">
-                            </asp:DropDownList>
+                            <%--    <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlReviewPeriod" runat="server">
+                            </asp:DropDownList>--%>
+                            <%--  <select class="form-control select2" id="ddltype" onchange="fillTypeList();">
+                                <option value="0">Please Select</option>
+                                <option value="1">Team</option>
+                                <option value="2">Role</option>
+                                <option value="3">Designation</option>
+                            </select>--%>
+
+                            <select class="form-control select2" id="ddlMgr" onchange="fillTypeList('ddlMgr', 'ddlStage');;">
+                            </select>
+
                         </div>
                         <!-- /.input group -->
                     </div>
@@ -23,34 +33,36 @@
                 <asp:Panel ID="pnlIsPacmanDiscussion" runat="server" Visible="true">
                     <div class="col-lg-3">
                         <div class="form-group">
-                            <label>Select Review Stage</label>
+                            <label>Select Reportee</label>
                             <div class="input-group">
                                 <div class="input-group-addon">
                                     <i class="fa fa-calendar"></i>
                                 </div>
-                                <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlStage" runat="server">
-                                </asp:DropDownList>
+                                <%--  <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlStage" runat="server">
+                                </asp:DropDownList>--%>
+                                <select class="form-control select2" id="ddlStage" onchange="fillChartbubble();"></select>
                             </div>
                             <!-- /.input group -->
                         </div>
                     </div>
                     <div class="col-lg-3">
                         <div class="form-group">
-                            <label>Select Reportee</label>
+                            <label>Select Designation</label>
                             <div class="input-group">
                                 <div class="input-group-addon">
                                     <i class="fa fa-user"></i>
                                 </div>
-                                <asp:DropDownList ItemType="text" CssClass="form-control select2" ID="ddlReportee"
+                                <%--  <asp:DropDownList ItemType="text" CssClass="form-control select2" ID="ddlReportee"
                                     runat="server" AutoPostBack="true">
-                                </asp:DropDownList>
+                                </asp:DropDownList>--%>
+                                <select class="form-control select2" id="ddlDesignation"></select>
                             </div>
                             <!-- /.input group -->
                         </div>
                     </div>
                     <div class="col-lg-3">
                         <div class="form-group">
-                            <label>Is SPI</label>
+                            <label>Select Role</label>
                             <div class="input-group">
                                 <div class="input-group-addon">
                                     <i class="fa fa-user"></i>
@@ -123,64 +135,43 @@
 
     </div>
 
+    <asp:HiddenField ID="hfMgrId" runat="server" />
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
+    <!-- Pace style -->
+    <link href="AdminLTE/plugins/pace/pace.min.css" rel="stylesheet" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>    
+    <!-- PACE -->    
+    <script src="AdminLTE/plugins/pace/pace.min.js"></script>
     <script>
-        $(function () {
+
+      
+        $(document).ready(function () {
+            
+            //debugger;
+            $(this).ajaxStart(function () {
+                
+            });
+
+            $(this).ajaxStop(function () {
+                Pace.stop();
+            });
+            
+            fillTypeList("", "ddlMgr");
+        });
+
+        function NineBoxChart(xdata) {
+
             var ctx = $("#myChart");
+            if (xdata != null) {
+                ctx.empty();
+            }
             var myChart = new Chart(ctx, {
                 type: 'bubble',
                 data: {
                     labels: "Managers",
-                    datasets: [
-                        {
-                            label: 'Manoj',
-                            data: [{ x: 33, y: 33, r: 33 }],
-                            backgroundColor: ['rgba(255, 99, 132, 0.2)'],
-                            borderColor: ['rgba(255,99,132,1)'],
-                            borderWidth: 1
-                        }
-                        , {
-                            label: 'Durgesh',
-                            data: [{ x: 66, y: 66, r: 33 }],
-                            backgroundColor: ['rgba(54, 162, 235, 0.2)'],
-                            borderColor: ['rgba(75, 192, 192, 1)'],
-                            borderWidth: 1
-                        }
-                        , {
-                            label: 'Vinod',
-                            data: [{ x: 60, y: 60, r: 33 }],
-                            backgroundColor: ['rgba(255, 206, 86, 0.2)'],
-                            borderColor: ['rgba(255,99,132,1)'],
-                            borderWidth: 1
-                        }
-                        , {
-                            label: 'Vishal',
-                            data: [{ x: 45, y: 45, r: 33 }],
-                            backgroundColor: ['rgba(255, 99, 132, 0.2)'],
-                            borderColor: ['rgba(153, 102, 255, 1)'],
-                            borderWidth: 1
-                        }
-                        , {
-                            label: 'Athang',
-                            data: [{ x: 75, y: 75, r: 33 }],
-                            backgroundColor: ['rgba(75, 192, 192, 0.2)'],
-                            borderColor: ['rgba(255, 159, 64, 1)'],
-                            borderWidth: 1
-                        }
-                        , {
-                            label: 'Prashant',
-                            data: [{ x: 20, y: 20, r: 33 }],
-                            backgroundColor: ['rgba(255, 99, 132, 0.2)'],
-                            borderColor: ['rgba(255, 159, 64, 0.2)'],
-                            borderWidth: 1
-                        }
-
-
-
-                    ]
-
+                    datasets: xdata
                 },
                 options: {
                     title: {
@@ -227,9 +218,169 @@
 
 
                 }
-            });
 
-        });
+
+            });
+        }
+        function fillTypeList(xFrom, xTo) {
+            //debugger;
+            ////$(document).ajaxStart(function () { Pace.restart(); });
+            //Pace.start();
+            var optionSelected = '';
+            var params = '';
+
+            if (xFrom != "") {
+                //debugger;
+                optionSelected = $("[id$='" + xFrom + "'] option:selected").val();
+                params = '{"RepMgrCode":"' + optionSelected + '"}';
+            }
+            else {
+                //debugger;
+                optionSelected = $("[id$=hfMgrId]").val();
+                params = '{"RepMgrCode":"' + optionSelected + '"}';
+            }
+
+
+            if (optionSelected != "" && optionSelected != "0") {
+                //debugger;
+                
+                var myDropDownList = $("[id$=" + xTo + "]");
+                $.ajax({
+                    type: "POST",
+                    url: "chart.aspx/GetDropDownDataTypeList",
+                    data: params,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        //debugger;
+
+                        $("[id$=" + xTo + "]").empty();
+                        $.each($.parseJSON(JSON.stringify(data.d)), function () {
+                            ////debugger;
+                            myDropDownList.append($("<option></option>").val(this['Value']).html(this['Text']));
+                            myDropDownList.prop('selectedIndex', 0);
+                        });
+                        Pace.stop();
+                    },
+                    failure: function (response) {
+                        alert(response.d);
+                        //Pace.stop();
+                    }
+                });
+            }
+
+        }
+        function fillChartbubble() {
+            //debugger;
+            var optionSelected = $("[id$=ddlStage] option:selected").val();
+            //var params = '{"xtype":"' + optionSelected + '"}';
+            var params = '{"stageID":"' + optionSelected + '"}';
+            if (optionSelected != "" && optionSelected != "0") {
+                //debugger;
+                var myDropDownList = $('#ddlStage');
+                $.ajax({
+                    type: "POST",
+                    url: "chart.aspx/GetBubbleChart",
+                    data: params,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        //debugger;
+                        console.log(data.d);
+
+                        var dynamicColors = function () {
+                            var r = Math.floor(Math.random() * 255);
+                            var g = Math.floor(Math.random() * 255);
+                            var b = Math.floor(Math.random() * 255);
+                            return "rgb(" + r + "," + g + "," + b + ")";
+                        };
+                        var xDataSets = [];
+                        for (var i = 0; i < data.d.length; i++) {
+                            var xDataSet = {
+                                label: data.d[i]["Name"].toString(),
+                                backgroundColor: dynamicColors(),
+                                borderColor: "rgb(69,70,72)",
+                                borderWidth: 1,
+                                hoverBorderWidth: 2,
+                                hoverRadius: 2,
+                                data: [
+                                    {
+                                        x: data.d[i]["Performance"].toString(),
+                                        y: data.d[i]["Competency"].toString(),
+                                        r: data.d[i]["Radius"].toString()
+                                    }
+                                ]
+                            };
+                            xDataSets.push(xDataSet);
+                        }
+                        //debugger;
+                        var strData = $.parseJSON(JSON.stringify(data.d));
+                        NineBoxChart(xDataSets);
+
+                    },
+                    failure: function (response) {
+                        alert(response.d);
+                    }
+                });
+
+                FillDesignationList(optionSelected);
+            }
+        }
+        function FillDesignationList(strEmpCode) {
+            if (strEmpCode != "" && strEmpCode != "0") {
+                //debugger;
+                var myDropDownList = $("[id$=ddlDesignation]");
+                var params = '{"EmpCode":"' + strEmpCode + '"}';
+                $.ajax({
+                    type: "POST",
+                    url: "chart.aspx/GetFillDesignationList",
+                    data: params,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        //debugger;
+                        $("[id$=ddlDesignation]").empty();
+                        $.each($.parseJSON(JSON.stringify(data.d)), function () {
+                            ////debugger;
+                            myDropDownList.append($("<option></option>").val(this['Value']).html(this['Text']));
+                            myDropDownList.prop('selectedIndex', 0);
+                        });
+                    },
+                    failure: function (response) {
+                        alert(response.d);
+                    }
+                });
+            }
+        }
+        function GetString(results) {
+            //debugger;
+            for (var i = 0; i < results.length; i++) {
+                var xDataSet = {
+                    label: results[i]["Name"].toString(),
+                    backgroundColor: dynamicColors(),
+                    borderColor: "rgb(69,70,72)",
+                    radius: 10,
+                    borderWidth: 1,
+                    hoverBorderWidth: 2,
+                    hoverRadius: 5,
+                    data: [
+                        {
+                            x: results[i]["Performance"].toString(),
+                            y: results[i]["Competency"].toString(),
+                            r: results[i]["Radius"].toString()
+                        }
+                    ]
+                };
+                xDataSet.push(site);
+            }
+            //xStringVal = xStringVal.slice(0,-1);
+            //return xStringVal;
+        }
+        function OnSuccess(response) {
+            console.log(response.d);
+            alert(response.d);
+        }
+
     </script>
 </asp:Content>
 
