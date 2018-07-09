@@ -1,6 +1,6 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="chart.aspx.cs" Inherits="chart" %>
 
-
+<%@ MasterType VirtualPath="~/MasterPage.master" %>
 <asp:Content ID="Content4" ContentPlaceHolderID="pageheader" runat="Server">
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
@@ -146,18 +146,18 @@
     <script src="AdminLTE/plugins/pace/pace.min.js"></script>
     <script>
 
-      
+
         $(document).ready(function () {
-            
+
             //debugger;
             $(this).ajaxStart(function () {
-                
+
             });
 
             $(this).ajaxStop(function () {
                 Pace.stop();
             });
-            
+
             fillTypeList("", "ddlMgr");
         });
 
@@ -243,7 +243,7 @@
 
             if (optionSelected != "" && optionSelected != "0") {
                 //debugger;
-                
+
                 var myDropDownList = $("[id$=" + xTo + "]");
                 $.ajax({
                     type: "POST",
@@ -295,6 +295,7 @@
                             return "rgb(" + r + "," + g + "," + b + ")";
                         };
                         var xDataSets = [];
+
                         for (var i = 0; i < data.d.length; i++) {
                             var xDataSet = {
                                 label: data.d[i]["Name"].toString(),

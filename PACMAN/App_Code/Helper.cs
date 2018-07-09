@@ -50,11 +50,11 @@ public class Helper
     }
     public int ExecuteDMLCommand(ref SqlCommand cmd, string sql_string="", string operation="E")
     {
-        
+        open_db();
         int returnValue = 0;
         try
         {
-            cmd.Connection = open_db(); 
+            cmd.Connection = cn;
             if (operation == "E")
             {
                 returnValue = cmd.ExecuteNonQuery();
@@ -82,10 +82,10 @@ public class Helper
     }
     public DataTable GetDataTableViaProcedure(ref SqlCommand cmd)
     {
-        
+        open_db();
         DataTable dt = new DataTable();
         using (cmd)
-        {            
+        {
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Connection = open_db();
             var r = cmd.ExecuteReader();

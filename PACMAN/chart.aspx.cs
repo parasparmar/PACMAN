@@ -21,7 +21,7 @@ public partial class chart : System.Web.UI.Page
         myID = PageExtensionMethods.getMyWindowsID().ToString();
         myID = "ctirt002";
         RedirectBasedOnNTNameLookup(myID);
-        dtEmp =(DataTable) Session["dtEmp"];
+        dtEmp = (DataTable)Session["dtEmp"];
         hfMgrId.Value = Convert.ToString(dtEmp.Rows[0]["Employee_ID"]);
     }
 

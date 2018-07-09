@@ -15,8 +15,6 @@ using System.Xml.Linq;
 using CD;
 public partial class MasterPage : System.Web.UI.MasterPage
 {
-
-
     DataTable dt = new DataTable();
     private int myEmpID { get; set; }
     protected void Page_Load(object sender, EventArgs e)
@@ -26,9 +24,6 @@ public partial class MasterPage : System.Web.UI.MasterPage
             intialize_me();
         }
     }
-
-
-
     protected void intialize_me()
     {
         try
@@ -53,7 +48,6 @@ public partial class MasterPage : System.Web.UI.MasterPage
             Response.Write(Ex.Message);
         }
     }
-
     private void fillddlImpersonator()
     {
         string myNTID = PageExtensionMethods.getMyWindowsID();
@@ -83,11 +77,8 @@ public partial class MasterPage : System.Web.UI.MasterPage
             Response.Redirect("index.aspx?q=" + ntName, false);
         }
     }
-
     protected void test_Click(object sender, EventArgs e)
     {
 
     }
-
-    
 }
