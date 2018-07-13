@@ -181,6 +181,12 @@ public partial class pacman : System.Web.UI.Page
         {
             populateGVOverall();
         }
+        else
+        {
+            gvOverAll.DataSource = null;
+            gvOverAll.DataBind();
+            lblOverAll.Text = "Pacman cycle".ToString();
+        }
 
     }
     protected void gv_PreRender(object sender, EventArgs e)

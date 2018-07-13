@@ -12,28 +12,24 @@
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!-- Bootstrap 3.3.7 -->
     <link rel="stylesheet" href="AdminLTE/bower_components/bootstrap/dist/css/bootstrap.min.css">
-
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="AdminLTE/bower_components/font-awesome/css/font-awesome.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="AdminLTE/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
     <!----------Toastr----------------->
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
     <!-- bootstrap datepicker -->
     <link href="AdminLTE/bower_components/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet" />
     <link rel="stylesheet" href="AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
-
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="AdminLTE/bower_components/font-awesome/css/font-awesome.min.css">
     <!-- Ionicons -->
     <link rel="stylesheet" href="AdminLTE/bower_components/Ionicons/css/ionicons.min.css">
-    <!-- Theme style -->
     <!-- Select2 -->
     <link href="AdminLTE/plugins/select2/dist/css/select2.min.css" rel="stylesheet" />
-
+    <!-- Theme style -->
     <link rel="stylesheet" href="AdminLTE/dist/css/AdminLTE.css">
     <!-- AdminLTE Skins. Choose a skin from the css/ folder instead of downloading all of them to reduce the load. -->
     <link rel="stylesheet" href="AdminLTE/dist/css/skins/_all-skins.min.css">
     <!-- DataTables -->
-
-
     <link href="Sitel/CDN/code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet" />
     <link href="Sitel/cdn/cdn.datatables.net/1.10.15/css/dataTables.jqueryui.min.css" rel="stylesheet" />
 
@@ -41,10 +37,7 @@
     <link href="AdminLTE/bower_components/bootstrap-daterangepicker/daterangepicker.css" rel="stylesheet" />
     <link rel="stylesheet" href="AdminLTE/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
 
-    <!-- jQuery 3 -->
-    <script src="AdminLTE/bower_components/jquery/dist/jquery.js"></script>
-    <!-- Bootstrap 3.3.7 -->
-    <script src="AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -656,22 +649,13 @@
 
     </div>
 
-
-
+    <!-- jQuery 3 -->
+    <script src="AdminLTE/bower_components/jquery/dist/jquery.min.js"></script>
+    <!-- Bootstrap 3.3.7 -->
+    <script src="AdminLTE/bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
     <!-- DataTables -->
-
-    <script src="Sitel/cdn/cdn.datatables.net/1.10.15/js/jquery.dataTables.min.js"></script>
-    <%--<script src="https://cdn.DataTables.net/1.10.15/js/jquery.DataTables.min.js"></script>--%>
-
-    <%--<script src="https://cdn.DataTables.net/1.10.15/js/DataTables.jqueryui.min.js"></script>--%>
-    <link href="Sitel/cdn/cdn.datatables.net/buttons/1.3.1/css/buttons.dataTables.min.css" rel="stylesheet" />
-
-    <%--<link rel="stylesheet" href="https://cdn.DataTables.net/buttons/1.3.1/css/buttons.DataTables.min.css" type="text/css" />--%>
-    <script src="Sitel/cdn/cdn.datatables.net/buttons/1.3.1/js/dataTables.buttons.min.js"></script>
-
-    <%--<script type="text/javascript" src="https://CDN.DataTables.net/buttons/1.3.1/js/DataTables.buttons.min.js"></script>--%>
-    <script src="Sitel/cdn/cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>
-    <%--<script type="text/javascript" src="https://cdn.datatables.net/buttons/1.3.1/js/buttons.html5.min.js"></script>--%>
+    <script src="AdminLTE/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
+    <script src="AdminLTE/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
 
 
     <script type="text/javascript" src="Sitel/jszip.js"></script>
@@ -708,7 +692,7 @@
 
 
         $(function () {
-            $('.DataTable').dataTable({
+            $('.DataTable').DataTable({
                 "sPaginationType": "full_numbers",
                 "lengthMenu": [10, 5, 10, 25, 50, 75, 100],
                 "aaSortingFixed": [[0, 'asc']],
