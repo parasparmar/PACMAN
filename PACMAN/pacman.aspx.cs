@@ -25,8 +25,6 @@ public partial class pacman : System.Web.UI.Page
     private decimal FinalRating { get; set; }
     public bool xShowButtons { get; set; }
     public DataTable DtProcName { get; set; }
-
-
     protected void Page_Load(object sender, EventArgs e)
     {
         my = new Helper();

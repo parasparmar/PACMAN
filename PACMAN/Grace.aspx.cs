@@ -8,6 +8,7 @@ using System.Web.UI.WebControls;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.Sql;
+using System.Web.Services;
 
 public partial class Grace : System.Web.UI.Page
 {
@@ -41,7 +42,7 @@ public partial class Grace : System.Web.UI.Page
                     }
                     MyName = dtEmp.Rows[0]["First_Name"].ToString() + " " + dtEmp.Rows[0]["Middle_Name"].ToString() + " " + dtEmp.Rows[0]["Last_Name"].ToString();
                     MyRepMgr = Convert.ToInt32(dtEmp.Rows[0]["RepMgrCode"].ToString());
-                    
+
                 }
             }
             catch (Exception Ex)
@@ -69,7 +70,7 @@ public partial class Grace : System.Web.UI.Page
                     // In Production Use the below
                     MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
                     MyRepMgr = Convert.ToInt32(dtEmp.Rows[0]["RepMgrCode"].ToString());
-                    
+
                 }
             }
             catch (Exception Ex)
@@ -80,16 +81,16 @@ public partial class Grace : System.Web.UI.Page
         }
 
         string orginalUrl = HttpContext.Current.Request.Url.AbsolutePath;
-        
 
-        if (!PageExtensionMethods.AmIAllowedThisPage(MyEmpID, orginalUrl ))
+
+        if (!PageExtensionMethods.AmIAllowedThisPage(MyEmpID, orginalUrl))
         {
             Response.Redirect("404.aspx");
         }
-        
+
     }
 
-    
+
 
 
     private void fillEmpList()
@@ -149,7 +150,7 @@ public partial class Grace : System.Web.UI.Page
         int PeriodID = Convert.ToInt32(ddlPeriod.SelectedValue.ToString());
         int cellIndex = gvr.GetGVCellUsingFieldName("Grace");
         TextBox tbGrace = gvr.Cells[cellIndex].FindControl("tbGrace") as TextBox;
-        decimal Grace = Decimal.Round(Convert.ToDecimal(tbGrace.Text),2);
+        decimal Grace = Decimal.Round(Convert.ToDecimal(tbGrace.Text), 2);
         string strSQL = @"UPDATE [PMS].[Eligibility] SET [Grace] = @Grace   
                         WHERE [PeriodID] = @PeriodID and EmpCode = @EmpCode";
         SqlCommand cmd = new SqlCommand(strSQL);
@@ -159,6 +160,82 @@ public partial class Grace : System.Web.UI.Page
         int rows = my.ExecuteDMLCommand(ref cmd, strSQL, "E");
 
         fillEmpList();
+    }
+
+    [WebMethod]
+    public static List<DataDB> GetChartData()
+    {
+        string strSQL = string.Empty;
+
+        strSQL = GetOverAllSQL();
+        Helper my = new Helper();
+        string constr = my.getConnectionString();
+        DataTable dt = new DataTable();
+
+        using (SqlConnection con = new SqlConnection(constr))
+        {
+            using (SqlCommand cmd = new SqlCommand(strSQL))
+            {
+                cmd.Connection = con;
+                List<DataDB> chartData = new List<DataDB>();
+                con.Open();
+                using (SqlDataReader sdr = cmd.ExecuteReader())
+                {
+                    dt.Load(sdr);
+                    var columns = dt.Columns;
+                    foreach (DataRow drow in dt.Rows)
+                    {
+                        chartData.Add(new DataDB
+                        {
+                            ReportingManager = columns.Contains("ReportingManager") ? drow["ReportingManager"].ToString() : string.Empty,
+                            Role = columns.Contains("Role") ? drow["Role"].ToString() : string.Empty,
+                            Level = columns.Contains("Level") ? drow["Level"].ToString() : string.Empty,
+                            EmpCode = columns.Contains("EmpCode") ? drow["EmpCode"].ToInt32() : 0,
+                            Employee = columns.Contains("Employee") ? drow["Employee"].ToString() : string.Empty,
+                            Designation = columns.Contains("Designation") ? drow["Designation"].ToString() : string.Empty,
+                            RepMgrScore = columns.Contains("RepMgrScore") ? drow["RepMgrScore"].ToDecimal() : 0,
+                            RepMgrRating = columns.Contains("RepMgrRating") ? drow["RepMgrRating"].ToDecimal() : 0,
+                            Grace = columns.Contains("Grace") ? drow["Grace"].ToDecimal() : 0,
+                            FinalScore = columns.Contains("FinalScore") ? drow["FinalScore"].ToDecimal() : 0,
+                            FinalRating = columns.Contains("FinalRating") ? drow["FinalRating"].ToDecimal() : 0,
+                            IsSPI = columns.Contains("IsSPI") ? drow["IsSPI"].ToString() : string.Empty,
+                            IsDefault = columns.Contains("IsDefault") ? drow["IsDefault"].ToString() : string.Empty,
+                            Active = columns.Contains("Active") ? drow["Active"].ToString() : string.Empty,
+                            PMSStatus = columns.Contains("PMSStatus") ? drow["PMSStatus"].ToString() : string.Empty
+                        });
+                    }
+                }
+                con.Close();
+                return chartData;
+            }
+        }
+    }
+    public static string GetOverAllSQL()
+    {
+        string strSQL = @"select  dbo.getfullname(a.RepMgr) as ReportingManager
+		        , b.Role
+		        , F.Level
+		        , a.EmpCode
+		        , dbo.getfullname(a.EmpCode) as Employee
+		        , e.Designation
+		        , a.RepMgrScore
+		        , a.RepMgrRating	
+		        , a.Grace	
+		        , a.FinalScore	
+		        , a.FinalRating	
+		        , Case when a.IsSPI = 1 then 'SPI' else 'Not SPI' end as IsSPI	
+		        , Case when a.IsDefault = 1 then 'Default' else 'Not Default' end as IsDefault
+		        , Case when a.Active = 1 then 'Active' else 'InActive' end as Active
+		        , g.LockType as PMSStatus
+        from pms.eligibility a
+        inner join pms.role b on b.roleid = a.roleid
+        inner join pms.periodmst c on c.periodid = a.periodid
+        inner join wfmp.tbldesignation e on e.id = a.DesigID
+        inner join wfmp.tbllevel f on f.levelid = a.levelid
+        inner join PMS.Lock g on g.LockID = a.LockID
+        where a.active = 1 and b.active = 1 and a.periodid = 5
+        order by 1, b.Role, F.Level, e.Designation";
+        return strSQL;
     }
 }
 
