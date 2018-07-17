@@ -210,8 +210,10 @@ public partial class Grace : System.Web.UI.Page
             }
         }
     }
+
     public static string GetOverAllSQL()
     {
+        //int PeriodID = ddlPeriod.SelectedValue.ToInt32();
         string strSQL = @"select  dbo.getfullname(a.RepMgr) as ReportingManager
 		        , b.Role
 		        , F.Level

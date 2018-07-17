@@ -53,7 +53,7 @@
                     </div>
                 </div>
             </div>
-
+            <button id="btnGetOverallData" type="button" class="btn btn-primary" onclick="getOverallData()">Refresh Data</button>
             <div class="nav-tabs-custom" style="height: auto;">
                 <!-- Tabs within a box -->
                 <ul class="nav nav-tabs pull-right">
@@ -102,7 +102,7 @@
                     </div>
                     <!-- Morris chart - Sales -->
                     <div class="chart tab-pane" id="grace-pivot" style="position: relative;">
-                        <button id="btnGetOverallData" type="button" class="btn btn-primary" onclick="getOverallData()">Refresh Data</button>
+                        
                     </div>
                 </div>
             </div>
@@ -113,8 +113,8 @@
     </asp:UpdatePanel>
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
-    <script src="https://cdn.plot.ly/plotly-basic-latest.min.js"></script>
-    <script type="text/javascript" src="Sitel/cdn/pivotjs/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="Sitel/cdn/pivotjs/plotly-basic-latest.min.js"></script>
+    <%--<script type="text/javascript" src="Sitel/cdn/pivotjs/jquery-ui.min.js"></script>--%>
     <script src="Sitel/cdn/pivotjs/pivot.js"></script>
     <link href="Sitel/cdn/pivotjs/pivot.css" rel="stylesheet" />
     <script src="Sitel/cdn/pivotjs/plotly_renderers.js"></script>
@@ -169,7 +169,7 @@
             getOverallData();
         }
         $(function () {
-            pluginsInitializer();
+           // pluginsInitializer();
 
         });
 

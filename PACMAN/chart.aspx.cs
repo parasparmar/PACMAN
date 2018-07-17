@@ -53,41 +53,27 @@ public partial class chart : System.Web.UI.Page
         SqlCommand cmd = new SqlCommand("FillTeamList9box");
         cmd.Parameters.AddWithValue("@RepMgrCode", RepMgrCode);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        ddlMgr.DataSource = dt;
-        ddlMgr.DataTextField = "Name";
-        ddlMgr.DataValueField = "EMPCODE";
-        ddlMgr.DataBind();
+        lvMGR.DataSource = dt;
+        lvMGR.DataBind();
     }
 
-    protected void ddlMgr_SelectedIndexChanged(object sender, EventArgs e)
+    private void fillLvSkill()
     {
-        int RepMgrCode = ddlMgr.SelectedValue.ToInt32();
-        FillDesignationList(RepMgrCode);
-    }
-    public void FillDesignationList(int EmpCode)
-    {
-        string query = "FillDesignation9Box";
-        SqlCommand cmd = new SqlCommand(query);
-        cmd.Parameters.AddWithValue("@RepMgrCode", EmpCode);
-        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        ddlMgr.DataSource = dt;
-        ddlMgr.DataTextField = "DESIGNATION";
-        ddlMgr.DataValueField = "DESIGNATIONID";
-        ddlMgr.DataBind();
 
     }
-
-
+    
     [WebMethod]
-    public static List<NineBubbleChart> GetBubbleChart(string stageID)
+    public static List<NineBubbleChart> GetBubbleChart(string EMPCODE)
     {
         Helper my = new Helper();
         string query = "FillChart9box";
         SqlCommand cmd = new SqlCommand(query);
-        cmd.Parameters.AddWithValue("@StageID", stageID);
+        cmd.Parameters.AddWithValue("@EMPCODE", EMPCODE);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+        DataView dv = new DataView(dt, "repmgrcode", "ASC", DataViewRowState.CurrentRows);
+
         List<NineBubbleChart> objList = new List<NineBubbleChart>();
-        objList = (from DataRow dr in dt.Rows
+        objList = (from DataRow dr in dv
                    select new NineBubbleChart()
                    {
                        EmpCode = dr["EMPCODE"].ToString(),
