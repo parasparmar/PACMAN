@@ -84,9 +84,6 @@
             </div>
         </div>
     </div>--%>
-
-    
-
     <asp:ListView ID="lvMGR" runat="server">
         <LayoutTemplate>
             <div class="row" id="itemPlaceholderContainer" runat="server">
@@ -213,7 +210,6 @@
                         ////debugger;
                         var strData = $.parseJSON(JSON.stringify(data.d));
                         NineBoxChart(xDataSets);
-
                     },
                     failure: function (response) {
                         alert(response.d);                        
@@ -267,13 +263,9 @@
                             }]
                         },
                     },
-
                 });
             }
-
-
-        }
-        
+        }       
         
     </script>
 </asp:Content>

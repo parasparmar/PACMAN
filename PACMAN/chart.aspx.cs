@@ -55,10 +55,7 @@ public partial class chart : System.Web.UI.Page
         lvMGR.DataSource = dt;
         lvMGR.DataBind();
     }    
-    private void fillLvSkill()
-    {
-
-    }    
+      
     [WebMethod]
     public static List<NineBubbleChart> GetBubbleChart(string EMPCODE)
     {
