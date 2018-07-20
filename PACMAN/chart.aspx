@@ -2,6 +2,23 @@
 
 <%@ MasterType VirtualPath="~/MasterPage.master" %>
 <asp:Content ID="Content4" ContentPlaceHolderID="pageheader" runat="Server">
+    <ol class="breadcrumb">
+        <li><a href="index.aspx"><i class="iconfa-home"></i>Home</a></li>
+        <li class="active"><a href="pacman.aspx">
+            <img src="sitel/img/performance-360_bw.png" style="height: 10px" alt="" />PACMAN</a></li>
+    </ol>
+
+    <div class="pageheader">
+        <div class="pageicon">
+            <img src="sitel/img/performance-360_bw.png" style="height: 60px" alt="" />
+        </div>
+        <div class="pagetitle">
+            <h5>Scores acheived by Managers on PACMAN Tests and Feedback scores</h5>
+            <h1>Tests & Feedback Scores</h1>
+        </div>
+    </div>
+    <!--pageheader-->
+    
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
     <%--<div class="box">
@@ -67,6 +84,9 @@
             </div>
         </div>
     </div>--%>
+
+    
+
     <asp:ListView ID="lvMGR" runat="server">
         <LayoutTemplate>
             <div class="row" id="itemPlaceholderContainer" runat="server">
@@ -78,7 +98,7 @@
             <div class="col-md-6" runat="server">
                 <div class="box box-primary" runat="server">
                     <div class="box-header with-border" runat="server">
-                        <h3 class="box-title" runat="server">Logged In User : <%#Eval("NAME") %></h3>
+                        <h3 class="box-title" runat="server"><%#Eval("NAME") %> ( <label id="lblEmpID"><%#Eval("EMPCODE") %></label> )</h3>
                         <div class="box-tools pull-right" runat="server">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse" runat="server">
                                 <i class="fa fa-minus" runat="server"></i>
@@ -86,9 +106,9 @@
                             <button type="button" class="btn btn-box-tool" data-widget="remove" runat="server"><i class="fa fa-times" runat="server"></i></button>
                         </div>
                     </div>
-                    <div class="box-body" runat="server">
+                    <div class="box-body" style="height:300px; width:600px" runat="server">
                         <div class="chart-container" runat="server">
-                            <canvas id="managerchart" runat="server"></canvas>
+                            <canvas id="mgrChart<%#Eval("EMPCODE") %>" class="mgrChart<%#Eval("EMPCODE") %>" style="height:300px; width:600px"></canvas>
                         </div>
                     </div>
                     <!-- /.box-body  -->
@@ -131,77 +151,29 @@
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
     <!-- Pace style -->
     <link href="AdminLTE/plugins/pace/pace.min.css" rel="stylesheet" />
-
+    <%--<script src="AdminLTE/bower_components/chart.js/Chart.min.js"></script>--%>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
     <!-- PACE -->
     <%--<script src="AdminLTE/plugins/pace/pace.min.js"></script>--%>
     <script>
         $(function () {
-            //fillTypeList("", "ddlMgr");
+            $('[class*="mgrChart"]').each(function () {
+                var id = $(this).prop('id');
+                id = id.replace("mgrChart", "");
+                if (parseInt(id) > 0) {
+                    fillChartbubble(id);
+                }
+            });
         });
-        function NineBoxChart(xdata) {
-            var ctx = $("#myChart");
-            if (xdata != null) {
-                ctx.empty();
-            }
-            var myChart = new Chart(ctx, {
-                type: 'bubble',
-                data: {
-                    labels: "Managers",
-                    datasets: xdata,
-                    hoverRadius: 0
-                },
 
-                options: {
-                    title: {
-                        display: true,
-                        text: 'Scores acheived by Managers on PACMAN Tests and Feedback scores'
-                    },
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true,
-                                min: 0,
-                                max: 100,
-                                stepSize: 33.33,
-                                maxTicksLimit: 4
-                            },
-                            scaleLabel: {
-                                display: true,
-                                labelString: "Feedback Scores (More is better)"
-                            }
-                        }],
-                        xAxes: [{
-                            ticks: {
-                                beginAtZero: true,
-                                min: 0,
-                                max: 100,
-                                stepSize: 33.33,
-                                maxTicksLimit: 4
-                            },
-                            scaleLabel: {
-                                display: true,
-                                labelString: "Pacman Scores (More is better)"
-                            }
-                        }]
-                    },
-                },
-
-            });
-        }
-        function fillChartbubble() {
-            //debugger;
-            $(document).ajaxStart(function () {
-                Pace.start();
-            });
-            var optionSelected = $("[id$=ddlStage] option:selected").val();
-            var params = '{"stageID":"' + optionSelected + '"}';
+        function fillChartbubble(optionSelected) {
+            //debugger;            
+            var params = '{"EMPCODE":"' + optionSelected + '"}';
             if (optionSelected != "" && optionSelected != "0") {
-                //debugger;
-                var myDropDownList = $('#ddlStage');
+                //debugger;                
                 $.ajax({
                     type: "POST",
-                    url: "/chart.aspx/GetBubbleChart",
+                    url: "chart.aspx/GetBubbleChart",
                     data: params,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
@@ -238,25 +210,71 @@
                             };
                             xDataSets.push(xDataSet);
                         }
-                        //debugger;
+                        ////debugger;
                         var strData = $.parseJSON(JSON.stringify(data.d));
                         NineBoxChart(xDataSets);
 
                     },
                     failure: function (response) {
-                        alert(response.d);
-                        $(document).ajaxStop(function () {
-                            Pace.stop();
-                        });
+                        alert(response.d);                        
                     }
                 });
+            }
+            function NineBoxChart(xdata) {
+                var ctx = $("#mgrChart"+optionSelected);
+                if (xdata != null) {
+                    ctx.empty();
+                }
+                var myChart = new Chart(ctx, {
+                    type: 'bubble',
+                    data: {
+                        labels: "Managers",
+                        datasets: xdata,
+                        hoverRadius: 0
+                    },
 
-                FillDesignationList(optionSelected);
-                $(document).ajaxStop(function () {
-                    Pace.stop();
+                    options: {
+                        title: {
+                            display: false,
+                            text: 'Scores acheived by Managers on PACMAN Tests and Feedback scores'
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true,
+                                    min: 0,
+                                    max: 100,
+                                    stepSize: 33.33,
+                                    maxTicksLimit: 4
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "Feedback Scores (More is better)"
+                                }
+                            }],
+                            xAxes: [{
+                                ticks: {
+                                    beginAtZero: true,
+                                    min: 0,
+                                    max: 100,
+                                    stepSize: 33.33,
+                                    maxTicksLimit: 4
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "Pacman Scores (More is better)"
+                                }
+                            }]
+                        },
+                    },
+
                 });
             }
+
+
         }
+        
+        
     </script>
 </asp:Content>
 

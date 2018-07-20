@@ -46,7 +46,6 @@ public partial class chart : System.Web.UI.Page
             FillTeamList9box();
         }
     }
-
     private void FillTeamList9box()
     {
         int RepMgrCode = MyEmpID;
@@ -55,13 +54,11 @@ public partial class chart : System.Web.UI.Page
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         lvMGR.DataSource = dt;
         lvMGR.DataBind();
-    }
-
+    }    
     private void fillLvSkill()
     {
 
-    }
-    
+    }    
     [WebMethod]
     public static List<NineBubbleChart> GetBubbleChart(string EMPCODE)
     {
@@ -69,11 +66,10 @@ public partial class chart : System.Web.UI.Page
         string query = "FillChart9box";
         SqlCommand cmd = new SqlCommand(query);
         cmd.Parameters.AddWithValue("@EMPCODE", EMPCODE);
+        cmd.Parameters.AddWithValue("@Period", "H1 2018");
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        DataView dv = new DataView(dt, "repmgrcode", "ASC", DataViewRowState.CurrentRows);
-
         List<NineBubbleChart> objList = new List<NineBubbleChart>();
-        objList = (from DataRow dr in dv
+        objList = (from DataRow dr in dt.Rows
                    select new NineBubbleChart()
                    {
                        EmpCode = dr["EMPCODE"].ToString(),
@@ -83,6 +79,7 @@ public partial class chart : System.Web.UI.Page
                        Radius = dr["RADIUS"].ToString()
 
                    }).ToList();
+        
         return objList;
     }
     public class NineBubbleChart
