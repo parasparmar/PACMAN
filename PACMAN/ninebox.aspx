@@ -154,35 +154,26 @@
     </asp:ListView>
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
-    <!-- Pace style -->
-    <link href="AdminLTE/plugins/pace/pace.min.css" rel="stylesheet" />
-    <%--<script src="AdminLTE/bower_components/chart.js/Chart.min.js"></script>--%>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.min.js"></script>
-    <!-- PACE -->
-    <%--<script src="AdminLTE/plugins/pace/pace.min.js"></script>--%>
+    <script src="Sitel/cdn/Chart.bundle.min.js"></script>
+
     <script>
         $(function () {
             var EMPCODE = $('#lblEmpID').text();
-
-
             $('[class*="mgrChart"]').each(function () {
                 var id = $(this).prop('id');
                 id = id.replace("mgrChart", "");
-                if (parseInt(id) > 0) {
-                    fillChartbubble(id);
-                }
+                //if (parseInt(id) > 0) {
+                fillChartbubble(id);
+                //}
             });
             $('[class*="skillChart"]').each(function () {
                 var id = $(this).prop('id');
                 id = id.replace("skillChart", "");
-
-
-                if (parseInt(id) > 0 && parseInt(EMPCODE) > 0) {
-                    //Fill the charts with skill based charts
-                    fillSkillSetBubble(parseInt(EMPCODE), parseInt(id));
-                }
+                //if (parseInt(id) > 0 && parseInt(EMPCODE) > 0) {
+                //Fill the charts with skill based charts
+                fillSkillSetBubble(EMPCODE, id);
+                //}
             });
-
         });
 
         function fillChartbubble(optionSelected) {
@@ -286,14 +277,14 @@
                                 }
                             }]
                         },
+                        backgroundColor: 'pink'
                     },
                 });
             }
         }
-
         function fillSkillSetBubble(EmpCode, Skill) {
             //debugger;            
-            var params = '{"EMPCODE":' + EmpCode + ', "Skill":' + Skill + '}';
+            var params = '{"EMPCODE":"' + EmpCode + '", "Skill":"' + Skill + '"}';
             if (EmpCode != "" && EmpCode != "0") {
                 //debugger;                
                 $.ajax({
