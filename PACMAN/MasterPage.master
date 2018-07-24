@@ -372,7 +372,11 @@
                                     <li><a href="report.aspx"><i class="fa fa-calendar-check-o"></i>Report</a></li>
                                 </ul>
                             </li>
-
+                            <li>
+                                <a href="ninebox.aspx">
+                                    <i class="fa fa-bar-chart"></i><span>Nine Box</span>
+                                </a>
+                            </li>
                         </ul>
                     </section>
                     <!-- /.sidebar -->

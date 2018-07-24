@@ -35,7 +35,7 @@
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
     <button id="btnGetOverallData" type="button" class="btn btn-primary" onclick="getOverallData()">Overall Data</button>
-    <button id="btnGetDetailedData" type="button" class="btn btn-warning" onclick="getDetailedData()">Overall Detailed Data</button>
+    <%--<button id="btnGetDetailedData" type="button" class="btn btn-warning" onclick="getDetailedData()">Overall Detailed Data</button>--%>
     <div id="output">
     </div>
 </asp:Content>

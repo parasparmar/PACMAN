@@ -1,4 +1,4 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="chart.aspx.cs" Inherits="chart" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="ninebox.aspx.cs" Inherits="ninebox" %>
 
 <%@ MasterType VirtualPath="~/MasterPage.master" %>
 <asp:Content ID="Content4" ContentPlaceHolderID="pageheader" runat="Server">
@@ -7,21 +7,29 @@
         <li class="active"><a href="pacman.aspx">
             <img src="sitel/img/performance-360_bw.png" style="height: 10px" alt="" />PACMAN</a></li>
     </ol>
-
     <div class="pageheader">
         <div class="pageicon">
             <img src="sitel/img/performance-360_bw.png" style="height: 60px" alt="" />
         </div>
         <div class="pagetitle">
-            <h5>Scores acheived by Managers on PACMAN Tests and Feedback scores</h5>
-            <h1>Tests & Feedback Scores</h1>
+            <h5>Scores acheived by Managers on Performance Tests and Competency</h5>
+            <h1>Nine Box</h1>
         </div>
     </div>
     <!--pageheader-->
-    
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
     <%--<div class="box">
+        <div class="box-header with-border">
+            <h3 class="box-title" runat="server">Please Select</h3>
+            <div class="box-tools pull-right">
+                <button type="button" class="btn btn-box-tool" data-widget="collapse" runat="server">
+                    <i class="fa fa-minus" runat="server"></i>
+                </button>
+                <button type="button" class="btn btn-box-tool" data-widget="remove" runat="server"><i class="fa fa-times" runat="server"></i></button>
+            </div>
+        </div>
+
         <div class="box-body">
             <div class="form-group">
                 <div class="col-lg-3">
@@ -72,7 +80,7 @@
                                 <div class="input-group-addon">
                                     <i class="fa fa-user"></i>
                                 </div>
-                                <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlSPI" runat="server">                                    
+                                <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlSPI" runat="server">
                                     <asp:ListItem Enabled="true" Text="False" Value="0"></asp:ListItem>
                                     <asp:ListItem Enabled="true" Text="True" Value="1"></asp:ListItem>
                                 </asp:DropDownList>
@@ -95,17 +103,18 @@
             <div class="col-md-6" runat="server">
                 <div class="box box-primary" runat="server">
                     <div class="box-header with-border" runat="server">
-                        <h3 class="box-title" runat="server"><%#Eval("NAME") %> ( <label id="lblEmpID"><%#Eval("EMPCODE") %></label> )</h3>
+                        <h3 class="box-title" runat="server"><%#Eval("NAME") %> (
+                            <label id="lblEmpID"><%#Eval("EMPCODE") %></label>
+                            )</h3>
                         <div class="box-tools pull-right" runat="server">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse" runat="server">
                                 <i class="fa fa-minus" runat="server"></i>
                             </button>
-                            <button type="button" class="btn btn-box-tool" data-widget="remove" runat="server"><i class="fa fa-times" runat="server"></i></button>
                         </div>
                     </div>
-                    <div class="box-body" style="height:300px; width:600px" runat="server">
+                    <div class="box-body" style="height: 300px; width: 600px" runat="server">
                         <div class="chart-container" runat="server">
-                            <canvas id="mgrChart<%#Eval("EMPCODE") %>" class="mgrChart<%#Eval("EMPCODE") %>" style="height:300px; width:600px"></canvas>
+                            <canvas id="mgrChart<%#Eval("EMPCODE") %>" class="mgrChart<%#Eval("EMPCODE") %>" style="height: 300px; width: 600px"></canvas>
                         </div>
                     </div>
                     <!-- /.box-body  -->
@@ -117,25 +126,24 @@
     <asp:ListView ID="lvSkill" runat="server">
         <LayoutTemplate>
             <div class="row" id="itemPlaceholderContainer" runat="server">
-                <div class="col-md-3" id="itemPlaceholder" runat="server">
+                <div class="col-md-6" id="itemPlaceholder" runat="server">
                 </div>
             </div>
         </LayoutTemplate>
         <ItemTemplate>
-            <div class="col-md-3" runat="server">
-                <div class="box box-primary" runat="server">
+            <div class="col-md-6" runat="server">
+                <div class="box box-default box-solid" runat="server">
                     <div class="box-header with-border" runat="server">
-                        <h3 class="box-title" runat="server">Department : <%#Eval("Skill") %></h3>
+                        <h3 class="box-title" runat="server">Department : <%#Eval("Skillset") %></h3>
                         <div class="box-tools pull-right" runat="server">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse" runat="server">
                                 <i class="fa fa-minus" runat="server"></i>
                             </button>
-                            <button type="button" class="btn btn-box-tool" data-widget="remove" runat="server"><i class="fa fa-times" runat="server"></i></button>
                         </div>
                     </div>
                     <div class="box-body" runat="server">
                         <div class="chart-container" runat="server">
-                            <canvas id="managerchart" runat="server"></canvas>
+                            <canvas id="skillChart<%#Eval("SkillsetID") %>" class="skillChart<%#Eval("SkillsetID") %>" style="height: 300px; width: 600px"></canvas>
                         </div>
                     </div>
                     <!-- /.box-body  -->
@@ -154,6 +162,9 @@
     <%--<script src="AdminLTE/plugins/pace/pace.min.js"></script>--%>
     <script>
         $(function () {
+            var EMPCODE = $('#lblEmpID').text();
+
+
             $('[class*="mgrChart"]').each(function () {
                 var id = $(this).prop('id');
                 id = id.replace("mgrChart", "");
@@ -161,6 +172,17 @@
                     fillChartbubble(id);
                 }
             });
+            $('[class*="skillChart"]').each(function () {
+                var id = $(this).prop('id');
+                id = id.replace("skillChart", "");
+
+
+                if (parseInt(id) > 0 && parseInt(EMPCODE) > 0) {
+                    //Fill the charts with skill based charts
+                    fillSkillSetBubble(parseInt(EMPCODE), parseInt(id));
+                }
+            });
+
         });
 
         function fillChartbubble(optionSelected) {
@@ -176,7 +198,7 @@
                     dataType: "json",
                     success: function (data) {
                         //debugger;
-                        console.log(data.d);
+                        //console.log(data.d);
 
                         var dynamicColors = function () {
                             var r = Math.floor(Math.random() * 255);
@@ -189,21 +211,23 @@
                             var xDataSet = {
                                 label: data.d[i]["Name"].toString(),
                                 backgroundColor: dynamicColors(),
+                                hoverBackgroundColor: 'rgba(247, 151, 35, 0.5)',
+                                //hoverRadius: -1,
                                 borderColor: "rgb(69,70,72)",
-                                borderWidth: 1,
-                                hoverBorderWidth: 0,
-                                hoverRadius: 4,
-                                hitRadius: 1,
+                                //borderWidth: 1,
+                                hoverBorderWidth: 2,
+                                hoverRadius: 0,//-0.001,
+                                // hitRadius: 1,
                                 data: [
                                     {
-                                        x: data.d[i]["Performance"].toString(),
-                                        y: data.d[i]["Competency"].toString(),
-                                        r: data.d[i]["Radius"].toString()
+                                        x: data.d[i]["Performance"],
+                                        y: data.d[i]["Competency"],
+                                        r: data.d[i]["Radius"],
                                     }
 
                                 ],
-                                hoverRadius: 4,
-                                hitRadius: 1,
+                                //hoverRadius: 1,
+                                //hitRadius: 1,
                             };
                             xDataSets.push(xDataSet);
                         }
@@ -212,12 +236,12 @@
                         NineBoxChart(xDataSets);
                     },
                     failure: function (response) {
-                        alert(response.d);                        
+                        alert(response.d);
                     }
                 });
             }
             function NineBoxChart(xdata) {
-                var ctx = $("#mgrChart"+optionSelected);
+                var ctx = $("#mgrChart" + optionSelected);
                 if (xdata != null) {
                     ctx.empty();
                 }
@@ -226,13 +250,13 @@
                     data: {
                         labels: "Managers",
                         datasets: xdata,
-                        hoverRadius: 0
+                        //hoverRadius: 0,
                     },
 
                     options: {
                         title: {
                             display: false,
-                            text: 'Scores acheived by Managers on PACMAN Tests and Feedback scores'
+                            text: 'Scores acheived by Managers on Performance Tests and Competency'
                         },
                         scales: {
                             yAxes: [{
@@ -245,7 +269,7 @@
                                 },
                                 scaleLabel: {
                                     display: true,
-                                    labelString: "Feedback Scores (More is better)"
+                                    labelString: "Competency (More is better)"
                                 }
                             }],
                             xAxes: [{
@@ -258,15 +282,124 @@
                                 },
                                 scaleLabel: {
                                     display: true,
-                                    labelString: "Pacman Scores (More is better)"
+                                    labelString: "Performance (More is better)"
                                 }
                             }]
                         },
                     },
                 });
             }
-        }       
-        
+        }
+
+        function fillSkillSetBubble(EmpCode, Skill) {
+            //debugger;            
+            var params = '{"EMPCODE":' + EmpCode + ', "Skill":' + Skill + '}';
+            if (EmpCode != "" && EmpCode != "0") {
+                //debugger;                
+                $.ajax({
+                    type: "POST",
+                    url: "chart.aspx/GetSkillChart",
+                    data: params,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (data) {
+                        //debugger;
+                        //console.log(data.d);
+
+                        var dynamicColors = function () {
+                            var r = Math.floor(Math.random() * 255);
+                            var g = Math.floor(Math.random() * 255);
+                            var b = Math.floor(Math.random() * 255);
+                            return "rgb(" + r + "," + g + "," + b + ")";
+                        };
+                        var xDataSets = [];
+                        for (var i = 0; i < data.d.length; i++) {
+                            var xDataSet = {
+                                label: data.d[i]["Name"].toString(),
+                                backgroundColor: dynamicColors(),
+                                hoverBackgroundColor: 'rgba(247, 151, 35, 0.5)',
+                                //hoverRadius: -1,
+                                borderColor: "rgb(69,70,72)",
+                                //borderWidth: 1,
+                                hoverBorderWidth: 2,
+                                hoverRadius: 0,//-0.001,
+                                // hitRadius: 1,
+                                data: [
+                                    {
+                                        x: data.d[i]["Performance"],
+                                        y: data.d[i]["Competency"],
+                                        r: data.d[i]["Radius"],
+                                    }
+
+                                ],
+                                //hoverRadius: 1,
+                                //hitRadius: 1,
+                            };
+                            xDataSets.push(xDataSet);
+                        }
+                        ////debugger;
+                        var strData = $.parseJSON(JSON.stringify(data.d));
+                        NineBoxChart(xDataSets);
+                    },
+                    failure: function (response) {
+                        alert(response.d);
+                    }
+                });
+            }
+            function NineBoxChart(xdata) {
+                var ctx = $("#skillChart" + Skill);
+                if (xdata != null) {
+                    ctx.empty();
+                }
+                var myChart = new Chart(ctx, {
+                    type: 'bubble',
+                    data: {
+                        labels: "Managers",
+                        datasets: xdata,
+                        //hoverRadius: 0,
+                    },
+
+                    options: {
+                        title: {
+                            display: false,
+                            text: 'Scores acheived by Managers on Performance Tests and Competency'
+                        },
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true,
+                                    min: 0,
+                                    max: 100,
+                                    stepSize: 33.33,
+                                    maxTicksLimit: 4
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "Competency (More is better)"
+                                }
+                            }],
+                            xAxes: [{
+                                ticks: {
+                                    beginAtZero: true,
+                                    min: 0,
+                                    max: 100,
+                                    stepSize: 33.33,
+                                    maxTicksLimit: 4
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "Performance (More is better)"
+                                }
+                            }]
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                });
+            }
+        }
+
     </script>
 </asp:Content>
 

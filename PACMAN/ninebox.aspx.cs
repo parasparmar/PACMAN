@@ -10,7 +10,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 
 
-public partial class chart : System.Web.UI.Page
+public partial class ninebox : System.Web.UI.Page
 {
     DataTable dtEmp;
     Helper my;
@@ -39,11 +39,12 @@ public partial class chart : System.Web.UI.Page
             Response.Redirect(ViewState["PreviousPageUrl"] != null ? ViewState["PreviousPageUrl"].ToString() : "index.aspx", false);
         }
         Literal title = (Literal)PageExtensionMethods.FindControlRecursive(Master, "ltlPageTitle");
-        title.Text = "Charts";
+        title.Text = "Nine Box";
 
         if (!IsPostBack)
         {
             FillTeamList9box();
+            FillSkillset9Box();
         }
     }
     private void FillTeamList9box()
@@ -54,8 +55,13 @@ public partial class chart : System.Web.UI.Page
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         lvMGR.DataSource = dt;
         lvMGR.DataBind();
-    }    
-      
+    }
+    private void FillSkillset9Box()
+    {
+        DataTable dt = my.GetData("select SkillsetID, Skillset from WFMP.tblSkillSet where SkillsetID < 5");
+        lvSkill.DataSource = dt;
+        lvSkill.DataBind();
+    }
     [WebMethod]
     public static List<NineBubbleChart> GetBubbleChart(string EMPCODE)
     {
@@ -76,13 +82,40 @@ public partial class chart : System.Web.UI.Page
                        Radius = dr["RADIUS"].ToString()
 
                    }).ToList();
-        
+
         return objList;
     }
+
+    [WebMethod]
+    public static List<NineBubbleChart> GetSkillChart(string EMPCODE, string Skill)
+    {
+        Helper my = new Helper();
+        string query = "skillbox9";
+        SqlCommand cmd = new SqlCommand(query);
+        cmd.Parameters.AddWithValue("@EMPCODE", EMPCODE);
+        cmd.Parameters.AddWithValue("@Skill", Skill);
+        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+        List<NineBubbleChart> objList = new List<NineBubbleChart>();
+        objList = (from DataRow dr in dt.Rows
+                   select new NineBubbleChart()
+                   {
+                       EmpCode = dr["EMPCODE"].ToString(),
+                       Name = dr["NAME"].ToString(),
+                       Designation = dr["DESIGNATION"].ToString(),
+                       Performance = dr["PERFORMANCE"].ToString(),
+                       Competency = dr["COMPETENCY"].ToString(),
+                       Radius = dr["RADIUS"].ToString()
+
+                   }).ToList();
+
+        return objList;
+    }
+
     public class NineBubbleChart
     {
         public string EmpCode { get; set; }
         public string Name { get; set; }
+        public string Designation { get; set; }
         public string Performance { get; set; }
         public string Competency { get; set; }
         public string Radius { get; set; }
@@ -101,5 +134,9 @@ public partial class chart : System.Web.UI.Page
     {
         public string Value { get; set; }
         public string Text { get; set; }
+    }
+    protected void ddlMgr_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
     }
 }
