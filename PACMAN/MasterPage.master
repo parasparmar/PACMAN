@@ -402,9 +402,6 @@
                                     <i class="fa fa-exclamation-circle"></i><span>Exception Tracker</span>
                                 </a>
                             </li>
-
-
-
                             <li class="treeview">
                                 <a href="#">
                                     <i class="fa fa-cogs"></i>
@@ -479,36 +476,7 @@
                         </div>
                         <!-- /.box -->
                     </asp:ContentPlaceHolder>
-                    <style type="text/css">
-                        .modal {
-                            background: rgba(0,0,0,.7) !important;
-                        }
-
-                        .clscustomcenter {
-                            width: 0%;
-                            margin: 20% auto;
-                            padding: 10px;
-                            opacity: 1;
-                            z-index: 1000;
-                        }
-
-                            .clscustomcenter img {
-                                border-radius: 5px;
-                            }
-
-                            .clscustomcenter .clsloadtxt {
-                                display: block;
-                                padding-top: 12px;
-                                color: #fff;
-                                letter-spacing: 1px;
-                            }
-                    </style>
-                    <div id="progress" class="modal">
-                        <div class="clscustomcenter">                            
-                            <img src="AdminLTE/bower_components/ckeditor/plugins/mathjax/images/loader.gif" />
-                            <span class="clsloadtxt">processing....</span>
-                        </div>
-                    </div>
+                    
 
                 </section>
                 <!-- /.content -->

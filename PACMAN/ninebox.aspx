@@ -17,6 +17,30 @@
         </div>
     </div>
     <!--pageheader-->
+    <style type="text/css">
+        .modal {
+            background: rgba(0,0,0,.7) !important;
+        }
+
+        .clscustomcenter {
+            width: 0%;
+            margin: 20% auto;
+            padding: 10px;
+            opacity: 1;
+            z-index: 1000;
+        }
+
+            .clscustomcenter img {
+                border-radius: 5px;
+            }
+
+            .clscustomcenter .clsloadtxt {
+                display: block;
+                padding-top: 12px;
+                color: #fff;
+                letter-spacing: 1px;
+            }
+    </style>
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
     <%--<div class="box">
@@ -115,9 +139,15 @@
                     <div class="box-body" style="height: 300px; width: 600px" runat="server">
                         <div class="chart-container" runat="server">
                             <canvas id="mgrChart<%#Eval("EMPCODE") %>" class="mgrChart<%#Eval("EMPCODE") %>" style="height: 300px; width: 600px"></canvas>
+
                         </div>
                     </div>
                     <!-- /.box-body  -->
+                    <%--<div class="box-footer">
+                        <div class="progress progress-sm">
+                            <progress id="mgrChartAnimationProgress<%#Eval("EMPCODE") %>" class="progress-bar progress-bar-primary progress-bar-striped" role="progressbar" max="1" value="0" style="width: 100%"></progress>
+                        </div>
+                    </div>--%>
                 </div>
                 <!-- /.box -->
             </div>
@@ -132,17 +162,17 @@
         </LayoutTemplate>
         <ItemTemplate>
             <div class="col-md-6" runat="server">
-                <div class="box box-default box-solid" runat="server">
-                    <div class="box-header with-border" runat="server">
-                        <h3 class="box-title" runat="server">Department : <%#Eval("Skillset") %></h3>
-                        <div class="box-tools pull-right" runat="server">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse" runat="server">
-                                <i class="fa fa-minus" runat="server"></i>
+                <div class="box box-default box-solid">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Department : <%#Eval("Skillset") %></h3>
+                        <div class="box-tools pull-right">
+                            <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                <i class="fa fa-minus"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="box-body" runat="server">
-                        <div class="chart-container" runat="server">
+                    <div class="box-body">
+                        <div class="chart-container">
                             <canvas id="skillChart<%#Eval("SkillsetID") %>" class="skillChart<%#Eval("SkillsetID") %>" style="height: 300px; width: 600px"></canvas>
                         </div>
                     </div>
@@ -152,54 +182,59 @@
             </div>
         </ItemTemplate>
     </asp:ListView>
+    <div id="progress" class="modal">
+        <div class="clscustomcenter">
+            <img src="AdminLTE/bower_components/ckeditor/plugins/mathjax/images/loader.gif" />
+            <span class="clsloadtxt">processing....</span>
+        </div>
+    </div>
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
-    
+
+
     <script type="text/javascript" src="Sitel/cdn/chartjs/Chart.bundle.min.js"></script>
     <script type="text/javascript">
         $(function () {
-            
+
+            $('#progress').show();
             var EMPCODE = $('#lblEmpID').text();
-            
             $('[class*="mgrChart"]').each(function () {
-             
                 var id = $(this).prop('id');
                 id = id.replace("mgrChart", "");
-                //if (parseInt(id) > 0) {
-                fillChartbubble(id);
-                //}
-                
+                if (parseInt(id) > 0) {
+                    fillChartbubble(id);
+                }
             });
             $('[class*="skillChart"]').each(function () {
-                
                 var id = $(this).prop('id');
                 id = id.replace("skillChart", "");
-                //if (parseInt(id) > 0 && parseInt(EMPCODE) > 0) {
-                //Fill the charts with skill based charts
-                fillSkillSetBubble(EMPCODE, id);
-                //}
-                $("#progress").hide();
+                if (parseInt(id) > 0 && parseInt(EMPCODE) > 0) {
+                    //Fill the charts with skill based charts
+                    fillSkillSetBubble(EMPCODE, id);
+                }
+
             });
 
-            
+            $('#progress').hide();
         });
-
         function fillChartbubble(optionSelected) {
             //debugger;            
+
             var params = '{"EMPCODE":"' + optionSelected + '"}';
             if (optionSelected != "" && optionSelected != "0") {
                 //debugger;   
-                $("#progress").show();
+
                 $.ajax({
                     type: "POST",
                     url: "ninebox.aspx/GetBubbleChart",
                     data: params,
+                    async: false,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
                         //debugger;
                         //console.log(data.d);
-                       
+
 
                         var dynamicColors = function () {
                             var r = Math.floor(Math.random() * 255);
@@ -243,8 +278,10 @@
             }
             function NineBoxChart(xdata) {
                 var ctx = $("#mgrChart" + optionSelected);
+                //var progress = $("mgrChartAnimationProgress" + optionSelected);
                 if (xdata != null) {
                     ctx.empty();
+
                 }
                 var myChart = new Chart(ctx, {
                     type: 'bubble',
@@ -253,11 +290,20 @@
                         datasets: xdata,
                         //hoverRadius: 0,
                     },
-
                     options: {
                         title: {
                             display: false,
                             text: 'Scores acheived by Managers on Performance Tests and Competency'
+                        },
+                        legend: {
+                            display: true,
+                            position: 'right'
+                        },
+                        animation: {
+                            duration: 2500,
+                            //onProgress: function (animation) {
+                            //    progress.val(animation.currentStep / animation.numSteps);
+                            //}
                         },
                         scales: {
                             yAxes: [{
@@ -290,24 +336,27 @@
                         backgroundColor: 'pink'
                     },
                 });
+
             }
         }
         function fillSkillSetBubble(EmpCode, Skill) {
-            //debugger;            
+            //debugger; 
+
             var params = '{"EMPCODE":"' + EmpCode + '", "Skill":"' + Skill + '"}';
             if (EmpCode != "" && EmpCode != "0") {
                 //debugger;    
-                
+
                 $.ajax({
                     type: "POST",
                     url: "ninebox.aspx/GetSkillChart",
                     data: params,
+                    async: false,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
                         //debugger;
                         //console.log(data.d);
-                       
+
                         var dynamicColors = function () {
                             var r = Math.floor(Math.random() * 255);
                             var g = Math.floor(Math.random() * 255);
@@ -350,6 +399,7 @@
             }
             function NineBoxChart(xdata) {
                 var ctx = $("#skillChart" + Skill);
+                var progress = $("skillChartAnimationProgress" + Skill);
                 if (xdata != null) {
                     ctx.empty();
                 }
@@ -360,7 +410,6 @@
                         datasets: xdata,
                         //hoverRadius: 0,
                     },
-
                     options: {
                         title: {
                             display: false,
@@ -396,12 +445,17 @@
                         },
                         legend: {
                             display: false
+                        },
+                        animation: {
+                            duration: 2500,
+                            //onProgress: function (animation) {                                
+                            //    progress.val(animation.currentStep / animation.numSteps);
+                            //}
                         }
                     },
                 });
             }
         }
-
     </script>
 </asp:Content>
 

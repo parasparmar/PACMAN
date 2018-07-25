@@ -9,7 +9,6 @@
         <li class="active"><a href="pacman.aspx">
             <img src="sitel/img/performance-360_bw.png" style="height: 10px" alt="" />PACMAN</a></li>
     </ol>
-
     <div class="pageheader">
         <div class="pageicon">
             <img src="sitel/img/performance-360_bw.png" style="height: 60px" alt="" />
@@ -49,8 +48,6 @@
 
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
-
-
     <%--<div class="row">
         <div class="col-lg-2 col-xs-4">
             <!-- small box -->
@@ -137,7 +134,6 @@
         <!-- ./col -->
     </div>--%>
     <!-- Small boxes (Stat box) -->
-
     <!-- /.row -->
     <div class="box">
         <div class="box-body">
