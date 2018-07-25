@@ -169,7 +169,7 @@
             getOverallData();
         }
         $(function () {
-           // pluginsInitializer();
+            pluginsInitializer();
 
         });
 

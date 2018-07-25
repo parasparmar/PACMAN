@@ -154,42 +154,52 @@
     </asp:ListView>
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
-    <script src="Sitel/cdn/Chart.bundle.min.js"></script>
-
-    <script>
+    
+    <script type="text/javascript" src="Sitel/cdn/chartjs/Chart.bundle.min.js"></script>
+    <script type="text/javascript">
         $(function () {
+            
             var EMPCODE = $('#lblEmpID').text();
+            
             $('[class*="mgrChart"]').each(function () {
+             
                 var id = $(this).prop('id');
                 id = id.replace("mgrChart", "");
                 //if (parseInt(id) > 0) {
                 fillChartbubble(id);
                 //}
+                
             });
             $('[class*="skillChart"]').each(function () {
+                
                 var id = $(this).prop('id');
                 id = id.replace("skillChart", "");
                 //if (parseInt(id) > 0 && parseInt(EMPCODE) > 0) {
                 //Fill the charts with skill based charts
                 fillSkillSetBubble(EMPCODE, id);
                 //}
+                $("#progress").hide();
             });
+
+            
         });
 
         function fillChartbubble(optionSelected) {
             //debugger;            
             var params = '{"EMPCODE":"' + optionSelected + '"}';
             if (optionSelected != "" && optionSelected != "0") {
-                //debugger;                
+                //debugger;   
+                $("#progress").show();
                 $.ajax({
                     type: "POST",
-                    url: "chart.aspx/GetBubbleChart",
+                    url: "ninebox.aspx/GetBubbleChart",
                     data: params,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
                         //debugger;
                         //console.log(data.d);
+                       
 
                         var dynamicColors = function () {
                             var r = Math.floor(Math.random() * 255);
@@ -286,17 +296,18 @@
             //debugger;            
             var params = '{"EMPCODE":"' + EmpCode + '", "Skill":"' + Skill + '"}';
             if (EmpCode != "" && EmpCode != "0") {
-                //debugger;                
+                //debugger;    
+                
                 $.ajax({
                     type: "POST",
-                    url: "chart.aspx/GetSkillChart",
+                    url: "ninebox.aspx/GetSkillChart",
                     data: params,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
                         //debugger;
                         //console.log(data.d);
-
+                       
                         var dynamicColors = function () {
                             var r = Math.floor(Math.random() * 255);
                             var g = Math.floor(Math.random() * 255);
