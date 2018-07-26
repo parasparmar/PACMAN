@@ -43,24 +43,59 @@ public partial class ninebox : System.Web.UI.Page
 
         if (!IsPostBack)
         {
-            FillTeamList9box();
+            FillddlMgr(MyEmpID);
+            FillTeamList9box(MyEmpID);
             FillSkillset9Box();
+            
         }
     }
-    private void FillTeamList9box()
+    private void FillTeamList9box(int RepMgrCode)
     {
-        int RepMgrCode = MyEmpID;
-        SqlCommand cmd = new SqlCommand("FillTeamList9box");
-        cmd.Parameters.AddWithValue("@RepMgrCode", RepMgrCode);
-        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        lvMGR.DataSource = dt;
-        lvMGR.DataBind();
+        if (RepMgrCode > 0)
+        {
+            SqlCommand cmd = new SqlCommand("FillTeamList9box");
+            cmd.Parameters.AddWithValue("@RepMgrCode", RepMgrCode);
+            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+            lvMGR.DataSource = dt;
+            lvMGR.DataBind();
+        }
+        else
+        {
+            clearAllBoxes();
+        }
+
     }
+
+    private void FillddlMgr(int RepMgrCode)
+    {
+        if (RepMgrCode > 0)
+        {
+            SqlCommand cmd = new SqlCommand("FillTeamList9box");
+            cmd.Parameters.AddWithValue("@RepMgrCode", RepMgrCode);
+            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+            ddlMgr.DataSource = dt;
+            ddlMgr.DataValueField = "EmpCode";
+            ddlMgr.DataTextField = "Name";
+            ddlMgr.DataBind();
+        }
+        else
+        {
+            clearAllBoxes();
+        }
+    }
+
     private void FillSkillset9Box()
     {
         DataTable dt = my.GetData("select SkillsetID, Skillset from WFMP.tblSkillSet where SkillsetID < 5");
         lvSkill.DataSource = dt;
         lvSkill.DataBind();
+    }
+
+    private void clearAllBoxes()
+    {
+        lvMGR.Items.Clear();
+        ddlMgr.Items.Clear();
+        lvSkill.Items.Clear();
     }
     [WebMethod]
     public static List<NineBubbleChart> GetBubbleChart(string EMPCODE)
@@ -137,6 +172,9 @@ public partial class ninebox : System.Web.UI.Page
     }
     protected void ddlMgr_SelectedIndexChanged(object sender, EventArgs e)
     {
-
+        int RepMgr = ddlMgr.SelectedValue.ToInt32();
+        clearAllBoxes();
+        FillTeamList9box(RepMgr);
+        FillSkillset9Box();
     }
 }

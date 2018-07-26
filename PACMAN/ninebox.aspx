@@ -43,33 +43,24 @@
     </style>
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
-    <%--<div class="box">
-        <div class="box-header with-border">
-            <h3 class="box-title" runat="server">Please Select</h3>
-            <div class="box-tools pull-right">
-                <button type="button" class="btn btn-box-tool" data-widget="collapse" runat="server">
-                    <i class="fa fa-minus" runat="server"></i>
-                </button>
-                <button type="button" class="btn btn-box-tool" data-widget="remove" runat="server"><i class="fa fa-times" runat="server"></i></button>
-            </div>
-        </div>
-
+    <div class="box">
         <div class="box-body">
             <div class="form-group">
                 <div class="col-lg-3">
                     <div class="form-group">
-                        <label>Select Manager</label>
+                        <label>Drilldown : Reporting Manager</label>
                         <div class="input-group">
                             <div class="input-group-addon">
                                 <i class="fa fa-calendar-check-o"></i>
                             </div>
-                            <asp:DropDownList ItemType="text" CssClass="form-control select2" ID="ddlMgr" runat="server" OnSelectedIndexChanged="ddlMgr_SelectedIndexChanged">
+                            <asp:DropDownList ItemType="text" CssClass="form-control select2" ID="ddlMgr" runat="server"
+                                OnSelectedIndexChanged="ddlMgr_SelectedIndexChanged" AutoPostBack="true">
                             </asp:DropDownList>
                         </div>
                         <!-- /.input group -->
                     </div>
                 </div>
-                <asp:Panel ID="pnlIsPacmanDiscussion" runat="server" Visible="true">
+                <asp:Panel ID="pnlIsPacmanDiscussion" runat="server" Visible="false">
                     <div class="col-lg-3">
                         <div class="form-group">
                             <label>Select Reportee</label>
@@ -115,7 +106,7 @@
                 </asp:Panel>
             </div>
         </div>
-    </div>--%>
+    </div>
     <asp:ListView ID="lvMGR" runat="server">
         <LayoutTemplate>
             <div class="row" id="itemPlaceholderContainer" runat="server">
@@ -232,24 +223,20 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
-                        //debugger;
+
                         //console.log(data.d);
 
 
-                        var dynamicColors = function () {
-                            var r = Math.floor(Math.random() * 255);
-                            var g = Math.floor(Math.random() * 255);
-                            var b = Math.floor(Math.random() * 255);
-                            return "rgb(" + r + "," + g + "," + b + ")";
-                        };
+                        //// With Fixed Color palette
                         var xDataSets = [];
                         for (var i = 0; i < data.d.length; i++) {
+                            var myColor = fixedColorPalette(i);
                             var xDataSet = {
                                 label: data.d[i]["Name"].toString(),
-                                backgroundColor: dynamicColors(),
-                                hoverBackgroundColor: 'rgba(247, 151, 35, 0.5)',
+                                backgroundColor: myColor,
+                                hoverBackgroundColor: myColor,
                                 //hoverRadius: -1,
-                                borderColor: "rgb(69,70,72)",
+                                borderColor: myColor,
                                 //borderWidth: 1,
                                 hoverBorderWidth: 2,
                                 hoverRadius: 0,//-0.001,
@@ -290,7 +277,27 @@
                         datasets: xdata,
                         //hoverRadius: 0,
                     },
+
                     options: {
+                        events: ['click'],
+                        onClick: function (e) {
+                            //debugger;
+                           
+                            var element = this.getElementAtEvent(e);
+                           
+                            // If you click on at least 1 element ...
+                            if (element.length > 0) {
+                                // Logs it
+                                console.log(element[0]);
+
+                                // Here we get the data linked to the clicked bubble ...
+                                var datasetLabel = this.config.data.datasets[element[0]._datasetIndex].label;
+                                // data gives you `x`, `y` and `r` values
+                                var data = this.config.data.datasets[element[0]._datasetIndex].data[element[0]._index];
+                                alert(datasetLabel + ", " + data);
+                            }
+                        },
+
                         title: {
                             display: false,
                             text: 'Scores acheived by Managers on Performance Tests and Competency'
@@ -357,22 +364,18 @@
                         //debugger;
                         //console.log(data.d);
 
-                        var dynamicColors = function () {
-                            var r = Math.floor(Math.random() * 255);
-                            var g = Math.floor(Math.random() * 255);
-                            var b = Math.floor(Math.random() * 255);
-                            return "rgb(" + r + "," + g + "," + b + ")";
-                        };
+
                         var xDataSets = [];
                         for (var i = 0; i < data.d.length; i++) {
+                            var myColor = fixedColorPalette(i);
                             var xDataSet = {
                                 label: data.d[i]["Name"].toString(),
-                                backgroundColor: dynamicColors(),
-                                hoverBackgroundColor: 'rgba(247, 151, 35, 0.5)',
+                                backgroundColor: myColor,
+                                hoverBackgroundColor: myColor,
                                 //hoverRadius: -1,
-                                borderColor: "rgb(69,70,72)",
+                                borderColor: myColor,
                                 //borderWidth: 1,
-                                hoverBorderWidth: 2,
+                                hoverBorderWidth: 1,
                                 hoverRadius: 0,//-0.001,
                                 // hitRadius: 1,
                                 data: [
@@ -451,10 +454,39 @@
                             //onProgress: function (animation) {                                
                             //    progress.val(animation.currentStep / animation.numSteps);
                             //}
-                        }
+                        },
+
                     },
                 });
             }
+        }
+        function fixedColorPalette(i) {
+            //var palette = [
+            //    "rgba(54, 109, 209, 1)",
+            //    "rgba(103, 158, 2, 1)",
+            //    "rgba(163, 212, 68, 1)",
+            //    "rgba(206, 235, 129, 1)",
+            //    "rgba(242, 255, 181, 1)",
+            //    "rgba(105, 22, 3, 1)",
+            //    "rgba(158, 68, 34, 1)",
+            //    "rgba(212, 132, 84, 1)",
+            //    "rgba(235, 181, 127, 1)",
+            //    "rgba(255, 226, 170, 1)",
+            //];
+            //var l = palette.length - 1;
+
+            //l = Math.abs(l - i);
+            //debugger;
+            var dynamicColors = function () {
+                var r = Math.floor(Math.random() * 255);
+                var g = Math.floor(Math.random() * 255);
+                var b = Math.floor(Math.random() * 255);
+                return "rgb(" + r + "," + g + "," + b + ")";
+            };
+
+            //return palette[l].toString();
+
+            return dynamicColors;
         }
     </script>
 </asp:Content>
