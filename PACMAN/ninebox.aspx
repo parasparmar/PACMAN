@@ -179,12 +179,88 @@
             <span class="clsloadtxt">processing....</span>
         </div>
     </div>
+    <div class="modal fade" id="modaldefault">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" ></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="box box-widget widget-user-2">
+                        <!-- Add the bg color to the header using any of the bg-* classes -->
+                        <div class="widget-user-header bg-default">
+                            <div class="widget-user-image">
+                                <img class="img-circle" src="Sitel/user_images/Cpere059_0.jpg" alt="User Avatar">
+                            </div>                            
+                            <!-- /.widget-user-image -->
+                            <h3 class="widget-user-username" id="mdEmpName"></h3>
+                            <h5 class="widget-user-desc"></h5>
+                        </div>                       
+                    </div>                    
+                    <!-- Custom Tabs -->
+                    <div class="nav-tabs-custom">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a href="#tab_1" data-toggle="tab">Performance</a></li>
+                            <li><a href="#tab_2" data-toggle="tab">Test</a></li>
+                            <li><a href="#tab_3" data-toggle="tab">Competency</a></li>
+                            <li class="pull-right"><a href="#" class="text-muted"><i class="fa fa-gear"></i></a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane active" id="tab_1">
+                                <b>PACMAN Ratings</b>
+                                <table class="table table-responsive table-striped table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th>Empcode</th>
+                                            <th>Name</th>
+                                            <th>ReportingManager</th>
+                                            <th>Performance</th>
+                                            <th>Competency</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td id="tdEmpcode"></td>
+                                            <td id="tdName"></td>
+                                            <td id="tdReportingManager"></td>
+                                            <td id="tdPerformance"></td>
+                                            <td id="tdCompetency"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <!-- /.tab-pane -->
+                            <div class="tab-pane" id="tab_2">
+                                <b>Test Scores</b>
+                            </div>
+                            <!-- /.tab-pane -->
+                            <div class="tab-pane" id="tab_3">
+                                <b>Competency Feedback</b>
+                            </div>
+                            <!-- /.tab-pane -->
+                        </div>
+                        <!-- /.tab-content -->
+                    </div>
+                    <!-- nav-tabs-custom -->
+
+
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
 
 
     <script type="text/javascript" src="Sitel/cdn/chartjs/Chart.bundle.min.js"></script>
     <script type="text/javascript">
+
         $(function () {
 
             $('#progress').show();
@@ -222,17 +298,17 @@
                     async: false,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    success: function (data) {
+                    success: function (responseData) {
 
                         //console.log(data.d);
 
 
                         //// With Fixed Color palette
                         var xDataSets = [];
-                        for (var i = 0; i < data.d.length; i++) {
+                        for (var i = 0; i < responseData.d.length; i++) {
                             var myColor = fixedColorPalette(i);
                             var xDataSet = {
-                                label: data.d[i]["Name"].toString(),
+                                label: responseData.d[i]["Name"].toString(),
                                 backgroundColor: myColor,
                                 hoverBackgroundColor: myColor,
                                 //hoverRadius: -1,
@@ -243,9 +319,9 @@
                                 // hitRadius: 1,
                                 data: [
                                     {
-                                        x: data.d[i]["Performance"],
-                                        y: data.d[i]["Competency"],
-                                        r: data.d[i]["Radius"],
+                                        x: responseData.d[i]["Performance"],
+                                        y: responseData.d[i]["Competency"],
+                                        r: responseData.d[i]["Radius"],
                                     }
 
                                 ],
@@ -255,11 +331,11 @@
                             xDataSets.push(xDataSet);
                         }
                         ////debugger;
-                        var strData = $.parseJSON(JSON.stringify(data.d));
+                        var strData = $.parseJSON(JSON.stringify(responseData.d));
                         NineBoxChart(xDataSets);
                     },
-                    failure: function (response) {
-                        alert(response.d);
+                    failure: function (responseData) {
+                        alert(responseData.d);
                     }
                 });
             }
@@ -281,20 +357,29 @@
                     options: {
                         events: ['click'],
                         onClick: function (e) {
-                            //debugger;
-                           
+
                             var element = this.getElementAtEvent(e);
-                           
                             // If you click on at least 1 element ...
                             if (element.length > 0) {
-                                // Logs it
-                                console.log(element[0]);
 
                                 // Here we get the data linked to the clicked bubble ...
-                                var datasetLabel = this.config.data.datasets[element[0]._datasetIndex].label;
+                                var EmpName = this.config.data.datasets[element[0]._datasetIndex].label;
+                                //debugger;
+                                var rowNum = element[0]._datasetIndex;
+
                                 // data gives you `x`, `y` and `r` values
-                                var data = this.config.data.datasets[element[0]._datasetIndex].data[element[0]._index];
-                                alert(datasetLabel + ", " + data);
+                                var chartData = this.config.data.datasets[element[0]._datasetIndex].data[element[0]._index];
+                                var performance = chartData.x;
+                                var competency = chartData.y;
+
+                                $('#mdEmpName').text(EmpName);
+                                $('#tdEmpcode').text();
+                                $('#tdName').text(EmpName);
+                                $('#tdReportingManager').text();
+                                $('#tdPerformance').text(performance);
+                                $('#tdCompetency').text(competency);
+                                $('#modaldefault').modal();
+
                             }
                         },
 
@@ -303,7 +388,7 @@
                             text: 'Scores acheived by Managers on Performance Tests and Competency'
                         },
                         legend: {
-                            display: true,
+                            display: false,
                             position: 'right'
                         },
                         animation: {
