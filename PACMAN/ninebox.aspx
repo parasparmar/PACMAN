@@ -41,6 +41,9 @@
                 letter-spacing: 1px;
             }
     </style>
+
+    <link href="https://cdn.datatables.net/fixedheader/3.1.5/css/fixedHeader.dataTables.min.css" rel="stylesheet" />
+
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
     <div class="box">
@@ -179,90 +182,71 @@
             <span class="clsloadtxt">processing....</span>
         </div>
     </div>
-    <div class="modal fade" id="modaldefault">
-        <div class="modal-dialog">
+    <style type="text/css">
+        /*.widget-user .widget-user-image {
+            position: absolute;
+            top: 25%;
+            right: 5%;
+            margin-left: -45px;
+        }*/
+    </style>
+    <div class="modal fade" id="modalEmployee">
+        <div class="modal-dialog" style="width: 80%;">
             <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" ></h4>
-                </div>
-                <div class="modal-body">
-                    <div class="box box-widget widget-user-2">
-                        <!-- Add the bg color to the header using any of the bg-* classes -->
-                        <div class="widget-user-header bg-default">
-                            <div class="widget-user-image">
-                                <img class="img-circle" src="Sitel/user_images/Cpere059_0.jpg" alt="User Avatar">
-                            </div>                            
-                            <!-- /.widget-user-image -->
-                            <h3 class="widget-user-username" id="mdEmpName"></h3>
-                            <h5 class="widget-user-desc"></h5>
-                        </div>                       
-                    </div>                    
-                    <!-- Custom Tabs -->
-                    <div class="nav-tabs-custom">
-                        <ul class="nav nav-tabs">
-                            <li class="active"><a href="#tab_1" data-toggle="tab">Performance</a></li>
-                            <li><a href="#tab_2" data-toggle="tab">Test</a></li>
-                            <li><a href="#tab_3" data-toggle="tab">Competency</a></li>
-                            <li class="pull-right"><a href="#" class="text-muted"><i class="fa fa-gear"></i></a></li>
-                        </ul>
-                        <div class="tab-content">
-                            <div class="tab-pane active" id="tab_1">
-                                <b>PACMAN Ratings</b>
-                                <table class="table table-responsive table-striped table-condensed">
-                                    <thead>
-                                        <tr>
-                                            <th>Empcode</th>
-                                            <th>Name</th>
-                                            <th>ReportingManager</th>
-                                            <th>Performance</th>
-                                            <th>Competency</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td id="tdEmpcode"></td>
-                                            <td id="tdName"></td>
-                                            <td id="tdReportingManager"></td>
-                                            <td id="tdPerformance"></td>
-                                            <td id="tdCompetency"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <!-- /.tab-pane -->
-                            <div class="tab-pane" id="tab_2">
-                                <b>Test Scores</b>
-                            </div>
-                            <!-- /.tab-pane -->
-                            <div class="tab-pane" id="tab_3">
-                                <b>Competency Feedback</b>
-                            </div>
-                            <!-- /.tab-pane -->
+                <div class="box box-widget widget-user-2">
+                    <div class="widget-user-header bg-primary">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span></button>
+                        <div class="widget-user-image" style="margin-bottom: -8%; overflow: hidden;">
+                            <img id="mdUserImage" class="img-circle" src="Sitel/user_images/gsing017_0.jpg" alt="User Avatar" style="height: 65px; width: 65px;">
                         </div>
-                        <!-- /.tab-content -->
+                        <!-- /.widget-user-image -->
+                        <h3 class="widget-user-username" id="mdEmpName"></h3>
+                        <h5 class="widget-user-desc" id="mdRepMgr"></h5>
                     </div>
-                    <!-- nav-tabs-custom -->
-
-
                 </div>
+                <!-- Custom Tabs -->
+                <div class="nav-tabs-custom">
+                    <ul class="nav nav-tabs">
+                        <li class="active"><a href="#tabPacman" data-toggle="tab">Performance&nbsp&nbsp<span id="spanPacman" class="badge pull-right bg-green">4.5</span></a></li>
+                        <li><a href="#tabTest" data-toggle="tab">Test&nbsp&nbsp<span id="spanTest" class="badge pull-right bg-yellow">1.5</span></a></li>
+                        <li><a href="#tabCompetency" data-toggle="tab">Competency&nbsp&nbsp<span id="spanCompetency" class="badge pull-right bg-red">1.5</span></a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="tabPacman">
+                            <b>PACMAN Ratings</b>
+                        </div>
+                        <!-- /.tab-pane -->
+                        <div class="tab-pane" id="tabTest">
+                            <b>Test Scores</b>
+                        </div>
+                        <!-- /.tab-pane -->
+                        <div class="tab-pane" id="tabCompetency" style="overflow-y: scroll; height: 420px; overflow-x: hidden;">
+                            <b>Competency Feedback</b>
+                            <div id="xxxx"></div>
+                        </div>
+                        <!-- /.tab-pane -->
+                    </div>
+                    <!-- /.tab-content -->
+                </div>
+                <!-- nav-tabs-custom -->
             </div>
             <!-- /.modal-content -->
         </div>
         <!-- /.modal-dialog -->
     </div>
     <!-- /.modal -->
-
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
 
 
     <script type="text/javascript" src="Sitel/cdn/chartjs/Chart.bundle.min.js"></script>
+    <script src="Sitel/cdn/jsontotable/jquery.jsontotable.min.js"></script>
+
+    <script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
+
     <script type="text/javascript">
-
         $(function () {
-
             $('#progress').show();
             var EMPCODE = $('#lblEmpID').text();
             $('[class*="mgrChart"]').each(function () {
@@ -279,44 +263,41 @@
                     //Fill the charts with skill based charts
                     fillSkillSetBubble(EMPCODE, id);
                 }
-
             });
-
             $('#progress').hide();
         });
         function fillChartbubble(optionSelected) {
-            //debugger;            
+            // //debugger;;            
 
             var params = '{"EMPCODE":"' + optionSelected + '"}';
             if (optionSelected != "" && optionSelected != "0") {
-                //debugger;   
+                // //debugger;;   
 
                 $.ajax({
                     type: "POST",
                     url: "ninebox.aspx/GetBubbleChart",
                     data: params,
-                    async: false,
+                    async: true,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (responseData) {
-
                         //console.log(data.d);
-
-
                         //// With Fixed Color palette
                         var xDataSets = [];
                         for (var i = 0; i < responseData.d.length; i++) {
                             var myColor = fixedColorPalette(i);
+                            // //debugger;;
+                            var xVar = responseData.d[i]["Name"].toString() + " : " + responseData.d[i]["EmpCode"].toString() + " : " + responseData.d[i]["Period"].toString();
                             var xDataSet = {
-                                label: responseData.d[i]["Name"].toString(),
+                                label: xVar,
                                 backgroundColor: myColor,
                                 hoverBackgroundColor: myColor,
-                                //hoverRadius: -1,
+                                hoverRadius: -1,
                                 borderColor: myColor,
-                                //borderWidth: 1,
+                                borderWidth: 1,
                                 hoverBorderWidth: 2,
                                 hoverRadius: 0,//-0.001,
-                                // hitRadius: 1,
+                                hitRadius: 1,
                                 data: [
                                     {
                                         x: responseData.d[i]["Performance"],
@@ -325,13 +306,11 @@
                                     }
 
                                 ],
-                                //hoverRadius: 1,
-                                //hitRadius: 1,
                             };
                             xDataSets.push(xDataSet);
                         }
-                        ////debugger;
-                        var strData = $.parseJSON(JSON.stringify(responseData.d));
+                        //// //debugger;;
+                        ////var strData = $.parseJSON(JSON.stringify(responseData.d));
                         NineBoxChart(xDataSets);
                     },
                     failure: function (responseData) {
@@ -357,32 +336,8 @@
                     options: {
                         events: ['click'],
                         onClick: function (e) {
-
-                            var element = this.getElementAtEvent(e);
-                            // If you click on at least 1 element ...
-                            if (element.length > 0) {
-
-                                // Here we get the data linked to the clicked bubble ...
-                                var EmpName = this.config.data.datasets[element[0]._datasetIndex].label;
-                                //debugger;
-                                var rowNum = element[0]._datasetIndex;
-
-                                // data gives you `x`, `y` and `r` values
-                                var chartData = this.config.data.datasets[element[0]._datasetIndex].data[element[0]._index];
-                                var performance = chartData.x;
-                                var competency = chartData.y;
-
-                                $('#mdEmpName').text(EmpName);
-                                $('#tdEmpcode').text();
-                                $('#tdName').text(EmpName);
-                                $('#tdReportingManager').text();
-                                $('#tdPerformance').text(performance);
-                                $('#tdCompetency').text(competency);
-                                $('#modaldefault').modal();
-
-                            }
+                            getEmpStats(e, this);
                         },
-
                         title: {
                             display: false,
                             text: 'Scores acheived by Managers on Performance Tests and Competency'
@@ -431,22 +386,108 @@
 
             }
         }
+        function getEmpStats(e, me) {
+            var element = me.getElementAtEvent(e);
+            // If you click on at least 1 element ...
+            if (element.length > 0) {
+
+                // Here we get the data linked to the clicked bubble ...
+                var Header = me.config.data.datasets[element[0]._datasetIndex].label;
+                EmpName = Header.split(":");
+                var EmpCode = EmpName[1].trim();
+                var Period = EmpName[2].trim();
+                var params = '{"empcode":"' + EmpCode + '", "period":"' + Period + '"}';
+                // get Employee Stats
+                $.ajax({
+                    type: "POST",
+                    url: "ninebox.aspx/getEmpStatsFromDB",
+                    data: params,
+                    async: false,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (responseData) {
+                        //alert(responseData.d);
+
+                        var d = JSON.parse(responseData.d);
+                        // //debugger;;
+                        $('#mdUserImage').attr('src', 'Sitel/user_images/' + d[0].UserImage);
+                        $('#mdEmpName').text(Header);
+                        $('#mdRepMgr').text(Header);
+
+                        $('#spanPacman').text(d[0].PacManRating);
+                        $('#spanTest').text(d[0].TestScore);
+                        $('#spanCompetency').text(d[0].CompetencyRating);
+
+                        $('#tdEmpcode').text(EmpCode);
+                        $('#tdName').text(EmpName[0].trim());
+                        $('#tdReportingManager').text();
+
+                        $('#modalEmployee').modal('show',
+                            function (event) {
+                                event.preventDefault();
+                            });
+
+                    },
+                    failure: function (responseData) {
+                        alert(responseData.d);
+                    }
+                });
+
+                // get Employee Competency
+                $.ajax({
+                    type: "POST",
+                    url: "ninebox.aspx/getEmpCompetencyFromDB",
+                    data: params,
+                    async: false,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: "json",
+                    success: function (responseData) {
+                        //alert(responseData.d);
+                        //debugger;;
+                        //var d = JSON.parse(responseData.d);
+                        //var d = jQuery.parseJSON(responseData.d);
+                        //var d = $.parseJSON(JSON.stringify(responseData.d)); //responseData.d;
+                        var d = responseData.d;
+
+                        var strTable = '<table id="xCompetenctTable" class="table table-condensed table-bordered table-striped table-hover table-responsive xCompetenctTable" ><thead><tr><th>COMPETENCY</th><th>DESCRIPTION</th><th>COMMENTS</th><th>RATING</th><th>RATING SCALE</th></tr></thead><tbody>';
+                        for (var i = 0; i < d.length - 1; i++) {
+                            strTable += '<tr><td>' + d[i].COMPETENCY + '</td><td>' + d[i].DESCRIPTION + '</td><td>' + d[i].COMMENTS + '</td><td>' + d[i].RATING + '</td><td>' + d[i].RATINGSCALE + '</td></tr>';
+
+                        }
+                        strTable += '</tbody></table>';
+
+                        $('#xxxx').html("");
+                        $('#xxxx').append(strTable);
+                        pluginsInitializer();
+                        //$.jsontotable(responseData.d, { id: '#tabCompetency', header: true, className: 'table table-hover' });
+
+                        //$('#modalEmployee').modal();
+
+                    },
+                    failure: function (responseData) {
+                        alert(responseData.d);
+                    }
+                });
+
+            }
+        }
+
         function fillSkillSetBubble(EmpCode, Skill) {
-            //debugger; 
+            // //debugger;; 
 
             var params = '{"EMPCODE":"' + EmpCode + '", "Skill":"' + Skill + '"}';
             if (EmpCode != "" && EmpCode != "0") {
-                //debugger;    
+                // //debugger;;    
 
                 $.ajax({
                     type: "POST",
                     url: "ninebox.aspx/GetSkillChart",
                     data: params,
-                    async: false,
+                    async: true,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (data) {
-                        //debugger;
+                        // //debugger;;
                         //console.log(data.d);
 
 
@@ -476,8 +517,8 @@
                             };
                             xDataSets.push(xDataSet);
                         }
-                        ////debugger;
-                        var strData = $.parseJSON(JSON.stringify(data.d));
+                        //// //debugger;;
+                        ////var strData = $.parseJSON(JSON.stringify(data.d));
                         NineBoxChart(xDataSets);
                     },
                     failure: function (response) {
@@ -535,7 +576,7 @@
                             display: false
                         },
                         animation: {
-                            duration: 2500,
+                            duration: 1000,
                             //onProgress: function (animation) {                                
                             //    progress.val(animation.currentStep / animation.numSteps);
                             //}
@@ -561,7 +602,7 @@
             //var l = palette.length - 1;
 
             //l = Math.abs(l - i);
-            //debugger;
+            // //debugger;;
             var dynamicColors = function () {
                 var r = Math.floor(Math.random() * 255);
                 var g = Math.floor(Math.random() * 255);
@@ -573,6 +614,33 @@
 
             return dynamicColors;
         }
+
+        $(function () {
+            pluginsInitializer();
+        });
+    </script>
+
+    <script>
+        function pluginsInitializer() {
+            var table = $('.xCompetenctTable').dataTable({
+                destroy: true,
+                responsive: true,
+                fixedHeader: true,
+                "sPaginationType": "full_numbers",
+                "lengthMenu": [2, 5, 10, 25, 50, 75],
+                "aaSortingFixed": [[0, 'asc']],
+                "bSort": true,
+                //dom: 'Bfrltip',
+                "columnDefs": [{ "orderable": false, "targets": 0 }],
+            });
+            $(".xCompetenctTable").css('width', '');
+            //new $.fn.dataTable.FixedHeader(table);
+        }
+
+
+        $(function () {
+            pluginsInitializer();
+        });
     </script>
 </asp:Content>
 

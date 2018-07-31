@@ -46,7 +46,7 @@ public partial class ninebox : System.Web.UI.Page
             FillddlMgr(MyEmpID);
             FillTeamList9box(MyEmpID);
             FillSkillset9Box();
-            
+
         }
     }
     private void FillTeamList9box(int RepMgrCode)
@@ -112,6 +112,8 @@ public partial class ninebox : System.Web.UI.Page
                    {
                        EmpCode = dr["EMPCODE"].ToString(),
                        Name = dr["NAME"].ToString(),
+                       ReportingManager = dr["repmgr"].ToString(),
+                       Period = dr["Period"].ToString(),
                        Performance = dr["PERFORMANCE"].ToString(),
                        Competency = dr["COMPETENCY"].ToString(),
                        Radius = dr["RADIUS"].ToString()
@@ -150,6 +152,9 @@ public partial class ninebox : System.Web.UI.Page
     {
         public string EmpCode { get; set; }
         public string Name { get; set; }
+        public string ReportingManager { get; set; }
+        public string Period { get; set; }
+
         public string Designation { get; set; }
         public string Performance { get; set; }
         public string Competency { get; set; }
@@ -176,5 +181,69 @@ public partial class ninebox : System.Web.UI.Page
         clearAllBoxes();
         FillTeamList9box(RepMgr);
         FillSkillset9Box();
+    }
+
+    [WebMethod]
+    public static string getEmpStatsFromDB(string empcode, string period)
+    {
+        Helper my = new Helper();
+        string query = @"select 
+                        A.EmpCode
+                        , A.Period
+                        , Round(A.PacManRating,2) as PacManRating
+                        , Round(A.TestScore,2) as TestScore 
+                        , Round(A.CompetencyRating,2) as CompetencyRating
+                        , B.Analytics
+                        , B.Planning
+                        , B.RTA
+                        , B.Scheduling
+                        , B.WFC
+                        , B.Total
+                        , D.UserImage
+                         from NineBoxResult A 
+                         left join NineBoxTestResults B on A.EmpCode = B.EmpCode and A.Period = B.Period 
+                         inner join WFMP.tblProfile D on D.Employee_ID = A.EmpCode
+                         where A.EmpCode = @empcode and A.Period= '@period'
+                         for json path";
+
+        /////                         ---left join NineBoxCompetencyResults C on A.EmpCode = C.EmpCode and A.Period = C.Period
+        query = query.Replace("@empcode", empcode).Replace("@period", period);
+
+        string myJSON = my.getFirstResult(query);
+        return myJSON;
+    }
+
+    [WebMethod]
+    public static List<NineBoxCompetency> getEmpCompetencyFromDB(string empcode, string period)
+    {
+        Helper my = new Helper();
+        string query = "NINEBOXDRILL";
+        SqlCommand cmd = new SqlCommand(query);
+        cmd.Parameters.AddWithValue("@EmpCode", empcode);
+        cmd.Parameters.AddWithValue("@Period", period);
+        cmd.Parameters.AddWithValue("@Type", 1);
+        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+        List<NineBoxCompetency> objList = new List<NineBoxCompetency>();
+        objList = (from DataRow dr in dt.Rows
+                   select new NineBoxCompetency()
+                   {
+                       COMPETENCY = dr["COMPETENCY"].ToString(),
+                       DESCRIPTION = dr["DESCRIPTION"].ToString(),
+                       COMMENTS = dr["COMMENTS"].ToString(),
+                       RATING = dr["RATING"].ToString(),
+                       RATINGSCALE = dr["RATING_SCALE"].ToString()
+                   }).ToList();
+
+        return objList;
+    }
+
+    public class NineBoxCompetency
+    {
+        public string COMPETENCY { get; set; }
+        public string DESCRIPTION { get; set; }
+        public string COMMENTS { get; set; }
+        public string RATING { get; set; }
+        public string RATINGSCALE { get; set; }
+
     }
 }
