@@ -17,6 +17,7 @@ public partial class ninebox : System.Web.UI.Page
     private string strSQL { get; set; }
     private int MyEmpID { get; set; }
     string myID;
+    private int[] AuthorizedIDs = new int[6] { 755882, 931040, 923563, 918031, 1092308, 798904 };
     protected void Page_Load(object sender, EventArgs e)
     {
         my = new Helper();
@@ -43,10 +44,14 @@ public partial class ninebox : System.Web.UI.Page
 
         if (!IsPostBack)
         {
-            FillddlMgr(MyEmpID);
+            FillddlPeriod();
+            ddlPeriod.SelectedIndex = 1;            
             FillTeamList9box(MyEmpID);
-            FillSkillset9Box();
-
+            if (AuthorizedIDs.Contains<int>(MyEmpID))
+            {
+                FillddlMgr(MyEmpID);
+                FillSkillset9Box();
+            }
         }
     }
     private void FillTeamList9box(int RepMgrCode)
@@ -54,7 +59,8 @@ public partial class ninebox : System.Web.UI.Page
         if (RepMgrCode > 0)
         {
             SqlCommand cmd = new SqlCommand("FillTeamList9box");
-            cmd.Parameters.AddWithValue("@RepMgrCode", RepMgrCode);
+            cmd.Parameters.AddWithValue("@EmpCode", RepMgrCode);
+            cmd.Parameters.AddWithValue("@Period", ddlPeriod.SelectedValue);
             DataTable dt = my.GetDataTableViaProcedure(ref cmd);
             lvMGR.DataSource = dt;
             lvMGR.DataBind();
@@ -65,13 +71,23 @@ public partial class ninebox : System.Web.UI.Page
         }
 
     }
-
+    private void FillddlPeriod()
+    {
+        SqlCommand cmd = new SqlCommand("NINEBOXfillDdlPeriod");
+        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+        ddlPeriod.DataSource = dt;
+        ddlPeriod.DataValueField = "Period";
+        ddlPeriod.DataTextField = "Period";
+        ddlPeriod.DataBind();
+        ddlPeriod.Items.Insert(0, new ListItem("0", "Please Select"));
+    }
     private void FillddlMgr(int RepMgrCode)
     {
         if (RepMgrCode > 0)
         {
             SqlCommand cmd = new SqlCommand("FillTeamList9box");
-            cmd.Parameters.AddWithValue("@RepMgrCode", RepMgrCode);
+            cmd.Parameters.AddWithValue("@EmpCode", RepMgrCode);
+            cmd.Parameters.AddWithValue("@Period", ddlPeriod.SelectedValue);
             DataTable dt = my.GetDataTableViaProcedure(ref cmd);
             ddlMgr.DataSource = dt;
             ddlMgr.DataValueField = "EmpCode";
@@ -83,14 +99,12 @@ public partial class ninebox : System.Web.UI.Page
             clearAllBoxes();
         }
     }
-
     private void FillSkillset9Box()
     {
         DataTable dt = my.GetData("select SkillsetID, Skillset from WFMP.tblSkillSet where SkillsetID < 5");
         lvSkill.DataSource = dt;
         lvSkill.DataBind();
     }
-
     private void clearAllBoxes()
     {
         lvMGR.Items.Clear();
@@ -98,31 +112,30 @@ public partial class ninebox : System.Web.UI.Page
         lvSkill.Items.Clear();
     }
     [WebMethod]
-    public static List<NineBubbleChart> GetBubbleChart(string EMPCODE)
+    public static List<NineBubbleChart> GetBubbleChart(string EMPCODE, string Period)
     {
         Helper my = new Helper();
         string query = "FillChart9box";
         SqlCommand cmd = new SqlCommand(query);
         cmd.Parameters.AddWithValue("@EMPCODE", EMPCODE);
-        cmd.Parameters.AddWithValue("@Period", "H1 2018");
+        cmd.Parameters.AddWithValue("@Period", Period);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        List<NineBubbleChart> objList = new List<NineBubbleChart>();
-        objList = (from DataRow dr in dt.Rows
-                   select new NineBubbleChart()
-                   {
-                       EmpCode = dr["EMPCODE"].ToString(),
-                       Name = dr["NAME"].ToString(),
-                       ReportingManager = dr["repmgr"].ToString(),
-                       Period = dr["Period"].ToString(),
-                       Performance = dr["PERFORMANCE"].ToString(),
-                       Competency = dr["COMPETENCY"].ToString(),
-                       Radius = dr["RADIUS"].ToString()
+        List<NineBubbleChart> myJSON = new List<NineBubbleChart>();
+        myJSON = (from DataRow dr in dt.Rows
+                  select new NineBubbleChart()
+                  {
+                      EmpCode = dr["EMPCODE"].ToString(),
+                      Name = dr["NAME"].ToString(),
+                      ReportingManager = dr["repmgr"].ToString(),
+                      Period = dr["Period"].ToString(),
+                      Performance = dr["PERFORMANCE"].ToString(),
+                      Competency = dr["COMPETENCY"].ToString(),
+                      Radius = dr["RADIUS"].ToString()
 
-                   }).ToList();
+                  }).ToList();
 
-        return objList;
+        return myJSON;
     }
-
     [WebMethod]
     public static List<NineBubbleChart> GetSkillChart(string EMPCODE, string Skill)
     {
@@ -132,48 +145,32 @@ public partial class ninebox : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@EMPCODE", EMPCODE);
         cmd.Parameters.AddWithValue("@Skill", Skill);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        List<NineBubbleChart> objList = new List<NineBubbleChart>();
-        objList = (from DataRow dr in dt.Rows
-                   select new NineBubbleChart()
-                   {
-                       EmpCode = dr["EMPCODE"].ToString(),
-                       Name = dr["NAME"].ToString(),
-                       Designation = dr["DESIGNATION"].ToString(),
-                       Performance = dr["PERFORMANCE"].ToString(),
-                       Competency = dr["COMPETENCY"].ToString(),
-                       Radius = dr["RADIUS"].ToString()
+        List<NineBubbleChart> myJSON = new List<NineBubbleChart>();
+        myJSON = (from DataRow dr in dt.Rows
+                  select new NineBubbleChart()
+                  {
+                      EmpCode = dr["EMPCODE"].ToString(),
+                      Name = dr["NAME"].ToString(),
+                      Designation = dr["DESIGNATION"].ToString(),
+                      Period = dr["Period"].ToString(),
+                      Performance = dr["PERFORMANCE"].ToString(),
+                      Competency = dr["COMPETENCY"].ToString(),
+                      Radius = dr["RADIUS"].ToString()
 
-                   }).ToList();
+                  }).ToList();
 
-        return objList;
+        return myJSON;
     }
-
     public class NineBubbleChart
     {
         public string EmpCode { get; set; }
         public string Name { get; set; }
         public string ReportingManager { get; set; }
         public string Period { get; set; }
-
         public string Designation { get; set; }
         public string Performance { get; set; }
         public string Competency { get; set; }
         public string Radius { get; set; }
-    }
-    public class TypeList
-    {
-        public string Value { get; set; }
-        public string Text { get; set; }
-    }
-    public class DesignationList
-    {
-        public string Value { get; set; }
-        public string Text { get; set; }
-    }
-    public class LoginList
-    {
-        public string Value { get; set; }
-        public string Text { get; set; }
     }
     protected void ddlMgr_SelectedIndexChanged(object sender, EventArgs e)
     {
@@ -182,61 +179,79 @@ public partial class ninebox : System.Web.UI.Page
         FillTeamList9box(RepMgr);
         FillSkillset9Box();
     }
-
     [WebMethod]
-    public static string getEmpStatsFromDB(string empcode, string period)
+    public static List<NineBoxEmpStats> getEmpStatsFromDB(string empcode, string period)
     {
         Helper my = new Helper();
-        string query = @"select 
-                        A.EmpCode
-                        , A.Period
-                        , Round(A.PacManRating,2) as PacManRating
-                        , Round(A.TestScore,2) as TestScore 
-                        , Round(A.CompetencyRating,2) as CompetencyRating
-                        , B.Analytics
-                        , B.Planning
-                        , B.RTA
-                        , B.Scheduling
-                        , B.WFC
-                        , B.Total
-                        , D.UserImage
-                         from NineBoxResult A 
-                         left join NineBoxTestResults B on A.EmpCode = B.EmpCode and A.Period = B.Period 
-                         inner join WFMP.tblProfile D on D.Employee_ID = A.EmpCode
-                         where A.EmpCode = @empcode and A.Period= '@period'
-                         for json path";
-
-        /////                         ---left join NineBoxCompetencyResults C on A.EmpCode = C.EmpCode and A.Period = C.Period
-        query = query.Replace("@empcode", empcode).Replace("@period", period);
-
-        string myJSON = my.getFirstResult(query);
+        string query = "NINEBOXgetEmpStats";
+        SqlCommand cmd = new SqlCommand(query);
+        cmd.Parameters.AddWithValue("@EmpCode", empcode);
+        cmd.Parameters.AddWithValue("@Period", period);
+        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+        List<NineBoxEmpStats> myJSON = new List<NineBoxEmpStats>();
+        myJSON = (from DataRow dr in dt.Rows
+                  select new NineBoxEmpStats()
+                  {
+                      EmpCode = dr["EmpCode"].ToString(),
+                      Name = dr["Name"].ToString(),
+                      RepMgrCode = dr["RepMgrCode"].ToString(),
+                      RepMgr = dr["RepMgr"].ToString(),
+                      Period = dr["Period"].ToString(),
+                      PacManRating = dr["PacManRating"].ToString(),
+                      TestScore = dr["TestScore"].ToString(),
+                      CompetencyRating = dr["CompetencyRating"].ToString(),
+                      Analytics = dr["Analytics"].ToString(),
+                      Aptitude = dr["Aptitude"].ToString(),
+                      Planning = dr["Planning"].ToString(),
+                      RTA = dr["RTA"].ToString(),
+                      Scheduling = dr["Scheduling"].ToString(),
+                      WFC = dr["WFC"].ToString(),
+                      Total = dr["Total"].ToString(),
+                      UserImage = dr["UserImage"].ToString(),
+                  }).ToList();
         return myJSON;
     }
-
     [WebMethod]
     public static List<NineBoxCompetency> getEmpCompetencyFromDB(string empcode, string period)
     {
         Helper my = new Helper();
-        string query = "NINEBOXDRILL";
+        string query = "NINEBOXgetCompetency";
         SqlCommand cmd = new SqlCommand(query);
         cmd.Parameters.AddWithValue("@EmpCode", empcode);
         cmd.Parameters.AddWithValue("@Period", period);
         cmd.Parameters.AddWithValue("@Type", 1);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-        List<NineBoxCompetency> objList = new List<NineBoxCompetency>();
-        objList = (from DataRow dr in dt.Rows
-                   select new NineBoxCompetency()
-                   {
-                       COMPETENCY = dr["COMPETENCY"].ToString(),
-                       DESCRIPTION = dr["DESCRIPTION"].ToString(),
-                       COMMENTS = dr["COMMENTS"].ToString(),
-                       RATING = dr["RATING"].ToString(),
-                       RATINGSCALE = dr["RATING_SCALE"].ToString()
-                   }).ToList();
-
-        return objList;
+        List<NineBoxCompetency> myJSON = new List<NineBoxCompetency>();
+        myJSON = (from DataRow dr in dt.Rows
+                  select new NineBoxCompetency()
+                  {
+                      COMPETENCY = dr["COMPETENCY"].ToString(),
+                      DESCRIPTION = dr["DESCRIPTION"].ToString(),
+                      COMMENTS = dr["COMMENTS"].ToString(),
+                      RATING = dr["RATING"].ToString(),
+                      RATINGSCALE = dr["RATING_SCALE"].ToString()
+                  }).ToList();
+        return myJSON;
     }
-
+    public class NineBoxEmpStats
+    {
+        public string EmpCode { get; set; }
+        public string Name { get; set; }
+        public string RepMgrCode { get; set; }
+        public string RepMgr { get; set; }
+        public string Period { get; set; }
+        public string PacManRating { get; set; }
+        public string TestScore { get; set; }
+        public string CompetencyRating { get; set; }
+        public string UserImage { get; set; }
+        public string Analytics { get; set; }
+        public string Aptitude { get; set; }
+        public string Planning { get; set; }
+        public string RTA { get; set; }
+        public string Scheduling { get; set; }
+        public string WFC { get; set; }
+        public string Total { get; set; }
+    }
     public class NineBoxCompetency
     {
         public string COMPETENCY { get; set; }

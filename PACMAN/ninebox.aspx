@@ -51,13 +51,12 @@
             <div class="form-group">
                 <div class="col-lg-3">
                     <div class="form-group">
-                        <label>Drilldown : Reporting Manager</label>
+                        <label>Select Period</label>
                         <div class="input-group">
                             <div class="input-group-addon">
-                                <i class="fa fa-calendar-check-o"></i>
+                                <i class="fa fa-calendar"></i>
                             </div>
-                            <asp:DropDownList ItemType="text" CssClass="form-control select2" ID="ddlMgr" runat="server"
-                                OnSelectedIndexChanged="ddlMgr_SelectedIndexChanged" AutoPostBack="true">
+                            <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlPeriod" runat="server">
                             </asp:DropDownList>
                         </div>
                         <!-- /.input group -->
@@ -66,12 +65,13 @@
                 <asp:Panel ID="pnlIsPacmanDiscussion" runat="server" Visible="false">
                     <div class="col-lg-3">
                         <div class="form-group">
-                            <label>Select Reportee</label>
+                            <label>Drilldown : Reporting Manager</label>
                             <div class="input-group">
                                 <div class="input-group-addon">
-                                    <i class="fa fa-calendar"></i>
+                                    <i class="fa fa-calendar-check-o"></i>
                                 </div>
-                                <asp:DropDownList ItemType="text" CssClass="form-control select" ID="ddlStage" runat="server">
+                                <asp:DropDownList ItemType="text" CssClass="form-control select2" ID="ddlMgr" runat="server"
+                                    OnSelectedIndexChanged="ddlMgr_SelectedIndexChanged" AutoPostBack="true">
                                 </asp:DropDownList>
                             </div>
                             <!-- /.input group -->
@@ -120,10 +120,8 @@
         <ItemTemplate>
             <div class="col-md-6" runat="server">
                 <div class="box box-primary" runat="server">
-                    <div class="box-header with-border" runat="server">
-                        <h3 class="box-title" runat="server"><%#Eval("NAME") %> (
-                            <label id="lblEmpID"><%#Eval("EMPCODE") %></label>
-                            )</h3>
+                    <div class="box-header with-border" runat="server">                        
+                            <h3 class="box-title" runat="server"><%#Eval("NAME") %> : <label id="lblEmpID"><%#Eval("EMPCODE") %></label></h3></a>
                         <div class="box-tools pull-right" runat="server">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse" runat="server">
                                 <i class="fa fa-minus" runat="server"></i>
@@ -133,7 +131,6 @@
                     <div class="box-body" style="height: 300px; width: 600px" runat="server">
                         <div class="chart-container" runat="server">
                             <canvas id="mgrChart<%#Eval("EMPCODE") %>" class="mgrChart<%#Eval("EMPCODE") %>" style="height: 300px; width: 600px"></canvas>
-
                         </div>
                     </div>
                     <!-- /.box-body  -->
@@ -183,22 +180,27 @@
         </div>
     </div>
     <style type="text/css">
-        /*.widget-user .widget-user-image {
+        .widget-user .widget-user-image {
             position: absolute;
             top: 25%;
             right: 5%;
+            bottom: -6%;
             margin-left: -45px;
-        }*/
+        }
+
+        .widget-user-2 .widget-user-username {
+            margin-top: 3%;
+        }
     </style>
     <div class="modal fade" id="modalEmployee">
-        <div class="modal-dialog" style="width: 80%;">
+        <div class="modal-dialog" style="width: 90%">
             <div class="modal-content">
                 <div class="box box-widget widget-user-2">
                     <div class="widget-user-header bg-primary">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span></button>
                         <div class="widget-user-image" style="margin-bottom: -8%; overflow: hidden;">
-                            <img id="mdUserImage" class="img-circle" src="Sitel/user_images/gsing017_0.jpg" alt="User Avatar" style="height: 65px; width: 65px;">
+                            <img id="mdUserImage" class="img-circle" src="Sitel/user_images/unknownPerson.jpg" alt="User Avatar" style="height: 65px; width: 65px;">
                         </div>
                         <!-- /.widget-user-image -->
                         <h3 class="widget-user-username" id="mdEmpName"></h3>
@@ -208,22 +210,47 @@
                 <!-- Custom Tabs -->
                 <div class="nav-tabs-custom">
                     <ul class="nav nav-tabs">
-                        <li class="active"><a href="#tabPacman" data-toggle="tab">Performance&nbsp&nbsp<span id="spanPacman" class="badge pull-right bg-green">4.5</span></a></li>
-                        <li><a href="#tabTest" data-toggle="tab">Test&nbsp&nbsp<span id="spanTest" class="badge pull-right bg-yellow">1.5</span></a></li>
-                        <li><a href="#tabCompetency" data-toggle="tab">Competency&nbsp&nbsp<span id="spanCompetency" class="badge pull-right bg-red">1.5</span></a></li>
+
+                        <li class="active"><a href="#tabPacman" data-toggle="tab"><span>Performance&nbsp</span></a></li>
+                        <li><a href="#tabCompetency" data-toggle="tab">Competency&nbsp</a></li>
                     </ul>
                     <div class="tab-content">
-                        <div class="tab-pane active" id="tabPacman">
-                            <b>PACMAN Ratings</b>
-                        </div>
                         <!-- /.tab-pane -->
-                        <div class="tab-pane" id="tabTest">
-                            <b>Test Scores</b>
+                        <div class="tab-pane active" id="tabPacman" style="overflow-y: scroll; height: 420px; overflow-x: hidden;">
+                            <h3 id="spanPacman">Performance Rating : </h3>
+                            <div id="divPacman">
+                                <table id="tblPacman" class="table table-condensed table-bordered table-striped table-hover table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th>Pacman Rating</th>
+                                            <th>Test Score</th>
+                                            <th>Competency Rating</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <h3 id="spanTest">Test Score : </h3>
+                            <div id="divTest">
+                                <table id="tblTest" class="table table-condensed table-bordered table-striped table-hover table-responsive">
+                                    <thead>
+                                        <tr>
+                                            <th>Analytics</th>
+                                            <th>Aptitude</th>
+                                            <th>Planning</th>
+                                            <th>RTA</th>
+                                            <th></th>
+                                            <th>Scheduling</th>
+                                            <th>WFC</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
                         </div>
                         <!-- /.tab-pane -->
                         <div class="tab-pane" id="tabCompetency" style="overflow-y: scroll; height: 420px; overflow-x: hidden;">
-                            <b>Competency Feedback</b>
-                            <div id="xxxx"></div>
+                            <h3 id="spanCompetency">Competency Score: </h3>
+                            <div id="divCompetency"></div>
                         </div>
                         <!-- /.tab-pane -->
                     </div>
@@ -238,22 +265,20 @@
     <!-- /.modal -->
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
-
-
     <script type="text/javascript" src="Sitel/cdn/chartjs/Chart.bundle.min.js"></script>
     <script src="Sitel/cdn/jsontotable/jquery.jsontotable.min.js"></script>
-
     <script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
 
     <script type="text/javascript">
         $(function () {
             $('#progress').show();
+           
             var EMPCODE = $('#lblEmpID').text();
             $('[class*="mgrChart"]').each(function () {
                 var id = $(this).prop('id');
                 id = id.replace("mgrChart", "");
                 if (parseInt(id) > 0) {
-                    fillChartbubble(id);
+                    fillChart(id, 'H1 2018');
                 }
             });
             $('[class*="skillChart"]').each(function () {
@@ -266,12 +291,9 @@
             });
             $('#progress').hide();
         });
-        function fillChartbubble(optionSelected) {
-            // //debugger;;            
-
-            var params = '{"EMPCODE":"' + optionSelected + '"}';
-            if (optionSelected != "" && optionSelected != "0") {
-                // //debugger;;   
+        function fillChart(EmpCode, Period) {
+            var params = '{"EMPCODE":"' + EmpCode + '", "Period":"' + Period + '"}';
+            if (EmpCode != "" && EmpCode != "0") {
 
                 $.ajax({
                     type: "POST",
@@ -281,63 +303,50 @@
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
                     success: function (responseData) {
-                        //console.log(data.d);
-                        //// With Fixed Color palette
-                        var xDataSets = [];
-                        for (var i = 0; i < responseData.d.length; i++) {
-                            var myColor = fixedColorPalette(i);
-                            // //debugger;;
-                            var xVar = responseData.d[i]["Name"].toString() + " : " + responseData.d[i]["EmpCode"].toString() + " : " + responseData.d[i]["Period"].toString();
-                            var xDataSet = {
-                                label: xVar,
-                                backgroundColor: myColor,
-                                hoverBackgroundColor: myColor,
-                                hoverRadius: -1,
-                                borderColor: myColor,
-                                borderWidth: 1,
-                                hoverBorderWidth: 2,
-                                hoverRadius: 0,//-0.001,
-                                hitRadius: 1,
-                                data: [
-                                    {
+                        if (responseData.d.length > 0) {
+                            //// With Fixed Color palette
+                            var xDataSets = [];
+                            for (var i = 0; i < responseData.d.length; i++) {
+                                var myColor = fixedColorPalette(i);                          
+                                var headerTitle = responseData.d[i]["Name"].toString() + " : " + responseData.d[i]["EmpCode"].toString() + " : " + responseData.d[i]["Period"].toString();
+                                xDataSets[i] = {
+                                    label: headerTitle,
+                                    backgroundColor: myColor,
+                                    borderColor: myColor,
+                                    borderWidth: 1,
+                                    data: [{
                                         x: responseData.d[i]["Performance"],
                                         y: responseData.d[i]["Competency"],
                                         r: responseData.d[i]["Radius"],
-                                    }
-
-                                ],
-                            };
-                            xDataSets.push(xDataSet);
+                                    }],
+                                };                                
+                            }
+                            CreateNineBoxChart(xDataSets);
                         }
-                        //// //debugger;;
-                        ////var strData = $.parseJSON(JSON.stringify(responseData.d));
-                        NineBoxChart(xDataSets);
                     },
                     failure: function (responseData) {
                         alert(responseData.d);
                     }
                 });
             }
-            function NineBoxChart(xdata) {
-                var ctx = $("#mgrChart" + optionSelected);
-                //var progress = $("mgrChartAnimationProgress" + optionSelected);
+            function CreateNineBoxChart(xdata) {
+                var ctx = $("#mgrChart" + EmpCode);
                 if (xdata != null) {
                     ctx.empty();
-
                 }
                 var myChart = new Chart(ctx, {
                     type: 'bubble',
                     data: {
                         labels: "Managers",
                         datasets: xdata,
-                        //hoverRadius: 0,
                     },
-
+                    hoverRadius: 0,
                     options: {
                         events: ['click'],
                         onClick: function (e) {
                             getEmpStats(e, this);
                         },
+
                         title: {
                             display: false,
                             text: 'Scores acheived by Managers on Performance Tests and Competency'
@@ -347,7 +356,7 @@
                             position: 'right'
                         },
                         animation: {
-                            duration: 2500,
+                            duration: 1000,
                             //onProgress: function (animation) {
                             //    progress.val(animation.currentStep / animation.numSteps);
                             //}
@@ -380,104 +389,13 @@
                                 }
                             }]
                         },
-                        backgroundColor: 'pink'
                     },
                 });
-
             }
         }
-        function getEmpStats(e, me) {
-            var element = me.getElementAtEvent(e);
-            // If you click on at least 1 element ...
-            if (element.length > 0) {
-
-                // Here we get the data linked to the clicked bubble ...
-                var Header = me.config.data.datasets[element[0]._datasetIndex].label;
-                EmpName = Header.split(":");
-                var EmpCode = EmpName[1].trim();
-                var Period = EmpName[2].trim();
-                var params = '{"empcode":"' + EmpCode + '", "period":"' + Period + '"}';
-                // get Employee Stats
-                $.ajax({
-                    type: "POST",
-                    url: "ninebox.aspx/getEmpStatsFromDB",
-                    data: params,
-                    async: false,
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (responseData) {
-                        //alert(responseData.d);
-
-                        var d = JSON.parse(responseData.d);
-                        // //debugger;;
-                        $('#mdUserImage').attr('src', 'Sitel/user_images/' + d[0].UserImage);
-                        $('#mdEmpName').text(Header);
-                        $('#mdRepMgr').text(Header);
-
-                        $('#spanPacman').text(d[0].PacManRating);
-                        $('#spanTest').text(d[0].TestScore);
-                        $('#spanCompetency').text(d[0].CompetencyRating);
-
-                        $('#tdEmpcode').text(EmpCode);
-                        $('#tdName').text(EmpName[0].trim());
-                        $('#tdReportingManager').text();
-
-                        $('#modalEmployee').modal('show',
-                            function (event) {
-                                event.preventDefault();
-                            });
-
-                    },
-                    failure: function (responseData) {
-                        alert(responseData.d);
-                    }
-                });
-
-                // get Employee Competency
-                $.ajax({
-                    type: "POST",
-                    url: "ninebox.aspx/getEmpCompetencyFromDB",
-                    data: params,
-                    async: false,
-                    contentType: "application/json; charset=utf-8",
-                    dataType: "json",
-                    success: function (responseData) {
-                        //alert(responseData.d);
-                        //debugger;;
-                        //var d = JSON.parse(responseData.d);
-                        //var d = jQuery.parseJSON(responseData.d);
-                        //var d = $.parseJSON(JSON.stringify(responseData.d)); //responseData.d;
-                        var d = responseData.d;
-
-                        var strTable = '<table id="xCompetenctTable" class="table table-condensed table-bordered table-striped table-hover table-responsive xCompetenctTable" ><thead><tr><th>COMPETENCY</th><th>DESCRIPTION</th><th>COMMENTS</th><th>RATING</th><th>RATING SCALE</th></tr></thead><tbody>';
-                        for (var i = 0; i < d.length - 1; i++) {
-                            strTable += '<tr><td>' + d[i].COMPETENCY + '</td><td>' + d[i].DESCRIPTION + '</td><td>' + d[i].COMMENTS + '</td><td>' + d[i].RATING + '</td><td>' + d[i].RATINGSCALE + '</td></tr>';
-
-                        }
-                        strTable += '</tbody></table>';
-
-                        $('#xxxx').html("");
-                        $('#xxxx').append(strTable);
-                        pluginsInitializer();
-                        //$.jsontotable(responseData.d, { id: '#tabCompetency', header: true, className: 'table table-hover' });
-
-                        //$('#modalEmployee').modal();
-
-                    },
-                    failure: function (responseData) {
-                        alert(responseData.d);
-                    }
-                });
-
-            }
-        }
-
         function fillSkillSetBubble(EmpCode, Skill) {
-            // //debugger;; 
-
             var params = '{"EMPCODE":"' + EmpCode + '", "Skill":"' + Skill + '"}';
             if (EmpCode != "" && EmpCode != "0") {
-                // //debugger;;    
 
                 $.ajax({
                     type: "POST",
@@ -486,49 +404,35 @@
                     async: true,
                     contentType: "application/json; charset=utf-8",
                     dataType: "json",
-                    success: function (data) {
-                        // //debugger;;
-                        //console.log(data.d);
-
-
-                        var xDataSets = [];
-                        for (var i = 0; i < data.d.length; i++) {
-                            var myColor = fixedColorPalette(i);
-                            var xDataSet = {
-                                label: data.d[i]["Name"].toString(),
-                                backgroundColor: myColor,
-                                hoverBackgroundColor: myColor,
-                                //hoverRadius: -1,
-                                borderColor: myColor,
-                                //borderWidth: 1,
-                                hoverBorderWidth: 1,
-                                hoverRadius: 0,//-0.001,
-                                // hitRadius: 1,
-                                data: [
-                                    {
-                                        x: data.d[i]["Performance"],
-                                        y: data.d[i]["Competency"],
-                                        r: data.d[i]["Radius"],
-                                    }
-
-                                ],
-                                //hoverRadius: 1,
-                                //hitRadius: 1,
-                            };
-                            xDataSets.push(xDataSet);
+                    success: function (responseData) {
+                        if (responseData.d.length > 0) {
+                            var xDataSets = [];
+                            for (var i = 0; i < responseData.d.length; i++) {
+                                var myColor = fixedColorPalette(i);
+                                var headerTitle = responseData.d[i]["Name"].toString() + " : " + responseData.d[i]["EmpCode"].toString() + " : " + responseData.d[i]["Period"].toString();
+                                var xDataSet = {
+                                    label: headerTitle,
+                                    backgroundColor: myColor,
+                                    borderColor: myColor,
+                                    data: [
+                                        {
+                                            x: responseData.d[i]["Performance"],
+                                            y: responseData.d[i]["Competency"],
+                                            r: responseData.d[i]["Radius"],
+                                        }],
+                                };
+                                xDataSets.push(xDataSet);
+                            }
+                            CreateNineBoxChart(xDataSets);
                         }
-                        //// //debugger;;
-                        ////var strData = $.parseJSON(JSON.stringify(data.d));
-                        NineBoxChart(xDataSets);
                     },
                     failure: function (response) {
                         alert(response.d);
                     }
                 });
             }
-            function NineBoxChart(xdata) {
+            function CreateNineBoxChart(xdata) {
                 var ctx = $("#skillChart" + Skill);
-                var progress = $("skillChartAnimationProgress" + Skill);
                 if (xdata != null) {
                     ctx.empty();
                 }
@@ -537,9 +441,13 @@
                     data: {
                         labels: "Managers",
                         datasets: xdata,
-                        //hoverRadius: 0,
                     },
+                    hoverRadius: 0,
                     options: {
+                        events: ['click'],
+                        onClick: function (e) {
+                            getEmpStats(e, this);
+                        },
                         title: {
                             display: false,
                             text: 'Scores acheived by Managers on Performance Tests and Competency'
@@ -587,45 +495,149 @@
             }
         }
         function fixedColorPalette(i) {
-            //var palette = [
-            //    "rgba(54, 109, 209, 1)",
-            //    "rgba(103, 158, 2, 1)",
-            //    "rgba(163, 212, 68, 1)",
-            //    "rgba(206, 235, 129, 1)",
-            //    "rgba(242, 255, 181, 1)",
-            //    "rgba(105, 22, 3, 1)",
-            //    "rgba(158, 68, 34, 1)",
-            //    "rgba(212, 132, 84, 1)",
-            //    "rgba(235, 181, 127, 1)",
-            //    "rgba(255, 226, 170, 1)",
-            //];
-            //var l = palette.length - 1;
+            var palette = [
+                "rgba(54, 109, 209, 1)",
+                "rgba(103, 158, 2, 1)",
+                "rgba(163, 212, 68, 1)",
+                "rgba(206, 235, 129, 1)",
+                "rgba(242, 255, 181, 1)",
+                "rgba(105, 22, 3, 1)",
+                "rgba(158, 68, 34, 1)",
+                "rgba(212, 132, 84, 1)",
+                "rgba(235, 181, 127, 1)",
+                "rgba(255, 226, 170, 1)",
+            ];
+            var l = palette.length - 1;
 
-            //l = Math.abs(l - i);
-            // //debugger;;
-            var dynamicColors = function () {
-                var r = Math.floor(Math.random() * 255);
-                var g = Math.floor(Math.random() * 255);
-                var b = Math.floor(Math.random() * 255);
-                return "rgb(" + r + "," + g + "," + b + ")";
-            };
+            l = i % l;
+            // ;
+            //var dynamicColors = function () {
+            //    var r = Math.floor(Math.random() * 255);
+            //    var g = Math.floor(Math.random() * 255);
+            //    var b = Math.floor(Math.random() * 255);
+            //    return "rgb(" + r + "," + g + "," + b + ")";
+            //};
 
-            //return palette[l].toString();
+            return palette[l].toString();
 
             return dynamicColors;
         }
 
-        $(function () {
-            pluginsInitializer();
-        });
-    </script>
+        function getEmpStats(e, me) {
+            var element = me.getElementAtEvent(e);
+            // If you click on at least 1 element ...
+            if (element.length > 0) {
+                // Here we get the data linked to the clicked bubble ...
+                var Header = me.config.data.datasets[element[0]._datasetIndex].label;
+                EmpName = Header.split(":");
+                var EmpCode = EmpName[1].trim();
+                var Period = EmpName[2].trim();
+                showEmployeeModal(EmpCode, Period);
+            }
+        }
 
-    <script>
+        function showEmployeeModal(EmpCode, Period) {
+            var params = '{"empcode":"' + EmpCode + '", "period":"' + Period + '"}';
+
+            // get Employee Competency
+            $.ajax({
+                type: "POST",
+                url: "ninebox.aspx/getEmpCompetencyFromDB",
+                data: params,
+                async: true,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (responseData) {
+                    if (responseData.d.length > 0) {
+                        var d = responseData.d;
+                        var strTable = '<table id="tableCompetency" class="table table-condensed table-bordered table-striped table-hover table-responsive makeDataTable" ><thead><tr><th>COMPETENCY</th><th>DESCRIPTION</th><th>COMMENTS</th><th>RATING</th><th>RATING SCALE</th></tr></thead><tbody>';
+                        for (var i = 0; i < d.length - 1; i++) {
+                            strTable += '<tr><td>' + d[i].COMPETENCY + '</td><td>' + d[i].DESCRIPTION + '</td><td>' + d[i].COMMENTS + '</td><td>' + d[i].RATING + '</td><td>' + d[i].RATINGSCALE + '</td></tr>';
+                        }
+                        strTable += '</tbody></table>';
+                        $('#divCompetency').html("");
+                        $('#divCompetency').append(strTable);
+                    }
+
+                },
+                failure: function (responseData) {
+                    alert(responseData.d);
+                }
+            });
+
+            // get Employee Stats
+            $.ajax({
+                type: "POST",
+                url: "ninebox.aspx/getEmpStatsFromDB",
+                data: params,
+                async: true,
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (responseData) {
+                    if (responseData.d.length > 0) {
+                        var d = responseData.d;
+                        if (d[0].UserImage) {
+                            $('#mdUserImage').attr('src', 'Sitel/user_images/' + d[0].UserImage);
+                        } else {
+                            $('#mdUserImage').attr('src', 'Sitel/user_images/unknownPerson.jpg');
+                        }
+                        $('#mdEmpName').text(d[0].Name + " : " + EmpCode + " : " + Period);
+                        $('#mdRepMgr').text("Reports to : " + d[0].RepMgr + " : " + d[0].RepMgrCode);
+
+                        $('#spanPacman').text('Performance Rating : ' + d[0].PacManRating);
+                        $('#spanTest').text('Test Score : ' + d[0].TestScore);
+                        $('#spanCompetency').text('Competency Score: ' + d[0].CompetencyRating);
+
+                        $('#tdEmpcode').text(EmpCode);
+                        $('#tdName').text(EmpName[0].trim());
+                        $('#tdReportingManager').text();
+                        // Populate the Employee PACMAN Table                        
+                        var strTable = '<table id="tblPacman" class="table table-condensed table-bordered table-striped table-hover table-responsive makeDataTable">';
+                        strTable += '<thead><tr><th>Pacman Rating</th><th>Test Score</th><th>Competency Rating</th></tr></thead><tbody>'
+                        var e;
+                        for (var i = 0; i < d.length; i++) {
+                            e = d[i];
+                            strTable += '<tr><td>' + e.PacManRating + '</td><td>' + e.TestScore + '</td><td>' + e.CompetencyRating + '</td></tr>';
+                        }
+                        strTable += '</tbody></table>';
+                        $('#divPacman').html("");
+                        $('#divPacman').append(strTable);
+
+                        // Populate the Employee Test Table
+                        strTable = '<table id="tblTest" class="table table-condensed table-bordered table-striped table-hover table-responsive makeDataTable">';
+                        strTable += '<thead><tr><th>Analytics</th><th>Aptitude</th><th>Planning</th><th>RTA</th><th>Scheduling</th><th>WFC</th><th>Total</th></tr></thead><tbody>'
+
+                        for (var i = 0; i < d.length; i++) {
+                            e = d[i];
+                            strTable += '<tr><td>' + e.Analytics + '</td><td>' + e.Aptitude + '</td><td>' + e.Planning + '</td><td>' + e.RTA + '</td><td>' + e.Scheduling + '</td><td>' + e.WFC + '</td><td>' + e.Total + '</td></tr>';
+                        }
+                        strTable += '</tbody></table>';
+                        $('#divTest').html("");
+                        $('#divTest').append(strTable);
+                    }
+                },
+                failure: function (responseData) {
+                    alert(responseData.d);
+                }
+            });
+
+            // Provision the above as datatables
+            // pluginsInitializer();
+
+            // Show the fully built up modal
+            $('#modalEmployee').modal({
+                backdrop: 'static'
+            });
+        }
+
+        $(function () {
+            //pluginsInitializer();
+        });
         function pluginsInitializer() {
-            var table = $('.xCompetenctTable').dataTable({
+            var table = $('[class*="makeDataTable"]').dataTable({
                 destroy: true,
-                responsive: true,
-                fixedHeader: true,
+                "responsive": true,
+                "fixedHeader": true,
                 "sPaginationType": "full_numbers",
                 "lengthMenu": [2, 5, 10, 25, 50, 75],
                 "aaSortingFixed": [[0, 'asc']],
@@ -633,14 +645,9 @@
                 //dom: 'Bfrltip',
                 "columnDefs": [{ "orderable": false, "targets": 0 }],
             });
-            $(".xCompetenctTable").css('width', '');
+            $(".makeDataTable").css('width', '');
             //new $.fn.dataTable.FixedHeader(table);
         }
-
-
-        $(function () {
-            pluginsInitializer();
-        });
     </script>
 </asp:Content>
 
