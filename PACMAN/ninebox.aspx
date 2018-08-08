@@ -220,12 +220,18 @@
                         <li class="active"><a href="#tabPacman" data-toggle="tab"><span>Performance&nbsp</span></a></li>
                         <li><a href="#tabCompetency" data-toggle="tab">Competency&nbsp</a></li>
                         <li><a href="#tabSkill" data-toggle="tab">Skill&nbsp</a></li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Export As <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li role="presentation"><a role="menuitem" tabindex="-1" href="javascript:convert2PDF()"><i class="fa fa-fw fa-file-pdf-o"></i>PDF</a></li>
+                            </ul>
+                        </li>
                     </ul>
                     <div id="tabPrintable" class="tab-content">
                         <!-- /.tab-pane -->
                         <div class="tab-pane active" id="tabPacman" style="overflow-y: scroll; height: 420px; overflow-x: hidden;">
-                            <h3 id="spanPacman">Performance Rating : </h3>
-                            <button id="btnPrint1" onclick="convert2PDF()" class="btn btn-primary">Print PDF</button>
+                            <h3 id="spanPacman">Performance Rating : </h3>                            
                             <div id="divPacman">
                                 <table id="tblPacman" class="table table-condensed table-bordered table-striped table-hover table-responsive">
                                     <thead>
@@ -697,117 +703,64 @@
         }
     </script>
     <script>
-        ////// Create a jquery plugin that prints the given element.
-        ////jQuery.fn.print = function () {
-        ////    // NOTE: We are trimming the jQuery collection down to the
-        ////    // first element in the collection.
-        ////    if (this.length > 1) {
-        ////        this.eq(0).print();
-        ////        return;
-        ////    } else if (!this.length) {
-        ////        return;
-        ////    }
 
-        ////    // ASSERT: At this point, we know that the current jQuery
-        ////    // collection (as defined by THIS), contains only one
-        ////    // printable element.
+</script>
 
-        ////    // Create a random name for the print frame.
-        ////    var strFrameName = ("printer-" + (new Date()).getTime());
-
-        ////    // Create an iFrame with the new name.
-        ////    var jFrame = $("<iframe name='" + strFrameName + "'>");
-
-        ////    // Hide the frame (sort of) and attach to the body.
-        ////    jFrame
-        ////        .css("width", "1px")
-        ////        .css("height", "1px")
-        ////        .css("position", "absolute")
-        ////        .css("left", "-9999px")
-        ////        .appendTo($("body:first"))
-        ////        ;
-
-        ////    // Get a FRAMES reference to the new frame.
-        ////    var objFrame = window.frames[strFrameName];
-
-        ////    // Get a reference to the DOM in the new frame.
-        ////    var objDoc = objFrame.document;
-
-        ////    // Grab all the style tags and copy to the new
-        ////    // document so that we capture look and feel of
-        ////    // the current document.
-
-        ////    // Create a temp document DIV to hold the style tags.
-        ////    // This is the only way I could find to get the style
-        ////    // tags into IE.
-        ////    var jStyleDiv = $("<div>").append(
-        ////        $("style").clone()
-        ////    );
-
-        ////    // Write the HTML for the document. In this, we will
-        ////    // write out the HTML of the current element.
-        ////    objDoc.open();
-        ////    objDoc.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-        ////    objDoc.write("<html>");
-        ////    objDoc.write("<body>");
-        ////    objDoc.write("<head>");
-        ////    objDoc.write("<title>");
-        ////    objDoc.write(document.title);
-        ////    objDoc.write("</title>");
-        ////    objDoc.write(jStyleDiv.html());
-        ////    objDoc.write("</head>");
-        ////    objDoc.write(this.html());
-        ////    objDoc.write("</body>");
-        ////    objDoc.write("</html>");
-        ////    objDoc.close();
-
-        ////    // Print the document.
-        ////    objFrame.focus();
-        ////    objFrame.print();
-
-        ////    // Have the frame remove itself in about a minute so that
-        ////    // we don't build up too many of these frames.
-        ////    setTimeout(
-        ////        function () {
-        ////            jFrame.remove();
-        ////        },
-        ////        (60 * 1000)
-        ////    );
-        ////}
-    </script>
-
-    <script>
-        function toPrint() {
-            window.print();
-        }
-
-
+    <script>   
         function convert2PDF() {
-            var pdf = new jsPDF('p', 'pt', 'A4');
+            var pdf = new jsPDF('l', 'pt', 'A3');
+            
+            //$('#tabPacman').tabs({ active: 1 });
             source = $('#tabPacman')[0];
             specialElementHandlers = {
                 'canvas': function (element, renderer) {
                     return true;
                 }
             };
-            var margins = { top: 12.7, bottom: 12.7, left: 12.7, width: 522 };
-
+            var margins = {
+                top: 12.7,
+                bottom: 12.7,
+                left: 12.7,
+                width: 522
+            };
             pdf.fromHTML(source, margins.left, margins.top, {
                 'width': margins.width, // max width of content on PDF
                 'elementHandlers': specialElementHandlers
             });
-            pdf.addPage();
-
-            source = $("#divCompetency").find('table')[0];            
+            pdf.addPage('l');
+            source = $("#divCompetency").find('table')[0];
             source = pdf.autoTableHtmlToJson(source);
-            pdf.autoTable(res.columns, res.data, { startY: 20 });
-            pdf.fromHTML(source, margins.left, margins.top, {
-                'width': margins.width, // max width of content on PDF
-                'elementHandlers': specialElementHandlers
+            pdf.autoTable(source.columns, source.data, {
+                startY: 20,
+                margin: {
+                    top: 10,
+                    right: 10,
+                    bottom: 10,
+                    left: 10,
+                    useFor: 'page'
+                },
+                bodyStyles: {
+                    valign: 'middle'
+                },
+                styles: {
+                    overflow: 'linebreak',
+                    columnWidth: 'wrap'
+                },
+                theme: 'grid',
+                columnStyles: {
+                    0: { columnWidth: 120 },
+                    1: { columnWidth: 450 },
+                    2: { columnWidth: 450 },
+                    3: { columnWidth: 50 },
+                    4: { columnWidth: 100 },
+                }
+
             });
-            pdf.save('Test.pdf');
+            var reportName = $('#mdEmpName').text();
+            reportName = reportName.replace(":", " ");
+            reportName = reportName.replace("  ", " ");
+            pdf.save('Nine Box Report for ' + reportName + '.pdf');
         }
-        ////
     </script>
 </asp:Content>
 
