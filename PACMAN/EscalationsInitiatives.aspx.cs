@@ -8,7 +8,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data.Sql;
 using System.Data.SqlClient;
- 
+
 
 public partial class EscalationsInitiatives : System.Web.UI.Page
 {
@@ -20,6 +20,8 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
     string pacmancycle { get; set; }
 
     EmailSender Email = new EmailSender();
+    private DateTime StartDate { get; set; }
+    private DateTime EndDate { get; set; }
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -47,7 +49,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         title.Text = "Escalation & Initiatives";
 
         reportee = ddlSelectEmployee.SelectedItem.Value.ToString();
-        if (Convert.ToInt32(reportee) == MyEmpID || Convert.ToInt32(reportee)==0)
+        if (Convert.ToInt32(reportee) == MyEmpID || Convert.ToInt32(reportee) == 0)
         {
             txtEscalation.Enabled = false;
             btnSaveEsc.Enabled = false;
@@ -78,10 +80,10 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         }
     }
 
-  
+
     private void fillddlPacmanCycle()
     {
-        string emp; 
+        string emp;
         string empId;
         emp = ddlSelectEmployee.SelectedItem.Value.ToString();
 
@@ -136,7 +138,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
 
     private void fillgvEscalationlog()
     {
-        reportee=ddlSelectEmployee.SelectedItem.Value.ToString();//int report = 835064;
+        reportee = ddlSelectEmployee.SelectedItem.Value.ToString();//int report = 835064;
         pacmancycle = ddlPacmanCycle.SelectedItem.Value.ToString();//int pc = 1;
 
         strSQL = "[WFMPMS].[GetEscalationLog]";
@@ -189,31 +191,62 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         lblInitiativeScoreTop.Text = scoreIni;
         lblInitiativeScoreBottom.Text = scoreIni;
     }
+    private void fillStartAndEndDates()
+    {
+        int PeriodID = Convert.ToInt32(ddlPacmanCycle.SelectedValue);
+        string strSQL = "SELECT [FromDate],[ToDate] FROM [PMS].[PeriodMst] where [PeriodID] =" + PeriodID;
+        DataTable dt = my.GetData(strSQL);
+        if (dt != null && dt.Rows.Count > 0)
+        {
+            StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
+            EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
 
+        }
+        else
+        {
+            StartDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+            EndDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 31);
+
+        }
+
+    }
     private void getTotalScore()
     {
         reportee = ddlSelectEmployee.SelectedItem.Value.ToString();//int reportee = 835064;
         pacmancycle = ddlPacmanCycle.SelectedItem.Value.ToString();//int pacmancycle = 6;
-
-        strSQL = "[WFMPMS].[GetEscalationInitiativeScore]";
+        fillStartAndEndDates();
+        strSQL = "[WFMPMS].[GetEscalationInitiativeScore_g]";
         SqlConnection cn = new SqlConnection(my.getConnectionString());
         cn.Open();
-        SqlCommand cmd = new SqlCommand(strSQL,cn);
+        SqlCommand cmd = new SqlCommand(strSQL, cn);
         cmd.Parameters.AddWithValue("@EmpCode", Convert.ToInt32(reportee));
-        cmd.Parameters.AddWithValue("@PacmanCycle", Convert.ToInt32(pacmancycle));
-        cmd.Parameters.Add("@total", SqlDbType.Float);
-        cmd.Parameters["@total"].Direction = ParameterDirection.Output;
+        //cmd.Parameters.AddWithValue("@PacmanCycle", Convert.ToInt32(pacmancycle));
+        cmd.Parameters.AddWithValue("@StartDate", StartDate);
+        cmd.Parameters.AddWithValue("@EndDate", EndDate);
+        //cmd.Parameters.Add("@total", SqlDbType.Float);
+        //cmd.Parameters["@total"].Direction = ParameterDirection.Output;
         cmd.CommandType = CommandType.StoredProcedure;
-            //string total = cmd.ExecuteScalar().ToString();
-        cmd.ExecuteNonQuery();
-        string scoretotal = cmd.Parameters["@total"].Value.ToString();
+        //string total = cmd.ExecuteScalar().ToString();
+        //cmd.ExecuteNonQuery();
+        //string scoretotal = cmd.Parameters["@total"].Value.ToString();
+        DataTable dt = my.GetData(ref cmd);
+        //gv.DataSource = dt;
+        //gv.DataBind();
 
-            //string total1 = 
-            //DataTable dt3 = my.GetDataTableViaProcedure(ref cmd);
-            //gvInitiativeLog.DataSource = dt3;
-            //gvInitiativeLog.DataBind();
-            cn.Close();
-            lblTotalScore.Text = scoretotal;
+        DataRow[] drs = dt.Select("Account = 'Grand Total'");
+        if (drs.Length == 1)
+            foreach (DataRow r in drs)
+            {
+                lblTotalScore.Text = r["Rating"].ToString();
+            }
+        //lblTotalScore.Text = scoretotal;
+
+        //string total1 = 
+        //DataTable dt3 = my.GetDataTableViaProcedure(ref cmd);
+        //gvInitiativeLog.DataSource = dt3;
+        //gvInitiativeLog.DataBind();
+        cn.Close();
+
 
     }
 
@@ -223,7 +256,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         fillgvInitiativelog();
         getTotalScore();
     }
-    
+
     protected void btnSaveEsc_Click(object sender, EventArgs e)
     {
         SqlConnection con = new SqlConnection(my.getConnectionString());
@@ -261,7 +294,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
 
         MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
         reportee = ddlSelectEmployee.SelectedItem.Value.ToString();
-        string type="Escalation";
+        string type = "Escalation";
         string description = txtEscalation.Text.ToString();
         //string attachment = 
         pacmancycle = ddlPacmanCycle.SelectedItem.Value.ToString();
@@ -294,7 +327,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         Email.CCsEmpId = MyEmpID.ToString();
         Email.Subject = "Escalation raised";
         Email.Body = "<strong>Hi, </strong>";
-        Email.Body += "<P>"+ dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has raised escalation <i>" + description + "</i> against you on " +DateTime.Now+"<p>";
+        Email.Body += "<P>" + dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has raised escalation <i>" + description + "</i> against you on " + DateTime.Now + "<p>";
         Email.Body += "<p>Please visit dashboard on <a href='http://iaccess/TA//EscalationsInitiatives.aspx'>Escalations and Initiatives page</a> .<p>";
         //Email.Attachment = Attachment;
         Email.Send();
@@ -350,7 +383,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         Email.CCsEmpId = MyEmpID.ToString();
         Email.Subject = "Initiave Recorded";
         Email.Body = "<strong>Hi, </strong>";
-        Email.Body += "<P>" + dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has recorded your initiative '" + description + "' on" + DateTime.Now+"<p>";
+        Email.Body += "<P>" + dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has recorded your initiative '" + description + "' on" + DateTime.Now + "<p>";
         Email.Body += "<p>Please visit dashboard on <a href='http://iaccess/PACMAN//EscalationsInitiatives.aspx'>Escalations and Initiatives page</a> .<p>";
         //Email.Attachment = Attachment;
         Email.Send();

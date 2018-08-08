@@ -48,7 +48,7 @@ public class Helper
             cn.Dispose();
         }
     }
-    public int ExecuteDMLCommand(ref SqlCommand cmd, string sql_string="", string operation="E")
+    public int ExecuteDMLCommand(ref SqlCommand cmd, string sql_string = "", string operation = "E")
     {
         open_db();
         int returnValue = 0;
@@ -106,7 +106,6 @@ public class Helper
         close_conn();
         return dt;
     }
-
     public DataTable GetData(ref SqlCommand cmd)
     {
         cmd.Connection = open_db();
@@ -258,7 +257,6 @@ public class Helper
         };
 
     }
-
     public int getSingleton(ref SqlCommand cmd)
     {
         cmd.Connection = open_db();
@@ -276,9 +274,8 @@ public class Helper
         {
             return 0;
         };
-        
-    }
 
+    }
     public string getFirstResult(string strSQL)
     {
         open_db();
@@ -287,7 +284,6 @@ public class Helper
         close_conn();
         return the_result;
     }
-
     public string getFirstResult(ref SqlCommand cmd)
     {
         cmd.Connection = open_db();
@@ -296,8 +292,6 @@ public class Helper
         close_conn();
         return the_result;
     }
-
-
     public void fill_dropdown(Control drp_name, string sp_name, string datatextfield, string datavaluefield, string defaultitem, string parameters, string tran_type)
     {
         open_db();
@@ -407,11 +401,10 @@ public class Helper
         }
         return isSQLInjection;
     }
-
 }
 public class EmailSender
 {
-    
+
     private string[] _recipientsEmailAddresses { get; set; }
     public int InitiatorEmpId { get; set; }
     public string RecipientsEmpId { get; set; }
@@ -425,7 +418,7 @@ public class EmailSender
     Helper my = new Helper();
     public EmailSender()
     {
-        
+
 
     }
 

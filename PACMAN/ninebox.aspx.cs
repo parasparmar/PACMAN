@@ -16,7 +16,7 @@ public partial class ninebox : System.Web.UI.Page
     Helper my;
     private string strSQL { get; set; }
     private int MyEmpID { get; set; }
-    string myID;
+    
     private int[] AuthorizedIDs = new int[6] { 755882, 931040, 923563, 918031, 1092308, 798904 };
     protected void Page_Load(object sender, EventArgs e)
     {

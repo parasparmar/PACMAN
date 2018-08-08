@@ -167,6 +167,7 @@ public partial class ExceptionTracker : System.Web.UI.Page
     {
         strSQL = "[WFMPMS].[GetPendingExceptionTracker]";
         SqlCommand cmd = new SqlCommand(strSQL);
+        cmd.CommandTimeout = 60;
         DataTable dt3 = my.GetDataTableViaProcedure(ref cmd);
         string[] filePaths = Directory.GetFiles(Server.MapPath("Sitel/mails/"));
         //string[] filePaths1 = Directory.GetFiles("Sitel/mails/");

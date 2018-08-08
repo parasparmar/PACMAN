@@ -42,10 +42,11 @@
             }
     </style>
 
-    <link href="https://cdn.datatables.net/fixedheader/3.1.5/css/fixedHeader.dataTables.min.css" rel="stylesheet" />
+
 
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
+
     <div class="box">
         <div class="box-body">
             <div class="form-group">
@@ -110,69 +111,75 @@
             </div>
         </div>
     </div>
-    <asp:ListView ID="lvMGR" runat="server">
-        <LayoutTemplate>
-            <div class="row" id="itemPlaceholderContainer" runat="server">
-                <div class="col-md-6" id="itemPlaceholder" runat="server">
+    <button id="btnPrint" onclick="convert2PDF()" class="btn btn-primary">Print PDF</button>
+    <div class="printable">
+        <asp:ListView ID="lvMGR" runat="server">
+            <LayoutTemplate>
+                <div class="row" id="itemPlaceholderContainer" runat="server">
+                    <div class="col-md-6" id="itemPlaceholder" runat="server">
+                    </div>
                 </div>
-            </div>
-        </LayoutTemplate>
-        <ItemTemplate>
-            <div class="col-md-6" runat="server">
-                <div class="box box-primary" runat="server">
-                    <div class="box-header with-border" runat="server">                        
-                            <h3 class="box-title" runat="server"><%#Eval("NAME") %> : <label id="lblEmpID"><%#Eval("EMPCODE") %></label></h3></a>
+            </LayoutTemplate>
+            <ItemTemplate>
+                <div class="col-md-6" runat="server">
+                    <div class="box box-primary" runat="server">
+                        <div class="box-header with-border" runat="server">
+                            <h3 class="box-title" runat="server"><%#Eval("NAME") %> :
+                            <label id="lblEmpID"><%#Eval("EMPCODE") %></label></h3>
+                            </a>
                         <div class="box-tools pull-right" runat="server">
                             <button type="button" class="btn btn-box-tool" data-widget="collapse" runat="server">
                                 <i class="fa fa-minus" runat="server"></i>
                             </button>
                         </div>
-                    </div>
-                    <div class="box-body" style="height: 300px; width: 600px" runat="server">
-                        <div class="chart-container" runat="server">
-                            <canvas id="mgrChart<%#Eval("EMPCODE") %>" class="mgrChart<%#Eval("EMPCODE") %>" style="height: 300px; width: 600px"></canvas>
                         </div>
-                    </div>
-                    <!-- /.box-body  -->
-                    <%--<div class="box-footer">
+                        <div class="box-body" style="height: 300px; width: 600px" runat="server">
+                            <div class="chart-container" runat="server">
+                                <canvas id="mgrChart<%#Eval("EMPCODE") %>" class="mgrChart<%#Eval("EMPCODE") %>" style="height: 300px; width: 600px"></canvas>
+                            </div>
+                        </div>
+                        <!-- /.box-body  -->
+                        <%--<div class="box-footer">
                         <div class="progress progress-sm">
                             <progress id="mgrChartAnimationProgress<%#Eval("EMPCODE") %>" class="progress-bar progress-bar-primary progress-bar-striped" role="progressbar" max="1" value="0" style="width: 100%"></progress>
                         </div>
                     </div>--%>
-                </div>
-                <!-- /.box -->
-            </div>
-        </ItemTemplate>
-    </asp:ListView>
-    <asp:ListView ID="lvSkill" runat="server">
-        <LayoutTemplate>
-            <div class="row" id="itemPlaceholderContainer" runat="server">
-                <div class="col-md-6" id="itemPlaceholder" runat="server">
-                </div>
-            </div>
-        </LayoutTemplate>
-        <ItemTemplate>
-            <div class="col-md-6" runat="server">
-                <div class="box box-default box-solid">
-                    <div class="box-header with-border">
-                        <h3 class="box-title">Department : <%#Eval("Skillset") %></h3>
-                        <div class="box-tools pull-right">
-                            <button type="button" class="btn btn-box-tool" data-widget="collapse">
-                                <i class="fa fa-minus"></i>
-                            </button>
-                        </div>
                     </div>
-                    <div class="box-body">
-                        <div class="chart-container">
-                            <canvas id="skillChart<%#Eval("SkillsetID") %>" class="skillChart<%#Eval("SkillsetID") %>" style="height: 300px; width: 600px"></canvas>
-                        </div>
-                    </div>
-                    <!-- /.box-body  -->
+                    <!-- /.box -->
                 </div>
-                <!-- /.box -->
-            </div>
-        </ItemTemplate>
-    </asp:ListView>
+            </ItemTemplate>
+        </asp:ListView>
+        <asp:ListView ID="lvSkill" runat="server">
+            <LayoutTemplate>
+                <div class="row" id="itemPlaceholderContainer" runat="server">
+                    <div class="col-md-6" id="itemPlaceholder" runat="server">
+                    </div>
+                </div>
+            </LayoutTemplate>
+            <ItemTemplate>
+                <div class="col-md-6" runat="server">
+                    <div class="box box-default box-solid">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Department : <%#Eval("Skillset") %></h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="chart-container">
+                                <canvas id="skillChart<%#Eval("SkillsetID") %>" class="skillChart<%#Eval("SkillsetID") %>" style="height: 300px; width: 600px"></canvas>
+                            </div>
+                        </div>
+                        <!-- /.box-body  -->
+                    </div>
+                    <!-- /.box -->
+                </div>
+            </ItemTemplate>
+        </asp:ListView>
+    </div>
+
     <div id="progress" class="modal">
         <div class="clscustomcenter">
             <img src="AdminLTE/bower_components/ckeditor/plugins/mathjax/images/loader.gif" />
@@ -210,14 +217,15 @@
                 <!-- Custom Tabs -->
                 <div class="nav-tabs-custom">
                     <ul class="nav nav-tabs">
-
                         <li class="active"><a href="#tabPacman" data-toggle="tab"><span>Performance&nbsp</span></a></li>
                         <li><a href="#tabCompetency" data-toggle="tab">Competency&nbsp</a></li>
+                        <li><a href="#tabSkill" data-toggle="tab">Skill&nbsp</a></li>
                     </ul>
-                    <div class="tab-content">
+                    <div id="tabPrintable" class="tab-content">
                         <!-- /.tab-pane -->
                         <div class="tab-pane active" id="tabPacman" style="overflow-y: scroll; height: 420px; overflow-x: hidden;">
                             <h3 id="spanPacman">Performance Rating : </h3>
+                            <button id="btnPrint1" onclick="convert2PDF()" class="btn btn-primary">Print PDF</button>
                             <div id="divPacman">
                                 <table id="tblPacman" class="table table-condensed table-bordered table-striped table-hover table-responsive">
                                     <thead>
@@ -249,8 +257,47 @@
                         </div>
                         <!-- /.tab-pane -->
                         <div class="tab-pane" id="tabCompetency" style="overflow-y: scroll; height: 420px; overflow-x: hidden;">
-                            <h3 id="spanCompetency">Competency Score: </h3>
-                            <div id="divCompetency"></div>
+                            <%--<h3 id="spanCompetency">Competency Score: </h3>--%>
+                            <div id="divCompetency">
+                            </div>
+                        </div>
+                        <!-- /.tab-pane -->
+                        <div class="tab-pane" id="tabSkill" style="overflow-y: scroll; height: 420px; overflow-x: hidden;">
+                            <div id="divSkill">
+                                <div class="box box-solid">
+                                    <div class="box-header with-border">
+                                        <h3 id="spanCompetency" class="box-title">Competency Score: </h3>
+                                    </div>
+                                    <!-- /.box-header -->
+                                    <div class="box-body">
+                                        <div class="box-group" id="accordion">
+                                            <!-- Panel 1 : Begins -->
+                                            <div id="collapse1Panel" class="panel box box-primary">
+                                                <div class="box-header with-border">
+                                                    <h5 class="box-title">
+                                                        <a data-toggle="collapse" id="collapse1Link" data-parent="#accordion" href="#collapse1">Building Effective Teams</a>&nbsp:&nbsp
+                                                        <a data-toggle="collapse" id="collapse1Rating" data-parent="#accordion" href="#collapse1">4</a>&nbsp(&nbsp
+                                                        <a data-toggle="collapse" id="collapse1Rating_Scale" data-parent="#accordion" href="#collapse1">High Meet Expectations</a>&nbsp)&nbsp
+                                                    </h5>
+                                                </div>
+                                                <div id="collapse1" class="panel-collapse collapse in">
+                                                    <div id="collapse1body" class="box-body row">
+                                                        <div id="collapse1Description" class="col-md-6 text-muted">
+                                                            Interpretation: Understanding that all teams must work towards a common goal is the main lesson for any manager. By helping teams to achieve joint success as well as their own job satisfaction will help them to realise that they need each other to really succeed.
+                                                        </div>
+                                                        <div id="collapse1Comments" class="col-md-6 well">
+                                                            Achieved: Employee has been handling the team efficiently and has been training them for their growth as well. He has handled all escalations pretty well in the past.
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Panel 1 : Ends-->
+                                        </div>
+                                    </div>
+                                    <!-- /.box-body -->
+                                </div>
+                                <!-- END ACCORDION & CAROUSEL-->
+                            </div>
                         </div>
                         <!-- /.tab-pane -->
                     </div>
@@ -266,13 +313,12 @@
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
     <script type="text/javascript" src="Sitel/cdn/chartjs/Chart.bundle.min.js"></script>
-    <script src="Sitel/cdn/jsontotable/jquery.jsontotable.min.js"></script>
-    <script src="https://cdn.datatables.net/fixedheader/3.1.5/js/dataTables.fixedHeader.min.js"></script>
-
+    <script src="Sitel/cdn/jspdf/jspdf.min.js"></script>
+    <script src="Sitel/cdn/jspdf/jspdf.plugin.autotable.js"></script>
     <script type="text/javascript">
         $(function () {
             $('#progress').show();
-           
+
             var EMPCODE = $('#lblEmpID').text();
             $('[class*="mgrChart"]').each(function () {
                 var id = $(this).prop('id');
@@ -289,7 +335,7 @@
                     fillSkillSetBubble(EMPCODE, id);
                 }
             });
-            $('#progress').hide();
+
         });
         function fillChart(EmpCode, Period) {
             var params = '{"EMPCODE":"' + EmpCode + '", "Period":"' + Period + '"}';
@@ -307,7 +353,7 @@
                             //// With Fixed Color palette
                             var xDataSets = [];
                             for (var i = 0; i < responseData.d.length; i++) {
-                                var myColor = fixedColorPalette(i);                          
+                                var myColor = fixedColorPalette(i);
                                 var headerTitle = responseData.d[i]["Name"].toString() + " : " + responseData.d[i]["EmpCode"].toString() + " : " + responseData.d[i]["Period"].toString();
                                 xDataSets[i] = {
                                     label: headerTitle,
@@ -319,7 +365,7 @@
                                         y: responseData.d[i]["Competency"],
                                         r: responseData.d[i]["Radius"],
                                     }],
-                                };                                
+                                };
                             }
                             CreateNineBoxChart(xDataSets);
                         }
@@ -392,8 +438,11 @@
                     },
                 });
             }
+
+            $('#progress').hide();
         }
         function fillSkillSetBubble(EmpCode, Skill) {
+            $('#progress').show();
             var params = '{"EMPCODE":"' + EmpCode + '", "Skill":"' + Skill + '"}';
             if (EmpCode != "" && EmpCode != "0") {
 
@@ -493,6 +542,7 @@
                     },
                 });
             }
+            $('#progress').hide();
         }
         function fixedColorPalette(i) {
             var palette = [
@@ -535,7 +585,6 @@
                 showEmployeeModal(EmpCode, Period);
             }
         }
-
         function showEmployeeModal(EmpCode, Period) {
             var params = '{"empcode":"' + EmpCode + '", "period":"' + Period + '"}';
 
@@ -629,9 +678,8 @@
                 backdrop: 'static'
             });
         }
-
         $(function () {
-            //pluginsInitializer();
+            pluginsInitializer();
         });
         function pluginsInitializer() {
             var table = $('[class*="makeDataTable"]').dataTable({
@@ -644,10 +692,122 @@
                 "bSort": true,
                 //dom: 'Bfrltip',
                 "columnDefs": [{ "orderable": false, "targets": 0 }],
+
             });
-            $(".makeDataTable").css('width', '');
-            //new $.fn.dataTable.FixedHeader(table);
         }
+    </script>
+    <script>
+        ////// Create a jquery plugin that prints the given element.
+        ////jQuery.fn.print = function () {
+        ////    // NOTE: We are trimming the jQuery collection down to the
+        ////    // first element in the collection.
+        ////    if (this.length > 1) {
+        ////        this.eq(0).print();
+        ////        return;
+        ////    } else if (!this.length) {
+        ////        return;
+        ////    }
+
+        ////    // ASSERT: At this point, we know that the current jQuery
+        ////    // collection (as defined by THIS), contains only one
+        ////    // printable element.
+
+        ////    // Create a random name for the print frame.
+        ////    var strFrameName = ("printer-" + (new Date()).getTime());
+
+        ////    // Create an iFrame with the new name.
+        ////    var jFrame = $("<iframe name='" + strFrameName + "'>");
+
+        ////    // Hide the frame (sort of) and attach to the body.
+        ////    jFrame
+        ////        .css("width", "1px")
+        ////        .css("height", "1px")
+        ////        .css("position", "absolute")
+        ////        .css("left", "-9999px")
+        ////        .appendTo($("body:first"))
+        ////        ;
+
+        ////    // Get a FRAMES reference to the new frame.
+        ////    var objFrame = window.frames[strFrameName];
+
+        ////    // Get a reference to the DOM in the new frame.
+        ////    var objDoc = objFrame.document;
+
+        ////    // Grab all the style tags and copy to the new
+        ////    // document so that we capture look and feel of
+        ////    // the current document.
+
+        ////    // Create a temp document DIV to hold the style tags.
+        ////    // This is the only way I could find to get the style
+        ////    // tags into IE.
+        ////    var jStyleDiv = $("<div>").append(
+        ////        $("style").clone()
+        ////    );
+
+        ////    // Write the HTML for the document. In this, we will
+        ////    // write out the HTML of the current element.
+        ////    objDoc.open();
+        ////    objDoc.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+        ////    objDoc.write("<html>");
+        ////    objDoc.write("<body>");
+        ////    objDoc.write("<head>");
+        ////    objDoc.write("<title>");
+        ////    objDoc.write(document.title);
+        ////    objDoc.write("</title>");
+        ////    objDoc.write(jStyleDiv.html());
+        ////    objDoc.write("</head>");
+        ////    objDoc.write(this.html());
+        ////    objDoc.write("</body>");
+        ////    objDoc.write("</html>");
+        ////    objDoc.close();
+
+        ////    // Print the document.
+        ////    objFrame.focus();
+        ////    objFrame.print();
+
+        ////    // Have the frame remove itself in about a minute so that
+        ////    // we don't build up too many of these frames.
+        ////    setTimeout(
+        ////        function () {
+        ////            jFrame.remove();
+        ////        },
+        ////        (60 * 1000)
+        ////    );
+        ////}
+    </script>
+
+    <script>
+        function toPrint() {
+            window.print();
+        }
+
+
+        function convert2PDF() {
+            var pdf = new jsPDF('p', 'pt', 'A4');
+            source = $('#tabPacman')[0];
+            specialElementHandlers = {
+                'canvas': function (element, renderer) {
+                    return true;
+                }
+            };
+            var margins = { top: 12.7, bottom: 12.7, left: 12.7, width: 522 };
+
+            pdf.fromHTML(source, margins.left, margins.top, {
+                'width': margins.width, // max width of content on PDF
+                'elementHandlers': specialElementHandlers
+            });
+            pdf.addPage();
+
+            source = $("#divCompetency").find('table')[0];            
+            source = pdf.autoTableHtmlToJson(source);
+            pdf.autoTable(res.columns, res.data, { startY: 20 });
+            pdf.fromHTML(source, margins.left, margins.top, {
+                'width': margins.width, // max width of content on PDF
+                'elementHandlers': specialElementHandlers
+            });
+            pdf.save('Test.pdf');
+        }
+        ////
     </script>
 </asp:Content>
 
