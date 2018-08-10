@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
+using System.Web.Services;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -13,43 +14,59 @@ public partial class inputpage : System.Web.UI.Page
     Helper my;
     private string strSQL { get; set; }
     private int MyEmpID { get; set; }
-    private int[] AuthorizedIDs = new int[6] { 755882, 931040, 923563, 918031, 1092308, 798904 };
+    //private int[] AuthorizedIDs = new int[6] { 755882, 931040, 923563, 918031, 1092308, 798904 };
     protected void Page_Load(object sender, EventArgs e)
     {
         my = new Helper();
-        try
-        {
-            dtEmp = (DataTable)Session["dtEmp"];
-            if (dtEmp.Rows.Count <= 0)
-            {
-                Response.Redirect("index.aspx", false);
-            }
-            else
-            {
-                // In Production Use the below
-                MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
-            }
-        }
-        catch (Exception Ex)
-        {
-            Console.WriteLine(Ex.Message.ToString());
-            Response.Redirect(ViewState["PreviousPageUrl"] != null ? ViewState["PreviousPageUrl"].ToString() : "index.aspx", false);
-        }
+        //try
+        //{
+        //    dtEmp = (DataTable)Session["dtEmp"];
+        //    if (dtEmp.Rows.Count <= 0)
+        //    {
+        //        Response.Redirect("index.aspx", false);
+        //    }
+        //    else
+        //    {
+        //        // In Production Use the below
+        //        MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
+        //    }
+        //}
+        //catch (Exception Ex)
+        //{
+        //    Console.WriteLine(Ex.Message.ToString());
+        //    Response.Redirect(ViewState["PreviousPageUrl"] != null ? ViewState["PreviousPageUrl"].ToString() : "index.aspx", false);
+        //}
         Literal title = (Literal)PageExtensionMethods.FindControlRecursive(Master, "ltlPageTitle");
-        title.Text = "Nine Box";
+        title.Text = "Kronos";
+
+        hfNTID.Value = PageExtensionMethods.getMyWindowsID();
 
         if (!IsPostBack)
         {
-            FillGvInputPage();
+            
+            fillddlMonth();
+
         }
     }
+    private void fillddlMonth()
+    {
+        SqlCommand cmd = new SqlCommand("GetMonthProdHrsChk");
+        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+        ddlMonth.DataSource = dt;
 
+        ddlMonth.DataTextField = "Month";
+        ddlMonth.DataValueField = "Month";
+        ddlMonth.DataBind();
+        //ddlMonth.Items.Insert(0, new ListItem("All", "0"));
+        ddlMonth_SelectedIndexChanged(this, new EventArgs());
+
+    }
     private void FillGvInputPage()
     {
-        SqlCommand cmd = new SqlCommand("SELECT Id, Comments, UpdatedBy, UpdatedOn FROM tblABC");
+        SqlCommand cmd = new SqlCommand("Exec [ProdHrsChkComparison] '20180701','ALL','ALL','ALL'");
         DataTable dt = my.GetData(ref cmd);
-        gvInputGrid.DataSource = dt;
-        gvInputGrid.DataBind();
+        //gvInputGrid.DataSource = dt;
+        //gvInputGrid.DataBind();
     }
 
     protected void gv_PreRender(object sender, EventArgs e)
@@ -93,20 +110,236 @@ public partial class inputpage : System.Web.UI.Page
 
         TextBox tComments = gvr.FindControlRecursive("lblComments") as TextBox;
         string Comments = tComments.Text.ToString();
-        int id = gvr.Cells[gvr.GetGVCellUsingFieldName("Id")].Text.ToInt32();
-        int UpdatedBy = MyEmpID;
-        string strSQL = "UpdateTblABC";
+        int EmpCode = gvr.Cells[gvr.GetGVCellUsingFieldName("EmpCode")].Text.ToInt32();
+        string UpdatedBy = PageExtensionMethods.getMyWindowsID();
+        DateTime myMonth = ddlMonth.SelectedValue.ToDateTime();
+        //int UpdatedBy = MyEmpID;
+        string strSQL = "[UpdateProdHrsChk]";
         SqlCommand cmd = new SqlCommand(strSQL);
-        cmd.Parameters.AddWithValue("@Id", id);
+        cmd.Parameters.AddWithValue("@EmpCode", EmpCode);
+        cmd.Parameters.AddWithValue("@Month", myMonth);
         cmd.Parameters.AddWithValue("@Comments", Comments);
         cmd.Parameters.AddWithValue("@UpdatedBy", UpdatedBy);
         int rowsAffected = my.ExecuteDMLCommand(ref cmd, "", "S");
         string message = "toastr['success']('The Row has been successfuly saved.', 'Success')";
         Page.ClientScript.RegisterStartupScript(this.GetType(), "toastr_message", message, true);
+        FillGvInputPage();
     }
 
     protected void gvInputGrid_RowUpdating(object sender, GridViewUpdateEventArgs e)
     {
         FillGvInputPage();
+    }
+
+    protected void ddlMonth_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (ddlMonth.SelectedIndex > -1)
+        {
+            DateTime myMonth = ddlMonth.SelectedValue.ToDateTime();
+            SqlCommand cmd = new SqlCommand("GetMarketProdHrsChk");
+            cmd.Parameters.AddWithValue("@Month", myMonth);
+            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+            ddlMarket.DataSource = dt;
+            ddlMarket.DataTextField = "Market";
+            ddlMarket.DataValueField = "Market";
+            ddlMarket.DataBind();
+            ddlMarket.SelectedIndex = 0;
+            ddlMarket_SelectedIndexChanged(this, new EventArgs());
+        }
+
+    }
+
+    [WebMethod]
+
+    public static string SaveComments(string empcode,string month, string comments)
+    {
+        Helper my = new Helper();
+        string UpdatedBy = PageExtensionMethods.getMyWindowsID();
+
+        string strSQL = "[UpdateProdHrsChk]";
+        SqlCommand cmd = new SqlCommand(strSQL);
+        cmd.Parameters.AddWithValue("@EmpCode", empcode);
+        cmd.Parameters.AddWithValue("@Month", month);
+        cmd.Parameters.AddWithValue("@Comments", comments);
+        cmd.Parameters.AddWithValue("@UpdatedBy", UpdatedBy);
+        cmd.Parameters.Add("@UpdatedOn",SqlDbType.DateTime);
+        cmd.Parameters["@UpdatedOn"].Direction = ParameterDirection.Output;
+        int rowsAffected = my.ExecuteDMLCommand(ref cmd, "", "S");
+        return cmd.Parameters["@UpdatedOn"].Value.ToDateTime().ToString("dd-MMM-yyyy hh:mm:ss");
+        //string message = "toastr['success']('The Row has been successfuly saved.', 'Success')";
+        //Page.ClientScript.RegisterStartupScript(this.GetType(), "toastr_message", message, true);
+    }
+
+    [WebMethod]
+    public static string GetData(string xMonth, string xMarket, string xFacility, string xAccount)
+    {
+        Helper my = new Helper();
+        string query = "[ProdHrsChkComparison]";
+        SqlCommand cmd = new SqlCommand(query);
+        cmd.Parameters.AddWithValue("@Month", xMonth);
+        cmd.Parameters.AddWithValue("@Market", xMarket);
+        cmd.Parameters.AddWithValue("@Facility", xFacility);
+        cmd.Parameters.AddWithValue("@Account", xAccount);
+        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+
+        //return dt.Rows[0][0].ToString();
+        string xTable = "";
+        if (dt.Rows.Count > 0)
+        {
+            xTable = "<table id='MyDataTable' class='table table-bordered table-hover table-responsive'><thead><tr>";
+
+            foreach (DataColumn column in dt.Columns)
+            {
+                xTable += "<th>" + column.ToString() + "</th>";
+            }
+
+            xTable += "</tr></thead><tbody class='tbody'>";
+
+            foreach (DataRow row in dt.Rows)
+            {
+                xTable += "<tr>";
+                for (int i = 0; i < dt.Columns.Count; i++)
+                {
+                    string xBadgeS = "";
+                    string xBadgeE = "";
+
+                    if ((dt.Columns[i].ColumnName == "KRONOS HRS" || dt.Columns[i].ColumnName == "OVERTIME HRS") && row["IN KRONOS"].ToString() == "Yes")
+                    {
+                        xBadgeS = "<small class='badge pull-right bg-green'>";
+                        xBadgeE = "</small>";
+                    }
+
+                    if ((dt.Columns[i].ColumnName == "KRONOS HRS" || dt.Columns[i].ColumnName == "OVERTIME HRS") && row["IN KRONOS"].ToString() == "No")
+                    {
+                        xBadgeS = "<small class='badge pull-right bg-red'>";
+                        xBadgeE = "</small>";
+                    }
+
+                    if (dt.Columns[i].ColumnName == "BO HRS" && row["IN KRONOS"].ToString() == "Yes")
+                    {
+                        xBadgeS = "<small class='badge pull-right bg-green'>";
+                        xBadgeE = "</small>";
+                    }
+
+                    if (dt.Columns[i].ColumnName == "BO HRS" && row["IN BO"].ToString() == "No")
+                    {
+                        xBadgeS = "<small class='badge pull-right bg-red'>";
+                        xBadgeE = "</small>";
+                    }
+
+                    if (dt.Columns[i].ColumnName == "IN BOOST" && row["IN BOOST"].ToString() == "Yes")
+                    {
+                        xBadgeS = "<small class='badge pull-right bg-green'>";
+                        xBadgeE = "</small>";
+                    }
+
+                    if (dt.Columns[i].ColumnName == "IN BOOST" && row["IN BOOST"].ToString() == "No")
+                    {
+                        xBadgeS = "<small class='badge pull-right bg-red'>";
+                        xBadgeE = "</small>";
+                    }
+
+                    string xDiv = "";
+
+                    if (dt.Columns[i].ColumnName == "COMMENTS")
+                    {
+                        xDiv = "<DIV style='color:#fff;'>" + row[i].ToString().Replace(" ", " ");
+                        xDiv += "</DIV>";
+                    }
+                    else {
+                        xDiv = row[i].ToString().Replace(" ", " ");
+                    }
+
+                    xTable += "<td >" + xBadgeS + xDiv + xBadgeE +"</td>";
+                }
+                xTable += "</tr>";
+            }
+            xTable += "<tbody></table>";
+        }
+
+        else
+        {
+            xTable = "<div style='display:table;width:100%;'><div style='display:table-cell;vertical-align:middle;text-align:center;'>No Record(s) Found</div></div>";
+        }
+
+        return xTable;
+
+
+    }
+
+
+    public class classparam
+    {
+        public string xMonth { get; set; }
+        public string xMarket { get; set; }
+        public string xFacility { get; set; }
+        public string xAccount { get; set; }
+
+    }
+
+
+
+    //protected void btnFetch_Click(object sender, EventArgs e)
+    //{
+    //    if (ddlMonth.SelectedIndex > -1)
+    //    {
+    //        DateTime myMonth = ddlMonth.SelectedValue.ToDateTime();
+    //        string myMarket = ddlMarket.SelectedValue.ToString();
+    //        string myFacility = ddlFacility.SelectedValue.ToString();
+    //        string myAccount = ddlAccount.SelectedValue.ToString();
+    //        SqlCommand cmd = new SqlCommand("ProdHrsChkComparison");
+    //        cmd.Parameters.AddWithValue("@MONTH", myMonth);
+    //        cmd.Parameters.AddWithValue("@Market", myMarket);
+    //        cmd.Parameters.AddWithValue("@Facility", myFacility);
+    //        cmd.Parameters.AddWithValue("@Account", myAccount);
+    //        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+    //        gvInputGrid.DataSource = dt;
+    //        gvInputGrid.DataBind();
+    //    }
+    //}
+
+    protected void ddlMarket_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (ddlMonth.SelectedIndex > -1)
+        {
+            DateTime myMonth = ddlMonth.SelectedValue.ToDateTime();
+            string myMarket = ddlMarket.SelectedValue.ToString();
+            SqlCommand cmd = new SqlCommand("GetFacilityProdHrsChk");
+            cmd.Parameters.AddWithValue("@Month", myMonth);
+            cmd.Parameters.AddWithValue("@Market", myMarket);
+            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+            ddlFacility.DataSource = dt;
+            ddlFacility.DataTextField = "Facility";
+            ddlFacility.DataValueField = "Facility";
+            ddlFacility.DataBind();
+            ddlFacility.SelectedIndex = 0;
+            ddlFacility_SelectedIndexChanged(this, new EventArgs());
+        }
+
+
+    }
+
+    protected void ddlFacility_SelectedIndexChanged(object sender, EventArgs e)
+    {
+        if (ddlMonth.SelectedIndex > -1)
+        {
+            DateTime myMonth = ddlMonth.SelectedValue.ToDateTime();
+            string myMarket = ddlMarket.SelectedValue.ToString();
+            string myFacility = ddlFacility.SelectedValue.ToString();
+            SqlCommand cmd = new SqlCommand("GetAccountProdHrsChk");
+            cmd.Parameters.AddWithValue("@MONTH", myMonth);
+            cmd.Parameters.AddWithValue("@Market", myMarket);
+            cmd.Parameters.AddWithValue("@Facility", myFacility);
+            DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+            ddlAccount.DataSource = dt;
+            ddlAccount.DataTextField = "Account";
+            ddlAccount.DataValueField = "Account";
+            ddlAccount.DataBind();
+        }
+    }
+
+    protected void ddlAccount_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
     }
 }

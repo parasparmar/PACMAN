@@ -8,7 +8,7 @@ using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Data.Sql;
 using System.Data.SqlClient;
-
+ 
 
 public partial class EscalationsInitiatives : System.Web.UI.Page
 {
@@ -49,7 +49,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         title.Text = "Escalation & Initiatives";
 
         reportee = ddlSelectEmployee.SelectedItem.Value.ToString();
-        if (Convert.ToInt32(reportee) == MyEmpID || Convert.ToInt32(reportee) == 0)
+        if (Convert.ToInt32(reportee) == MyEmpID || Convert.ToInt32(reportee)==0)
         {
             txtEscalation.Enabled = false;
             btnSaveEsc.Enabled = false;
@@ -80,10 +80,10 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         }
     }
 
-
+  
     private void fillddlPacmanCycle()
     {
-        string emp;
+        string emp; 
         string empId;
         emp = ddlSelectEmployee.SelectedItem.Value.ToString();
 
@@ -138,7 +138,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
 
     private void fillgvEscalationlog()
     {
-        reportee = ddlSelectEmployee.SelectedItem.Value.ToString();//int report = 835064;
+        reportee=ddlSelectEmployee.SelectedItem.Value.ToString();//int report = 835064;
         pacmancycle = ddlPacmanCycle.SelectedItem.Value.ToString();//int pc = 1;
 
         strSQL = "[WFMPMS].[GetEscalationLog]";
@@ -234,6 +234,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         //gv.DataBind();
 
         DataRow[] drs = dt.Select("Account = 'Grand Total'");
+        string scoretotal;
         if (drs.Length == 1)
             foreach (DataRow r in drs)
             {
@@ -246,7 +247,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         //gvInitiativeLog.DataSource = dt3;
         //gvInitiativeLog.DataBind();
         cn.Close();
-
+            
 
     }
 
@@ -256,7 +257,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         fillgvInitiativelog();
         getTotalScore();
     }
-
+    
     protected void btnSaveEsc_Click(object sender, EventArgs e)
     {
         SqlConnection con = new SqlConnection(my.getConnectionString());
@@ -294,7 +295,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
 
         MyEmpID = dtEmp.Rows[0]["Employee_Id"].ToString().ToInt32();
         reportee = ddlSelectEmployee.SelectedItem.Value.ToString();
-        string type = "Escalation";
+        string type="Escalation";
         string description = txtEscalation.Text.ToString();
         //string attachment = 
         pacmancycle = ddlPacmanCycle.SelectedItem.Value.ToString();
@@ -327,7 +328,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         Email.CCsEmpId = MyEmpID.ToString();
         Email.Subject = "Escalation raised";
         Email.Body = "<strong>Hi, </strong>";
-        Email.Body += "<P>" + dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has raised escalation <i>" + description + "</i> against you on " + DateTime.Now + "<p>";
+        Email.Body += "<P>"+ dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has raised escalation <i>" + description + "</i> against you on " +DateTime.Now+"<p>";
         Email.Body += "<p>Please visit dashboard on <a href='http://iaccess/TA//EscalationsInitiatives.aspx'>Escalations and Initiatives page</a> .<p>";
         //Email.Attachment = Attachment;
         Email.Send();
@@ -383,7 +384,7 @@ public partial class EscalationsInitiatives : System.Web.UI.Page
         Email.CCsEmpId = MyEmpID.ToString();
         Email.Subject = "Initiave Recorded";
         Email.Body = "<strong>Hi, </strong>";
-        Email.Body += "<P>" + dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has recorded your initiative '" + description + "' on" + DateTime.Now + "<p>";
+        Email.Body += "<P>" + dtEmp.Rows[0]["First_Name"].ToString() + dtEmp.Rows[0]["Last_Name"].ToString() + " has recorded your initiative '" + description + "' on" + DateTime.Now+"<p>";
         Email.Body += "<p>Please visit dashboard on <a href='http://iaccess/PACMAN//EscalationsInitiatives.aspx'>Escalations and Initiatives page</a> .<p>";
         //Email.Attachment = Attachment;
         Email.Send();

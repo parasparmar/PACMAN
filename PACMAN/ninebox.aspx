@@ -323,6 +323,7 @@
     <script src="Sitel/cdn/jspdf/jspdf.plugin.autotable.js"></script>
     <script type="text/javascript">
         $(function () {
+            pluginsInitializer();
             $('#progress').show();
 
             var EMPCODE = $('#lblEmpID').text();
@@ -578,7 +579,6 @@
 
             return dynamicColors;
         }
-
         function getEmpStats(e, me) {
             var element = me.getElementAtEvent(e);
             // If you click on at least 1 element ...
@@ -683,30 +683,7 @@
             $('#modalEmployee').modal({
                 backdrop: 'static'
             });
-        }
-        $(function () {
-            pluginsInitializer();
-        });
-        function pluginsInitializer() {
-            var table = $('[class*="makeDataTable"]').dataTable({
-                destroy: true,
-                "responsive": true,
-                "fixedHeader": true,
-                "sPaginationType": "full_numbers",
-                "lengthMenu": [2, 5, 10, 25, 50, 75],
-                "aaSortingFixed": [[0, 'asc']],
-                "bSort": true,
-                //dom: 'Bfrltip',
-                "columnDefs": [{ "orderable": false, "targets": 0 }],
-
-            });
-        }
-    </script>
-    <script>
-
-</script>
-
-    <script>   
+        }                
         function convert2PDF() {
             var pdf = new jsPDF('l', 'pt', 'A3');
             
@@ -760,7 +737,21 @@
             reportName = reportName.replace(":", " ");
             reportName = reportName.replace("  ", " ");
             pdf.save('Nine Box Report for ' + reportName + '.pdf');
-        }
+        }        
+        function pluginsInitializer() {
+            var table = $('[class*="makeDataTable"]').dataTable({
+                destroy: true,
+                "responsive": true,
+                "fixedHeader": true,
+                "sPaginationType": "full_numbers",
+                "lengthMenu": [2, 5, 10, 25, 50, 75],
+                "aaSortingFixed": [[0, 'asc']],
+                "bSort": true,
+                //dom: 'Bfrltip',
+                "columnDefs": [{ "orderable": false, "targets": 0 }],
+
+            });
+        }              
     </script>
 </asp:Content>
 
