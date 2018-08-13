@@ -190,7 +190,15 @@
             </div>
             <!-- /.tab-pane Overall-->
             <div class="tab-pane" id="tabComparison">
-                <div id="divTable" style="overflow: scroll">
+                <div class="box box-primary box-solid">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Agent Level Comparisons</h3>
+                    </div>
+                    <!-- /.box-header -->
+                    <div id="divTable" class="box-body" style="overflow: scroll">
+
+                    </div>
+                    <!-- /.box-body -->
                 </div>
             </div>
             <!-- /.tab-pane Comparison-->
@@ -369,7 +377,7 @@
 
         }
         //On UpdatePanel Refresh
-        
+
 
 
     </script>
