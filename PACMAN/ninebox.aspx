@@ -182,7 +182,7 @@
 
     <div id="progress" class="modal">
         <div class="clscustomcenter">
-            <img src="AdminLTE/bower_components/ckeditor/plugins/mathjax/images/loader.gif" />
+            <img src="Sitel/img/loader.gif" />
             <span class="clsloadtxt">processing....</span>
         </div>
     </div>

@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Services;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+using OfficeOpenXml;
 
 public partial class inputpage : System.Web.UI.Page
 {
@@ -69,10 +71,10 @@ public partial class inputpage : System.Web.UI.Page
     {
         SqlCommand cmd = new SqlCommand("ProdHrsChk");
         cmd.CommandType = CommandType.StoredProcedure;
-        cmd.Parameters.AddWithValue("@XMONTH",ddlMonth.SelectedValue.ToDateTime());
-        cmd.Parameters.AddWithValue("@MARKET",ddlMarket.SelectedValue.ToString());
-        cmd.Parameters.AddWithValue("@FACILITY",ddlFacility.SelectedValue.ToString());
-        cmd.Parameters.AddWithValue("@ACCOUNT",ddlAccount.SelectedValue.ToString());        
+        cmd.Parameters.AddWithValue("@XMONTH", ddlMonth.SelectedValue.ToDateTime());
+        cmd.Parameters.AddWithValue("@MARKET", ddlMarket.SelectedValue.ToString());
+        cmd.Parameters.AddWithValue("@FACILITY", ddlFacility.SelectedValue.ToString());
+        cmd.Parameters.AddWithValue("@ACCOUNT", ddlAccount.SelectedValue.ToString());
         cmd.Connection = my.open_db();
         SqlDataAdapter da = new SqlDataAdapter(cmd);
 
@@ -321,7 +323,7 @@ public partial class inputpage : System.Web.UI.Page
         }
     }
 
-protected void ddlMarket_SelectedIndexChanged(object sender, EventArgs e)
+    protected void ddlMarket_SelectedIndexChanged(object sender, EventArgs e)
     {
         if (ddlMonth.SelectedIndex > -1)
         {
@@ -369,5 +371,71 @@ protected void ddlMarket_SelectedIndexChanged(object sender, EventArgs e)
     protected void rpOverall_ItemDataBound(object sender, RepeaterItemEventArgs e)
     {
 
+    }
+
+
+    protected void btnExport_Click(object sender, EventArgs e)
+    {
+        string strSQL = "ProdHrsChkComparison";
+        SqlCommand cmd = new SqlCommand(strSQL);
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@Month", ddlMonth.SelectedValue.ToDateTime());
+        cmd.Parameters.AddWithValue("@Market", ddlMarket.SelectedValue.ToString());
+        cmd.Parameters.AddWithValue("@Facility", ddlFacility.SelectedValue.ToString());
+        cmd.Parameters.AddWithValue("@Account", ddlAccount.SelectedValue.ToString());        
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Connection = my.open_db();
+        
+        SqlDataAdapter da = new SqlDataAdapter(cmd);
+
+        DataSet ds = new DataSet();
+        da.Fill(ds);
+        string FileName = ddlAccount.SelectedValue.ToString().Trim() + " Account Comparison for " + ddlMonth.SelectedValue.ToDateTime().ToString("MMM yyyy") + " downloaded " + DateTime.Now.ToString("dd-MMM-yyyy HH-mm-ss") + ".xlsx";
+        string FilePath = Server.MapPath("Sitel//metric_downloads//" + FileName);
+        using (ExcelPackage pck = new ExcelPackage())
+        {
+            pck.Workbook.Properties.Author = "iaccess_support@sitel.com";
+            pck.Workbook.Properties.Title = FileName;
+            int validSheetCount = 0;
+            foreach (DataTable d in ds.Tables)
+            {
+
+                if (d != null && d.Rows.Count > 0)
+                {
+                    int recordCount = d.Rows.Count;
+                    int columnCount = d.Columns.Count;
+                    string currentSheet = "Comparison_Sheet";
+                    
+                    //Get the physical path to the file.
+                    ExcelWorksheet ws = pck.Workbook.Worksheets.Add(currentSheet);
+                    validSheetCount++;
+                    ws.Cells["A1"].LoadFromDataTable(d, true);
+                    //ws.Cells[2, 12, recordCount + 1, 17].Style.Numberformat.Format = "dd-mmm-yyyy HH:mm:ss";
+                    //ws.Cells[2, 18, recordCount + 1, 18].Style.Numberformat.Format = "dd-mmm-yyyy";
+                    //ws.Cells[2, 19, recordCount + 1, 19].Style.Numberformat.Format = "HH:mm:ss";
+                    ws.Cells[1, 1, recordCount, columnCount].AutoFitColumns(15);
+
+                    pck.Save();
+                    //var shape = ws.Drawings.AddShape("Comparison", eShapeStyle.Rect);
+                    //shape.SetPosition(50, 200);
+                    //shape.SetSize(200, 100);
+                    //shape.Text = FileName;
+                    //Send the CSV file as a Download.
+                    //Response.Buffer = true;
+                    //Response.AddHeader("content-disposition", "attachment;filename=" + FileName);
+                    //Response.Charset = "";
+                    //Response.ContentType = "application/text";
+                    //Response.Output.Write(File.ReadAllText(FilePath));
+
+                }
+            }
+            if (validSheetCount > 0)
+            {
+                pck.SaveAs(Response.OutputStream);
+                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                Response.AddHeader("content-disposition", "attachment;  filename=" + FileName);
+                File.Delete(FilePath);
+            }
+        }
     }
 }

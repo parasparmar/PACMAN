@@ -1,11 +1,35 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="inputpage.aspx.cs" Inherits="inputpage" %>
 
-<asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" runat="Server">
-    <!-- bootstrap wysihtml5 - text editor -->
-    <link rel="stylesheet" href="AdminLTE/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+<asp:Content ID="Content1" ContentPlaceHolderID="headPlaceHolder" runat="server">
+    <link href="Sitel/toastr/toastr.min.css" rel="stylesheet" />
+    <style type="text/css">
+        .modal {
+            background: rgba(0,0,0,.7) !important;
+        }
+
+        .clscustomcenter {
+            width: 0%;
+            margin: 20% auto;
+            padding: 10px;
+            opacity: 1;
+            z-index: 1000;
+        }
+
+        .clscustomcenter img {
+            border-radius: 5px;
+        }
+
+        .clscustomcenter .clsloadtxt {
+            display: block;
+            padding-top: 12px;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+    </style>
 </asp:Content>
+
 <asp:Content ID="Content2" ContentPlaceHolderID="pageheader" runat="server">
-    <ol class="breadcrumb">
+    <%-- <ol class="breadcrumb">
         <li><a href="index.aspx"><i class="iconfa-home"></i>Home</a></li>
         <li class="active"><a href="inputpage.aspx">
             <i class="fa fa-commenting"></i>Input Page</a></li>
@@ -18,7 +42,7 @@
             <h5>To be described...</h5>
             <h1>Input Page</h1>
         </div>
-    </div>
+    </div>--%>
     <!--pageheader-->
 </asp:Content>
 
@@ -26,23 +50,6 @@
     <div class="row">
         <div class="col-md-12">
             <div class="box">
-                <div class="box-header">
-                    <h3 class="box-title">Parameters               
-                        <small></small>
-                    </h3>
-                    <!-- tools box -->
-                    <div class="pull-right box-tools">
-                        <button type="button" class="btn btn-default btn-sm" data-widget="collapse" data-toggle="tooltip"
-                            title="Collapse">
-                            <i class="fa fa-minus"></i>
-                        </button>
-                        <button type="button" class="btn btn-default btn-sm" data-widget="remove" data-toggle="tooltip"
-                            title="Remove">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </div>
-                    <!-- /. tools -->
-                </div>
                 <div class="box-body">
                     <div class="form-group">
                         <div class="col-lg-2">
@@ -104,13 +111,12 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <asp:LinkButton ID="btnFetch" runat="server" OnClick="btnFetch_Click" Text="Fetch" CssClass="btn btn-primary"></asp:LinkButton>
+                                    <asp:LinkButton ID="btnFetch" runat="server" OnClick="btnFetch_Click" Text="Fetch" CssClass="btn btn-primary btn-flat"></asp:LinkButton>
                                     <%--<input type="button" id="btnFetch" class="btn btn-primary" value="Fetch" />--%>
                                 </div>
                                 <!-- /.input group -->
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -121,7 +127,15 @@
             <li class="active"><a href="#tabOverall" data-toggle="tab"><span>Overall&nbsp</span></a></li>
             <li><a href="#tabComparison" data-toggle="tab">Comparison&nbsp</a></li>
             <li><a href="#tabSkill" data-toggle="tab">Additional&nbsp</a></li>
-
+            <li class="dropdown pull-right">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                  Export Formats <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                  <li role="presentation">
+                      <asp:LinkButton ID="btnExport" role="menuitem" tabindex="-1" OnClick="btnExport_Click" runat="server" Text="Export to Excel"></asp:LinkButton>
+                </ul>
+              </li>
         </ul>
         <div id="tabPrintable" class="tab-content">
             <div class="tab-pane active" id="tabOverall" runat="server">
@@ -196,7 +210,6 @@
                     </div>
                     <!-- /.box-header -->
                     <div id="divTable" class="box-body" style="overflow: scroll">
-
                     </div>
                     <!-- /.box-body -->
                 </div>
@@ -208,26 +221,16 @@
         </div>
         <!-- /.tab-content -->
     </div>
-
-
-    <div class="row">
-        <div class="col-md-12">
-            <div class="box">
-                <div class="box-header">
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body pad" style="overflow-x: scroll;">
-                </div>
-            </div>
+    <div id="progress" class="modal">
+        <div class="clscustomcenter">
+            <img src="Sitel/img/loader.gif" />
+            <span class="clsloadtxt">processing....</span>
         </div>
     </div>
     <asp:HiddenField ID="hfNTID" runat="server" />
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
-    <!-- CK Editor -->
-    <script src="AdminLTE/bower_components/ckeditor/ckeditor.js"></script>
-    <!-- Bootstrap WYSIHTML5 -->
-    <script src="AdminLTE/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
+    <script src="Sitel/toastr/toastr.min.js"></script>
     <script>
         $(function () {
             pluginsInitializer();
@@ -255,8 +258,6 @@
                 "columnDefs": [{ "orderable": false, "targets": 0 }],
 
             });
-
-
             toastr.options = {
                 "closeButton": true,
                 "debug": false,
@@ -277,7 +278,7 @@
         }
 
         $("#btnFetch").click(function () {
-
+            $('#progress').show();
             var repObj = {
                 xMonth: $("#ddlMonth option:selected").val(),
                 xMarket: $("#ddlMarket option:selected").val(),
@@ -317,7 +318,7 @@
                 "bDestroy": true,
                 "paging": false,
                 "info": false,
-                responsive: true,
+                "responsive": true,
 
             });
 
@@ -344,7 +345,7 @@
                 });
 
             }
-
+            $('#progress').hide();
 
         }
 
