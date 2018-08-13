@@ -315,10 +315,15 @@
             $("#MyDataTable").DataTable({
                 //dom: 'Bfrtip',
                 "bDestroy": true,
-
+                "paging": false,
+                "info": false,
                 responsive: true,
 
             });
+
+            $('#MyDataTable').css("font-size", ".8em");
+            $('#MyDataTable > tbody > th').css("padding", "2px 5px !important");
+            $('#MyDataTable > tbody > td').css("padding", "2px 5px !important");
 
             $('#MyDataTable > thead > tr > th:eq(10)').hide();
             $('#MyDataTable > thead > tr > th:eq(11)').hide();
@@ -333,7 +338,7 @@
                     var comments = $(this).find('td:eq(12)').text();
                     $(this).find('td:eq(12)').text("");
                     $(this).find('td:eq(12)').append('<textarea id="btn' + xEmpCode + '" style="width: 136px; height: 43px;resize:none;">' + comments + '</textarea><input style="float:right;width:50px;height:25px;" type="button" value="Save" empcode="' + xEmpCode + '" month="' + xMonth + '" onClick="xSave(this);">');
-                    $(this).find('td:eq(12)').append('<DIV style="color:#fff;">' + comments + '</DIV>');
+                    //$(this).find('td:eq(12)').append('<DIV style="color:#fff;">' + comments + '</DIV>');
                     $(this).find('td:eq(10)').hide();
                     $(this).find('td:eq(11)').hide();
                 });
@@ -358,15 +363,15 @@
                 contentType: "application/json;charset=utf-8",
                 //dataType: "json",
                 success: function (result) {
-                    //debugger;
+                    debugger;
                     $(xThis).parent().parent().find('td:eq(13)').html("");
                     $(xThis).parent().parent().find('td:eq(13)').html(updatedby);
 
                     $(xThis).parent().parent().find('td:eq(14)').html("");
                     $(xThis).parent().parent().find('td:eq(14)').html(result.d);
 
-
-                    $(xThis).parent().text(comments).append('<textarea id="btn' + empcode + '" style="width: 136px; height: 43px;resize:none;">' + comments + '</textarea><input style="float:right;width:50px;height:25px;" type="button" value="Save" empcode="' + empcode + '" month="' + month + '" onClick="xSave(this);">');
+                    $(xThis).parent().parent().find('td:eq(12)').html("").append('<textarea id="btn' + empcode + '" style="width: 136px; height: 43px;resize:none;">' + comments + '</textarea><input style="float:right;width:50px;height:25px;" type="button" value="Save" empcode="' + empcode + '" month="' + month + '" onClick="xSave(this);">');
+                    //parent().parent().find('td:eq(12)').append('<textarea id="btn' + empcode + '" style="width: 136px; height: 43px;resize:none;">' + comments + '</textarea><input style="float:right;width:50px;height:25px;" type="button" value="Save" empcode="' + empcode + '" month="' + month + '" onClick="xSave(this);">');
                     //$(xThis).parent().css("color", "#fff");
                 },
                 error: function (errormessage) {

@@ -59,8 +59,8 @@ public partial class inputpage : System.Web.UI.Page
     }
     private void FillGvInputPage()
     {
-        SqlCommand cmd = new SqlCommand("Exec [ProdHrsChkComparison] '20180701','ALL','ALL','ALL'");
-        DataTable dt = my.GetData(ref cmd);
+        //SqlCommand cmd = new SqlCommand("Exec [ProdHrsChkComparison] '20180701','ALL','ALL','ALL'");
+        //DataTable dt = my.GetData(ref cmd);
         //gvInputGrid.DataSource = dt;
         //gvInputGrid.DataBind();
     }
@@ -145,12 +145,12 @@ public partial class inputpage : System.Web.UI.Page
         int rowsAffected = my.ExecuteDMLCommand(ref cmd, "", "S");
         string message = "toastr['success']('The Row has been successfuly saved.', 'Success')";
         Page.ClientScript.RegisterStartupScript(this.GetType(), "toastr_message", message, true);
-        FillGvInputPage();
+        //FillGvInputPage();
     }
 
     protected void gvInputGrid_RowUpdating(object sender, GridViewUpdateEventArgs e)
     {
-        FillGvInputPage();
+        //FillGvInputPage();
     }
 
     protected void ddlMonth_SelectedIndexChanged(object sender, EventArgs e)
