@@ -4,6 +4,23 @@
     <!-- bootstrap wysihtml5 - text editor -->
     <link rel="stylesheet" href="AdminLTE/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
 </asp:Content>
+<asp:Content ID="Content2" ContentPlaceHolderID="pageheader" runat="server">
+    <ol class="breadcrumb">
+        <li><a href="index.aspx"><i class="iconfa-home"></i>Home</a></li>
+        <li class="active"><a href="inputpage.aspx">
+            <i class="fa fa-commenting"></i>Input Page</a></li>
+    </ol>
+    <div class="pageheader">
+        <div class="pageicon">
+            <i class="fa fa-commenting"></i>
+        </div>
+        <div class="pagetitle">
+            <h5>To be described...</h5>
+            <h1>Input Page</h1>
+        </div>
+    </div>
+    <!--pageheader-->
+</asp:Content>
 
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
     <div class="row">
@@ -87,9 +104,8 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <%--<asp:LinkButton ID="btnFetch" runat="server" OnClick="btnFetch_Click" Text="Fetch" CssClass="btn btn-primary"></asp:LinkButton>--%>
-                                    <input type="button" id="btnFetch" class="btn btn-primary" value="Fetch" />
-
+                                    <asp:LinkButton ID="btnFetch" runat="server" OnClick="btnFetch_Click" Text="Fetch" CssClass="btn btn-primary"></asp:LinkButton>
+                                    <%--<input type="button" id="btnFetch" class="btn btn-primary" value="Fetch" />--%>
                                 </div>
                                 <!-- /.input group -->
                             </div>
@@ -108,60 +124,83 @@
 
         </ul>
         <div id="tabPrintable" class="tab-content">
-            <!-- /.tab-pane -->
-            <div class="tab-pane" id="tabOverall">
-            </div>
-            <div class="tab-pane active" id="tabComparison">
-                <div id="divTable" style="overflow:scroll">
-                </div>
-                <%--<asp:UpdatePanel ID="up1" runat="server" UpdateMode="Conditional">
-                    <ContentTemplate>
-                        <asp:GridView ID="gvInputGrid" DataKeyNames="EMPCODE" CssClass="table table-responsive table-bordered makeDataTable" runat="server" AutoGenerateColumns="false" OnPreRender="gv_PreRender" OnRowCommand="gvInputGrid_RowCommand" OnRowEditing="gvInputGrid_RowEditing" OnRowUpdating="gvInputGrid_RowUpdating">
-                            <Columns>
-                                <asp:BoundField DataField="EMPCODE" HeaderText="EMPCODE" />
-                                <asp:BoundField DataField="NAME" HeaderText="NAME" />
-                                <asp:BoundField DataField="MARKET" HeaderText="MARKET" />
-                                <asp:BoundField DataField="FACILITY NAME" HeaderText="FACILITY NAME" />
-                                <asp:BoundField DataField="ACCOUNT" HeaderText="ACCOUNT" />
-                                <asp:BoundField DataField="W@H" HeaderText="W@H" />
-                                <asp:BoundField DataField="KRONOS HRS" HeaderText="KRONOS HRS" />
-                                <asp:BoundField DataField="OVERTIME HRS" HeaderText="OVERTIME HRS" />
-                                <asp:BoundField DataField="BO HRS" HeaderText="BO HRS" />
-                                <asp:BoundField DataField="IN BOOST" HeaderText="IN BOOST" />
-                                <asp:BoundField DataField="IN KRONOS" HeaderText="IN KRONOS" />
-                                <asp:BoundField DataField="IN BO" HeaderText="IN BO" />
-                                <asp:TemplateField ControlStyle-Width="150">
-                                    <HeaderTemplate>
-                                        <label>Comments</label>
-                                    </HeaderTemplate>
-                                    <ItemTemplate>
-                                        <div class="row">
-                                            <div>
-                                                <asp:TextBox ID="lblComments" Width="130" Text='<%#Bind("Comments") %>' runat="server" CssClass="form-control" ToolTip="Edit Comments" Rows="3">
-                                                </asp:TextBox>
-                                            </div>
-                                            <div>
-                                                <div class="btn btn-group  form-control">
-                                                    <asp:LinkButton ID="lnkSaveComments" Width="20" CommandName="Update" CommandArgument='<%#DataBinder.Eval(Container, "RowIndex")%>' runat="server" CssClass="btn btn-primary btn-flat btn-sm" Text="Save" OnClick="lnkSaveComments_Click">
-                                                    </asp:LinkButton>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                                <asp:BoundField DataField="UpdatedBy" HeaderText="Updatedby" />
-                                <asp:BoundField DataField="UpdatedOn" HeaderText="UpdatedOn" />
-                            </Columns>
-                        </asp:GridView>
-                    </ContentTemplate>
+            <div class="tab-pane active" id="tabOverall" runat="server">
+                <div class="row">
+                    <asp:UpdatePanel ID="u1" runat="server" UpdateMode="Conditional">
+                        <ContentTemplate>
+                            <div class="col-md-6">
+                                <div class="box box-primary box-solid">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">Overall Population</h3>
+                                    </div>
+                                    <!-- /.box-header -->
+                                    <div class="box-body">
+                                        <asp:GridView ID="gvOverall1" CssClass="table table-responsive table-condensed makeDataTable" runat="server" AutoGenerateColumns="true" OnPreRender="gv_PreRender"></asp:GridView>
+                                    </div>
+                                    <!-- /.box-body -->
+                                </div>
+                            </div>
+                            <!-- Overall Population-->
+                            <div class="col-md-6">
+                                <div class="box box-primary box-solid">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">Boost, Kronos and BO Populations</h3>
+                                    </div>
+                                    <!-- /.box-header -->
+                                    <div class="box-body">
+                                        <asp:GridView ID="gvOverall2" CssClass="table table-responsive table-condensed makeDataTable" runat="server" AutoGenerateColumns="true" OnPreRender="gv_PreRender"></asp:GridView>
+                                    </div>
+                                    <!-- /.box-body -->
+                                </div>
+                            </div>
+                            <!-- Boost, Kronos and BO Populations-->
+                            <div class="col-md-12">
+                                <div class="box box-primary box-solid">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">Account Level Populations</h3>
+                                    </div>
+                                    <!-- /.box-header -->
+                                    <div class="box-body">
+                                        <asp:GridView ID="gvOverall3" CssClass="table table-responsive table-condensed makeDataTable" runat="server" AutoGenerateColumns="true" OnPreRender="gv_PreRender"></asp:GridView>
+                                    </div>
+                                    <!-- /.box-body -->
+                                </div>
+                            </div>
+                            <!-- Account Level Populations-->
+                            <div class="col-md-12">
+                                <div class="box box-primary box-solid">
+                                    <div class="box-header with-border">
+                                        <h3 class="box-title">Site Level Populations</h3>
+                                    </div>
+                                    <!-- /.box-header -->
+                                    <div class="box-body">
+                                        <asp:GridView ID="gvOverall4" CssClass="table table-responsive table-condensed makeDataTable" runat="server" AutoGenerateColumns="true" OnPreRender="gv_PreRender"></asp:GridView>
+                                    </div>
+                                    <!-- /.box-body -->
+                                </div>
+                            </div>
+                            <!-- Site Level Populations-->
+                        </ContentTemplate>
+                        <Triggers>
+                            <asp:AsyncPostBackTrigger ControlID="btnFetch" EventName="Click" />
+                        </Triggers>
+                    </asp:UpdatePanel>
 
-                </asp:UpdatePanel>--%>
+                </div>
             </div>
-            <!-- /.tab-pane -->
+            <!-- /.tab-pane Overall-->
+            <div class="tab-pane" id="tabComparison">
+                <div id="divTable" style="overflow: scroll">
+                </div>
+            </div>
+            <!-- /.tab-pane Comparison-->
             <div class="tab-pane" id="tabSkill">
             </div>
+            <!-- /.tab-pane Skill-->
         </div>
+        <!-- /.tab-content -->
     </div>
+
 
     <div class="row">
         <div class="col-md-12">
@@ -185,10 +224,20 @@
         $(function () {
             pluginsInitializer();
         });
+        var prm = Sys.WebForms.PageRequestManager.getInstance();
+        if (prm != null) {
+            prm.add_endRequest(function (sender, e) {
+                if (sender._postBackSettings.panelsToUpdate != null) {
+                    pluginsInitializer();
+                }
+            });
+        };
+
         function pluginsInitializer() {
             var table = $('[class*="makeDataTable"]').dataTable({
                 destroy: true,
                 "responsive": true,
+                "autoWidth": true,
                 "fixedHeader": true,
                 "sPaginationType": "full_numbers",
                 "lengthMenu": [15, 10, 25, 50, 75],
@@ -196,9 +245,9 @@
                 "bSort": true,
                 //dom: 'Bfrltip',
                 "columnDefs": [{ "orderable": false, "targets": 0 }],
+
             });
-            $(".makeDataTable").css('width', '');
-            //new $.fn.dataTable.FixedHeader(table);
+
 
             toastr.options = {
                 "closeButton": true,
@@ -220,13 +269,13 @@
         }
 
         $("#btnFetch").click(function () {
-            
-            //var repObj = {
-            //    xMonth: $("#ddlMonth option:selected").val(),
-            //    xMarket: $("#ddlMarket option:selected").val(),
-            //    xFacility: $("#ddlFacility option:selected").val(),
-            //    xAccount: $("#ddlAccount option:selected").val(),
-            //};
+
+            var repObj = {
+                xMonth: $("#ddlMonth option:selected").val(),
+                xMarket: $("#ddlMarket option:selected").val(),
+                xFacility: $("#ddlFacility option:selected").val(),
+                xAccount: $("#ddlAccount option:selected").val(),
+            };
 
             $.ajax({
                 url: "inputpage.aspx/GetData",
@@ -237,11 +286,11 @@
                 contentType: "application/json;charset=utf-8",
                 //dataType: "json",
                 success: function (result) {
-                    
+
                     BindDataTable(result.d);
                 },
                 error: function (errormessage) {
-                    
+
                     alert(errormessage.responseText);
 
                 }
@@ -250,7 +299,7 @@
         });
 
         var BindDataTable = function (response) {
-            
+
             $("#divTable").show();
             $("#divTable").html("");
             $("#divTable").html(response);
@@ -258,16 +307,16 @@
             $("#MyDataTable").DataTable({
                 //dom: 'Bfrtip',
                 "bDestroy": true,
-                
+
                 responsive: true,
-                
+
             });
 
             $('#MyDataTable > thead > tr > th:eq(10)').hide();
             $('#MyDataTable > thead > tr > th:eq(11)').hide();
 
             if ($('#MyDataTable > tbody > tr').length > 0) {
-                debugger;
+                //debugger;
                 $('#MyDataTable > tbody > tr').each(function () {
                     //alert($(this).html());
                     var xEmpCode = $(this).find('td:eq(0)').html();
@@ -280,7 +329,7 @@
                     $(this).find('td:eq(10)').hide();
                     $(this).find('td:eq(11)').hide();
                 });
-                    
+
             }
 
 
@@ -301,7 +350,7 @@
                 contentType: "application/json;charset=utf-8",
                 //dataType: "json",
                 success: function (result) {
-                    debugger;
+                    //debugger;
                     $(xThis).parent().parent().find('td:eq(13)').html("");
                     $(xThis).parent().parent().find('td:eq(13)').html(updatedby);
 
@@ -309,7 +358,7 @@
                     $(xThis).parent().parent().find('td:eq(14)').html(result.d);
 
 
-                    $(xThis).parent().text(comments).append('<textarea id="btn' + empcode + '" style="width: 136px; height: 43px;resize:none;">' + comments +'</textarea><input style="float:right;width:50px;height:25px;" type="button" value="Save" empcode="' + empcode + '" month="' + month + '" onClick="xSave(this);">');
+                    $(xThis).parent().text(comments).append('<textarea id="btn' + empcode + '" style="width: 136px; height: 43px;resize:none;">' + comments + '</textarea><input style="float:right;width:50px;height:25px;" type="button" value="Save" empcode="' + empcode + '" month="' + month + '" onClick="xSave(this);">');
                     //$(xThis).parent().css("color", "#fff");
                 },
                 error: function (errormessage) {
@@ -317,9 +366,10 @@
                 }
             });
 
-            
-        }
 
+        }
+        //On UpdatePanel Refresh
+        
 
 
     </script>

@@ -38,14 +38,10 @@ public partial class inputpage : System.Web.UI.Page
         //}
         Literal title = (Literal)PageExtensionMethods.FindControlRecursive(Master, "ltlPageTitle");
         title.Text = "Kronos";
-
         hfNTID.Value = PageExtensionMethods.getMyWindowsID();
-
         if (!IsPostBack)
         {
-            
             fillddlMonth();
-
         }
     }
     private void fillddlMonth()
@@ -67,6 +63,32 @@ public partial class inputpage : System.Web.UI.Page
         DataTable dt = my.GetData(ref cmd);
         //gvInputGrid.DataSource = dt;
         //gvInputGrid.DataBind();
+    }
+
+    private void fillTabOverall()
+    {
+        SqlCommand cmd = new SqlCommand("ProdHrsChk");
+        cmd.CommandType = CommandType.StoredProcedure;
+        cmd.Parameters.AddWithValue("@XMONTH",ddlMonth.SelectedValue.ToDateTime());
+        cmd.Parameters.AddWithValue("@MARKET",ddlMarket.SelectedValue.ToString());
+        cmd.Parameters.AddWithValue("@FACILITY",ddlFacility.SelectedValue.ToString());
+        cmd.Parameters.AddWithValue("@ACCOUNT",ddlAccount.SelectedValue.ToString());        
+        cmd.Connection = my.open_db();
+        SqlDataAdapter da = new SqlDataAdapter(cmd);
+
+        DataSet ds = new DataSet();
+        da.Fill(ds);
+        string tableID = "gvOverall";
+        int i = 1;
+        foreach (DataTable dt in ds.Tables)
+        {
+            tableID = "gvOverall" + i;
+            GridView gv = tabOverall.FindControlRecursive(tableID) as GridView;
+            gv.DataSource = dt;
+            gv.DataBind();
+            i++;
+        }
+        my.close_conn();
     }
 
     protected void gv_PreRender(object sender, EventArgs e)
@@ -151,7 +173,7 @@ public partial class inputpage : System.Web.UI.Page
 
     [WebMethod]
 
-    public static string SaveComments(string empcode,string month, string comments)
+    public static string SaveComments(string empcode, string month, string comments)
     {
         Helper my = new Helper();
         string UpdatedBy = PageExtensionMethods.getMyWindowsID();
@@ -162,7 +184,7 @@ public partial class inputpage : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@Month", month);
         cmd.Parameters.AddWithValue("@Comments", comments);
         cmd.Parameters.AddWithValue("@UpdatedBy", UpdatedBy);
-        cmd.Parameters.Add("@UpdatedOn",SqlDbType.DateTime);
+        cmd.Parameters.Add("@UpdatedOn", SqlDbType.DateTime);
         cmd.Parameters["@UpdatedOn"].Direction = ParameterDirection.Output;
         int rowsAffected = my.ExecuteDMLCommand(ref cmd, "", "S");
         return cmd.Parameters["@UpdatedOn"].Value.ToDateTime().ToString("dd-MMM-yyyy hh:mm:ss");
@@ -246,11 +268,12 @@ public partial class inputpage : System.Web.UI.Page
                         xDiv = "<DIV style='color:#fff;'>" + row[i].ToString().Replace(" ", " ");
                         xDiv += "</DIV>";
                     }
-                    else {
+                    else
+                    {
                         xDiv = row[i].ToString().Replace(" ", " ");
                     }
 
-                    xTable += "<td >" + xBadgeS + xDiv + xBadgeE +"</td>";
+                    xTable += "<td >" + xBadgeS + xDiv + xBadgeE + "</td>";
                 }
                 xTable += "</tr>";
             }
@@ -261,7 +284,6 @@ public partial class inputpage : System.Web.UI.Page
         {
             xTable = "<div style='display:table;width:100%;'><div style='display:table-cell;vertical-align:middle;text-align:center;'>No Record(s) Found</div></div>";
         }
-
         return xTable;
 
 
@@ -279,26 +301,27 @@ public partial class inputpage : System.Web.UI.Page
 
 
 
-    //protected void btnFetch_Click(object sender, EventArgs e)
-    //{
-    //    if (ddlMonth.SelectedIndex > -1)
-    //    {
-    //        DateTime myMonth = ddlMonth.SelectedValue.ToDateTime();
-    //        string myMarket = ddlMarket.SelectedValue.ToString();
-    //        string myFacility = ddlFacility.SelectedValue.ToString();
-    //        string myAccount = ddlAccount.SelectedValue.ToString();
-    //        SqlCommand cmd = new SqlCommand("ProdHrsChkComparison");
-    //        cmd.Parameters.AddWithValue("@MONTH", myMonth);
-    //        cmd.Parameters.AddWithValue("@Market", myMarket);
-    //        cmd.Parameters.AddWithValue("@Facility", myFacility);
-    //        cmd.Parameters.AddWithValue("@Account", myAccount);
-    //        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
-    //        gvInputGrid.DataSource = dt;
-    //        gvInputGrid.DataBind();
-    //    }
-    //}
+    protected void btnFetch_Click(object sender, EventArgs e)
+    {
+        if (ddlMonth.SelectedIndex > -1)
+        {
+            fillTabOverall();
+            //        DateTime myMonth = ddlMonth.SelectedValue.ToDateTime();
+            //        string myMarket = ddlMarket.SelectedValue.ToString();
+            //        string myFacility = ddlFacility.SelectedValue.ToString();
+            //        string myAccount = ddlAccount.SelectedValue.ToString();
+            //        SqlCommand cmd = new SqlCommand("ProdHrsChkComparison");
+            //        cmd.Parameters.AddWithValue("@MONTH", myMonth);
+            //        cmd.Parameters.AddWithValue("@Market", myMarket);
+            //        cmd.Parameters.AddWithValue("@Facility", myFacility);
+            //        cmd.Parameters.AddWithValue("@Account", myAccount);
+            //        DataTable dt = my.GetDataTableViaProcedure(ref cmd);
+            //        gvInputGrid.DataSource = dt;
+            //        gvInputGrid.DataBind();
+        }
+    }
 
-    protected void ddlMarket_SelectedIndexChanged(object sender, EventArgs e)
+protected void ddlMarket_SelectedIndexChanged(object sender, EventArgs e)
     {
         if (ddlMonth.SelectedIndex > -1)
         {
@@ -339,6 +362,11 @@ public partial class inputpage : System.Web.UI.Page
     }
 
     protected void ddlAccount_SelectedIndexChanged(object sender, EventArgs e)
+    {
+
+    }
+
+    protected void rpOverall_ItemDataBound(object sender, RepeaterItemEventArgs e)
     {
 
     }
