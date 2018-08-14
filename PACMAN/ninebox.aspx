@@ -111,7 +111,7 @@
             </div>
         </div>
     </div>
-    <button id="btnPrint" onclick="convert2PDF()" class="btn btn-primary">Print PDF</button>
+    <%--<button id="btnPrint" onclick="convert2PDF()" class="btn btn-primary">Print PDF</button>--%>
     <div class="printable">
         <asp:ListView ID="lvMGR" runat="server">
             <LayoutTemplate>
@@ -231,7 +231,7 @@
                     <div id="tabPrintable" class="tab-content">
                         <!-- /.tab-pane -->
                         <div class="tab-pane active" id="tabPacman" style="overflow-y: scroll; height: 420px; overflow-x: hidden;">
-                            <h3 id="spanPacman">Performance Rating : </h3>                            
+                            <h3 id="spanPacman">Performance Rating : </h3>
                             <div id="divPacman">
                                 <table id="tblPacman" class="table table-condensed table-bordered table-striped table-hover table-responsive">
                                     <thead>
@@ -395,10 +395,32 @@
                     },
                     hoverRadius: 0,
                     options: {
-                        events: ['click'],
-                        onClick: function (e) {
-                            getEmpStats(e, this);
+                        //events: ['click'],
+                        //onClick: function (e) {
+                        ////    getEmpStats(e, this);
+                        //},
+                        hover: {
+                        //    mode: 'label'
+                            onHover: function (evt) {
+                                var item = myChart.getElementAtEvent(evt);
+                                if (item.length) {
+                                    //debugger;
+                                    console.log("onHover", item, evt.type);
+                                    console.log(">data", item[0]._index, xdata[0]]);
+                                }
+                            },
                         },
+                        //tooltips: {
+                        //    enabled: true,
+                        //    callbacks: {
+                        //        label: function (tooltipItem, data) {
+                        //            var label = data.labels[tooltipItem.index];
+                        //            var val = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
+                        //            return label + '--:' + val + ' (' + (100 * val / 130).toFixed(2) + '%)';
+                        //        }
+                        //    }
+                        //},
+
 
                         title: {
                             display: false,
@@ -683,10 +705,10 @@
             $('#modalEmployee').modal({
                 backdrop: 'static'
             });
-        }                
+        }
         function convert2PDF() {
             var pdf = new jsPDF('l', 'pt', 'A3');
-            
+
             //$('#tabPacman').tabs({ active: 1 });
             source = $('#tabPacman')[0];
             specialElementHandlers = {
@@ -737,7 +759,7 @@
             reportName = reportName.replace(":", " ");
             reportName = reportName.replace("  ", " ");
             pdf.save('Nine Box Report for ' + reportName + '.pdf');
-        }        
+        }
         function pluginsInitializer() {
             var table = $('[class*="makeDataTable"]').dataTable({
                 destroy: true,
@@ -751,7 +773,7 @@
                 "columnDefs": [{ "orderable": false, "targets": 0 }],
 
             });
-        }              
+        }
     </script>
 </asp:Content>
 

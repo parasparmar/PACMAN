@@ -421,6 +421,11 @@
                                     <i class="fa fa-bar-chart"></i><span>Nine Box</span>
                                 </a>
                             </li>
+                            <li>
+                                <a href="inputpage.aspx">
+                                    <i class="fa fa-comment-o"></i><span>Kronos vs BO</span>
+                                </a>
+                            </li>
                         </ul>
                     </section>
                     <!-- /.sidebar -->
