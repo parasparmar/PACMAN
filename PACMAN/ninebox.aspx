@@ -396,30 +396,9 @@
                     hoverRadius: 0,
                     options: {
                         //events: ['click'],
-                        //onClick: function (e) {
-                        ////    getEmpStats(e, this);
-                        //},
-                        hover: {
-                        //    mode: 'label'
-                            onHover: function (evt) {
-                                var item = myChart.getElementAtEvent(evt);
-                                if (item.length) {
-                                    //debugger;
-                                    console.log("onHover", item, evt.type);
-                                    console.log(">data", item[0]._index, xdata[0]]);
-                                }
-                            },
+                        onClick: function (e) {
+                            getEmpStats(e, this);
                         },
-                        //tooltips: {
-                        //    enabled: true,
-                        //    callbacks: {
-                        //        label: function (tooltipItem, data) {
-                        //            var label = data.labels[tooltipItem.index];
-                        //            var val = data.datasets[tooltipItem.datasetIndex].data[tooltipItem.index];
-                        //            return label + '--:' + val + ' (' + (100 * val / 130).toFixed(2) + '%)';
-                        //        }
-                        //    }
-                        //},
 
 
                         title: {
@@ -522,7 +501,7 @@
                     },
                     hoverRadius: 0,
                     options: {
-                        events: ['click'],
+                        //events: ['click'],
                         onClick: function (e) {
                             getEmpStats(e, this);
                         },
