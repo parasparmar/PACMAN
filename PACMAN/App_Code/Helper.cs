@@ -17,8 +17,8 @@ public class Helper
     public string getConnectionString()
     {
         EDCryptor xEDCryptor = new EDCryptor();
-        string xString = ConfigurationManager.ConnectionStrings["constr"].ToString();
-        //string xString = ConfigurationManager.ConnectionStrings["constrProd"].ToString();
+        //string xString = ConfigurationManager.ConnectionStrings["constr"].ToString();
+        string xString = ConfigurationManager.ConnectionStrings["constrProd"].ToString();
         xString = xEDCryptor.DeCrypt(xString);
         return xString;
     }
@@ -404,7 +404,7 @@ public class Helper
 }
 public class EmailSender
 {
-
+    private string _initiatorEmail;
     private string[] _recipientsEmailAddresses { get; set; }
     public int InitiatorEmpId { get; set; }
     public string RecipientsEmpId { get; set; }
@@ -414,11 +414,11 @@ public class EmailSender
     public string Body { get; set; }
     private string MailFormat = "html";
     private string From { get; set; }
-    private int EmailType { get; set; }
+    public int EmailType { get; set; }
     Helper my = new Helper();
     public EmailSender()
     {
-
+        if (_initiatorEmail != null && _initiatorEmail != string.Empty) { From = _initiatorEmail.ToString(); }
 
     }
 
@@ -485,12 +485,10 @@ public class EmailSender
     {
         int sentId = 0;
         string errorMessage = string.Empty;
-        if (InitiatorEmpId != 0 && RecipientsEmpId != null && Subject != null & Body != null)
-        //if (InitiatorEmpId != 0 && Subject != null & Body != null)
+        if (RecipientsEmpId != null && Subject != null & Body != null)
         {
             RecipientsEmpId = convertAndReplaceDelimitedEmpIDs2EmailIds(RecipientsEmpId);
-            string InitiatorEmailID = "Support_IAccess@sitel.com";//EmailFromEmpID(InitiatorEmpId);
-            string signature = "<br> <p>Regards, <br> IAccess Support Team <br> PS: This is an automated triggered email. Please do not reply.</p>";
+            string InitiatorEmailID = "Support_iAccess@sitel.com";
             if (CCsEmpId != null && CCsEmpId.Length > 0) { CCsEmpId = convertAndReplaceDelimitedEmpIDs2EmailIds(CCsEmpId); }
             if (BCCsEmpId != null && BCCsEmpId.Length > 0) { BCCsEmpId = convertAndReplaceDelimitedEmpIDs2EmailIds(BCCsEmpId); }
             try
@@ -504,9 +502,9 @@ public class EmailSender
 
                         cmd.Parameters.AddWithValue("@xrecipients", RecipientsEmpId);
                         cmd.Parameters.AddWithValue("@xcopy_recipients", CCsEmpId);
-                        //cmd.Parameters.AddWithValue("@xblind_copy_recipients", BccEmailID);
+                        cmd.Parameters.AddWithValue("@xblind_copy_recipients", BCCsEmpId);
                         cmd.Parameters.AddWithValue("@xsubject", Subject);
-                        cmd.Parameters.AddWithValue("@xbody", Body + signature);
+                        cmd.Parameters.AddWithValue("@xbody", Body);
                         cmd.Parameters.AddWithValue("@xbody_format", MailFormat);
                         cmd.Parameters.AddWithValue("@xfrom_address", InitiatorEmailID);
                         if (EmailType == 0)
@@ -523,7 +521,7 @@ public class EmailSender
                                 EmailType = (int)emailtype.Development;
                             }
                         }
-                        cmd.Parameters.AddWithValue("@xEmailType", 1);
+                        cmd.Parameters.AddWithValue("@xEmailType", EmailType);
                         sentId = cmd.ExecuteNonQuery();
                     }
                 }

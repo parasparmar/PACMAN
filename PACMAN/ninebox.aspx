@@ -219,7 +219,7 @@
                     <ul class="nav nav-tabs">
                         <li class="active"><a href="#tabPacman" data-toggle="tab"><span>Performance&nbsp</span></a></li>
                         <li><a href="#tabCompetency" data-toggle="tab">Competency&nbsp</a></li>
-                        <li><a href="#tabSkill" data-toggle="tab">Skill&nbsp</a></li>
+                        <%--<li><a href="#tabSkill" data-toggle="tab">Skill&nbsp</a></li>--%>
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">Export As <span class="caret"></span>
                             </a>
@@ -268,7 +268,7 @@
                             </div>
                         </div>
                         <!-- /.tab-pane -->
-                        <div class="tab-pane" id="tabSkill" style="overflow-y: scroll; height: 420px; overflow-x: hidden;">
+                        <%--<div class="tab-pane" id="tabSkill" style="overflow-y: scroll; height: 420px; overflow-x: hidden;">
                             <div id="divSkill">
                                 <div class="box box-solid">
                                     <div class="box-header with-border">
@@ -304,7 +304,7 @@
                                 </div>
                                 <!-- END ACCORDION & CAROUSEL-->
                             </div>
-                        </div>
+                        </div>--%>
                         <!-- /.tab-pane -->
                     </div>
                     <!-- /.tab-content -->
@@ -368,8 +368,8 @@
                                     borderColor: myColor,
                                     borderWidth: 1,
                                     data: [{
-                                        x: responseData.d[i]["Performance"],
-                                        y: responseData.d[i]["Competency"],
+                                        x: responseData.d[i]["Competency"],
+                                        y: responseData.d[i]["Performance"],
                                         r: responseData.d[i]["Radius"],
                                     }],
                                 };
@@ -426,7 +426,7 @@
                                 },
                                 scaleLabel: {
                                     display: true,
-                                    labelString: "Competency (More is better)"
+                                    labelString: "Performance (More is better)"
                                 }
                             }],
                             xAxes: [{
@@ -439,7 +439,7 @@
                                 },
                                 scaleLabel: {
                                     display: true,
-                                    labelString: "Performance (More is better)"
+                                    labelString: "Competency (More is better)"
                                 }
                             }]
                         },
@@ -473,8 +473,8 @@
                                     borderColor: myColor,
                                     data: [
                                         {
-                                            x: responseData.d[i]["Performance"],
-                                            y: responseData.d[i]["Competency"],
+                                            x: responseData.d[i]["Competency"],
+                                            y: responseData.d[i]["Performance"],
                                             r: responseData.d[i]["Radius"],
                                         }],
                                 };
@@ -520,7 +520,7 @@
                                 },
                                 scaleLabel: {
                                     display: true,
-                                    labelString: "Competency (More is better)"
+                                    labelString: "Performance (More is better)"
                                 }
                             }],
                             xAxes: [{
@@ -533,7 +533,7 @@
                                 },
                                 scaleLabel: {
                                     display: true,
-                                    labelString: "Performance (More is better)"
+                                    labelString: "Competency (More is better)"
                                 }
                             }]
                         },
