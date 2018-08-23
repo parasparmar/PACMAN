@@ -129,16 +129,13 @@ public partial class Grace : System.Web.UI.Page
 
     private void fillddlPeriod()
     {
-        string strSQL = "WFMPMS.GetPacmanCycleforPacmanDiscussion_g ";
+        string strSQL = "WFMPMS.GetPacmanCycleforPacmanDiscussion_g";
         SqlCommand cmd = new SqlCommand(strSQL);
         DataTable dt = my.GetDataTableViaProcedure(ref cmd);
         ddlPeriod.DataSource = dt;
         ddlPeriod.DataTextField = "Period";
         ddlPeriod.DataValueField = "PeriodID";
-        ddlPeriod.DataBind();
-
-
-        //ddlPeriod.SelectedIndex = 0;
+        ddlPeriod.DataBind();        
     }
 
     protected void gvEmpList_RowCommand(object sender, GridViewCommandEventArgs e)
@@ -163,11 +160,10 @@ public partial class Grace : System.Web.UI.Page
     }
 
     [WebMethod]
-    public static List<DataDB> GetChartData()
+    public static List<DataDB> GetChartData(string PeriodId)
     {
         string strSQL = string.Empty;
-
-        strSQL = GetOverAllSQL();
+        strSQL = "PMS.getOverallGraceChartData";
         Helper my = new Helper();
         string constr = my.getConnectionString();
         DataTable dt = new DataTable();
@@ -177,6 +173,8 @@ public partial class Grace : System.Web.UI.Page
             using (SqlCommand cmd = new SqlCommand(strSQL))
             {
                 cmd.Connection = con;
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@PeriodId", PeriodId);
                 List<DataDB> chartData = new List<DataDB>();
                 con.Open();
                 using (SqlDataReader sdr = cmd.ExecuteReader())
@@ -209,34 +207,6 @@ public partial class Grace : System.Web.UI.Page
                 return chartData;
             }
         }
-    }
-
-    public static string GetOverAllSQL()
-    {
-        string strSQL = @"select  dbo.getfullname(a.RepMgr) as ReportingManager
-		        , b.Role
-		        , F.Level
-		        , a.EmpCode
-		        , dbo.getfullname(a.EmpCode) as Employee
-		        , e.Designation
-		        , a.RepMgrScore
-		        , a.RepMgrRating	
-		        , a.Grace	
-		        , a.FinalScore	
-		        , a.FinalRating	
-		        , Case when a.IsSPI = 1 then 'SPI' else 'Not SPI' end as IsSPI	
-		        , Case when a.IsDefault = 1 then 'Default' else 'Not Default' end as IsDefault
-		        , Case when a.Active = 1 then 'Active' else 'InActive' end as Active
-		        , g.LockType as PMSStatus
-        from pms.eligibility a
-        inner join pms.role b on b.roleid = a.roleid
-        inner join pms.periodmst c on c.periodid = a.periodid
-        inner join wfmp.tbldesignation e on e.id = a.DesigID
-        inner join wfmp.tbllevel f on f.levelid = a.levelid
-        inner join PMS.Lock g on g.LockID = a.LockID
-        where a.active = 1 and b.active = 1 and a.periodid = 5
-        order by 1, b.Role, F.Level, e.Designation";
-        return strSQL;
     }
 }
 

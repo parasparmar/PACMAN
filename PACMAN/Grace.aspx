@@ -60,51 +60,50 @@
                     <li><a href="#grace-pivot" data-toggle="tab">Pivot</a></li>
                     <li class="active"><a href="#grace-table" data-toggle="tab">Table</a></li>
                     <li class="pull-left header"><i class="fa fa-inbox"></i>Grace</li>
-                <%--</ul>--%>
-                <div class="tab-content">
-                    <div class="chart tab-pane active" id="grace-table" style="position: relative;">
-                        <asp:GridView ID="gvEmpList" runat="server" CssClass="GraceDataTable table table-condensed table-responsive 
+                    <%--</ul>--%>
+                    <div class="tab-content">
+                        <div class="chart tab-pane active" id="grace-table" style="position: relative; min-height:300px">
+                            <asp:GridView ID="gvEmpList" runat="server" CssClass="GraceDataTable table table-condensed table-responsive 
                     datatable display compact hover stripe"
-                            AutoGenerateColumns="false"
-                            OnPreRender="gv_PreRender" ShowHeader="true" BorderStyle="None" OnRowCommand="gvEmpList_RowCommand" DataKeyNames="EmpCode">
-                            <Columns>
-                                <asp:BoundField DataField="EmpCode" HeaderText="Emp_ID" />
-                                <asp:BoundField DataField="Name" HeaderText="Name" />
-                                <asp:BoundField DataField="Role" HeaderText="Role" />
-                                <asp:BoundField DataField="RepMgrName" HeaderText="RepMgr" />
-                                <asp:BoundField DataField="RepMgrScore" ItemStyle-CssClass="rms" HeaderText="RepMgr Score" />
-                                <asp:BoundField DataField="RepMgrRating" HeaderText="RepMgr Rating" />
-                                <asp:TemplateField HeaderText="Grace">
-                                    <ItemTemplate>
-                                        <span class="form-group">
-                                            <span class="input-group">
-                                                <asp:TextBox ID="tbGrace" CssClass="form-control flat sm grace" runat="server" Text='<%#Bind("Grace")%>'></asp:TextBox>
-                                                <span class="input-group-addon">
-                                                    <asp:ImageButton ID="ibGrace" ImageUrl="~/Sitel/img/grace1.png" CommandName="Grace" CommandArgument='<%# Eval("EmpCode") %>'
-                                                        runat="server" Height="20px" />
+                                AutoGenerateColumns="false"
+                                OnPreRender="gv_PreRender" ShowHeader="true" BorderStyle="None" OnRowCommand="gvEmpList_RowCommand" DataKeyNames="EmpCode">
+                                <Columns>
+                                    <asp:BoundField DataField="EmpCode" HeaderText="Emp_ID" />
+                                    <asp:BoundField DataField="Name" HeaderText="Name" />
+                                    <asp:BoundField DataField="Role" HeaderText="Role" />
+                                    <asp:BoundField DataField="RepMgrName" HeaderText="RepMgr" />
+                                    <asp:BoundField DataField="RepMgrScore" ItemStyle-CssClass="rms" HeaderText="RepMgr Score" />
+                                    <asp:BoundField DataField="RepMgrRating" HeaderText="RepMgr Rating" />
+                                    <asp:TemplateField HeaderText="Grace">
+                                        <ItemTemplate>
+                                            <span class="form-group">
+                                                <span class="input-group">
+                                                    <asp:TextBox ID="tbGrace" CssClass="form-control flat sm grace" runat="server" Text='<%#Bind("Grace")%>'></asp:TextBox>
+                                                    <span class="input-group-addon">
+                                                        <asp:ImageButton ID="ibGrace" ImageUrl="~/Sitel/img/grace1.png" CommandName="Grace" CommandArgument='<%# Eval("EmpCode") %>'
+                                                            runat="server" Height="20px" />
+                                                    </span>
                                                 </span>
+                                                <label id="lblGrace" class="grace"></label>
                                             </span>
-                                            <label id="lblGrace" class="grace"></label>
-                                        </span>
-                                    </ItemTemplate>
-                                </asp:TemplateField>
-                                <asp:BoundField DataField="FinalScore" ItemStyle-CssClass="fs" HeaderText="Final Score" />
-                                <asp:BoundField DataField="FinalRating" ItemStyle-CssClass="fr" HeaderText="Final Rating" />
-                                <asp:BoundField DataField="IsSPI" HeaderText="IsSPI" />
-                                <asp:BoundField DataField="IsDefault" HeaderText="IsDefault" />
-                                <asp:BoundField DataField="DefaultRatingComments" HeaderText="Default Comments" />
-                                <asp:BoundField DataField="Status" HeaderText="Status" />
-                            </Columns>
-                            <EmptyDataTemplate>
-                                <h5>No Report generated.</h5>
-                            </EmptyDataTemplate>
-                        </asp:GridView>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+                                    <asp:BoundField DataField="FinalScore" ItemStyle-CssClass="fs" HeaderText="Final Score" />
+                                    <asp:BoundField DataField="FinalRating" ItemStyle-CssClass="fr" HeaderText="Final Rating" />
+                                    <asp:BoundField DataField="IsSPI" HeaderText="IsSPI" />
+                                    <asp:BoundField DataField="IsDefault" HeaderText="IsDefault" />
+                                    <asp:BoundField DataField="DefaultRatingComments" HeaderText="Default Comments" />
+                                    <asp:BoundField DataField="Status" HeaderText="Status" />
+                                </Columns>
+                                <EmptyDataTemplate>
+                                    <h5>No Report generated.</h5>
+                                </EmptyDataTemplate>
+                            </asp:GridView>
+                        </div>
+                        <!-- Morris chart - Sales -->
+                        <div class="chart tab-pane" id="grace-pivot" style="position: relative; min-height:300px">
+                        </div>
                     </div>
-                    <!-- Morris chart - Sales -->
-                    <div class="chart tab-pane" id="grace-pivot" style="position: relative;">
-                        
-                    </div>
-                </div>
             </div>
 
         </ContentTemplate>
@@ -113,10 +112,10 @@
     </asp:UpdatePanel>
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
-    <script type="text/javascript" src="Sitel/cdn/pivotjs/plotly-basic-latest.min.js"></script>
-    <%--<script type="text/javascript" src="Sitel/cdn/pivotjs/jquery-ui.min.js"></script>--%>
-    <script src="Sitel/cdn/pivotjs/pivot.js"></script>
-    <link href="Sitel/cdn/pivotjs/pivot.css" rel="stylesheet" />
+    <script src="Sitel/cdn/pivotjs/jquery-ui.min.js"></script>
+    <link href="Sitel/cdn/pivotjs/pivot.min.css" rel="stylesheet" />
+    <script src="Sitel/cdn/pivotjs/pivot.js"></script>    
+    <script src="Sitel/cdn/pivotjs/plotly-basic-latest.min.js"></script>
     <script src="Sitel/cdn/pivotjs/plotly_renderers.js"></script>
 
     <script>
@@ -206,10 +205,12 @@
             });
         }
         function getOverallData() {
+            var PeriodId = $("#ddlPeriod").val();
+
             $.ajax({
                 type: "POST",
                 url: "grace.aspx/GetChartData",
-                data: '',
+                data: "{PeriodId:'" + PeriodId + "'}",
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (response) {
@@ -226,10 +227,20 @@
 
 
             function OnSuccessDrawChart(mps) {
+                
                 var derivers = $.pivotUtilities.derivers;
-                var renderers = $.extend($.pivotUtilities.renderers,
-                    $.pivotUtilities.plotly_renderers);
-                $("#grace-pivot").pivotUI(mps, { renderers: renderers });
+                var renderers = $.extend($.pivotUtilities.renderers, $.pivotUtilities.plotly_renderers);
+
+                $("#grace-pivot").pivotUI(mps, {
+                    renderers: renderers,
+                    cols: ["FinalRating"], rows: ["Role"],
+                    rendererName: "Table",
+                    rowOrder: "value_a_to_z",
+ 
+                });
+
+
+                ////$("#grace-pivot").pivotUI(mps, { renderers: renderers });
             }
         }
         function getDetailedData() {
