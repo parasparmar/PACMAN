@@ -515,7 +515,7 @@
                                     beginAtZero: true,
                                     min: 0,
                                     max: 100,
-                                    stepSize: 33.33,
+                                    stepSize: 30,
                                     maxTicksLimit: 4
                                 },
                                 scaleLabel: {
@@ -528,7 +528,7 @@
                                     beginAtZero: true,
                                     min: 0,
                                     max: 100,
-                                    stepSize: 33.33,
+                                    stepSize: 30,
                                     maxTicksLimit: 4
                                 },
                                 scaleLabel: {

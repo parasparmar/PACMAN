@@ -45,11 +45,13 @@ public sealed class ExceptionUtility
             cmd.Parameters.AddWithValue("@InnerExceptionType", exc.InnerException.GetType().ToString());
             cmd.Parameters.AddWithValue("@InnerExceptionMessage", exc.InnerException.Message);
             cmd.Parameters.AddWithValue("@InnerExceptionSource", exc.InnerException.Source);
+            cmd.Parameters.AddWithValue("@InnerExceptionStackTrace", exc.InnerException.StackTrace);
         }
 
         cmd.Parameters.AddWithValue("@ExceptionType", exc.GetType().ToString());
         cmd.Parameters.AddWithValue("@ExceptionMessage", exc.Message);
         cmd.Parameters.AddWithValue("@ExceptionSource", source);
+        cmd.Parameters.AddWithValue("@ExceptionStackTrace", exc.StackTrace);
         cmd.Parameters.AddWithValue("@UpdatedBy", PageExtensionMethods.getMyWindowsID());
         cmd.Parameters.Add("@ID", SqlDbType.Int);
         cmd.Parameters["@ID"].Direction = ParameterDirection.Output;

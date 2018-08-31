@@ -21,9 +21,7 @@
         {
             // Get the exception object.
             Exception exc = Server.GetLastError().GetBaseException();
-            string urlPath = Request.Url.ToString();
-            
-            
+            string urlPath = Request.Url.ToString();                       
             string id = ExceptionUtility.LogException(exc, urlPath);
             Server.ClearError();
             Server.Transfer("~/404.aspx?ex=" + id);
