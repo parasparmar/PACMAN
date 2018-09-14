@@ -18,8 +18,6 @@ public partial class ExceptionTracker : System.Web.UI.Page
     string strSQL;
     int MyEmpID;
     string reportee { get; set; }
-    //string pacmancycle { get; set; }
-
     EmailSender Email = new EmailSender();
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -179,9 +177,9 @@ public partial class ExceptionTracker : System.Web.UI.Page
             files.Add(new ListItem(Path.GetFileName(filePath), filePath));
 
         }
-        gvPendingLog.DataSource = dt3; 
+        gvPendingLog.DataSource = dt3;
         gvPendingLog.DataBind();
-        
+
     }
 
 

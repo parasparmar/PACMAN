@@ -251,7 +251,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         {
             cmd.Parameters.AddWithValue("@PeriodID", trf["PeriodID"].ToInt32());
             cmd.Parameters.AddWithValue("@EmpCode", trf["EmpCode"].ToInt32());
-            cmd.Parameters.AddWithValue("@KPIIRATING", trf["KPIRating"].ToString());            
+            cmd.Parameters.AddWithValue("@KPIIRATING", trf["KPIRating"].ToString());
             cmd.Parameters.AddWithValue("@KPIID", trf["KPIID"].ToInt32());
             trf["isSPI"] = SPI;
             cmd.Parameters.AddWithValue("@IsSPI", SPI);
@@ -559,35 +559,36 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 pck.Workbook.Properties.Author = "iaccess_support@sitel.com";
                 pck.Workbook.Properties.Title = KPIName;
                 int validSheetCount = 0;
+                int lastRow = 0;
+                int recordCount = 0;
+                int columnCount = 0;
+                string currentKPI = string.Empty;
+                string currentMetric = string.Empty;
                 foreach (DataTable d in ds.Tables)
                 {
 
                     if (d != null && d.Rows.Count > 0)
                     {
-                        int recordCount = d.Rows.Count;
-                        int columnCount = d.Columns.Count;
-                        string currentKPI = KPIName;
+                        recordCount = d.Rows.Count;
+                        columnCount = d.Columns.Count;
+                        currentKPI = KPIName;
+
                         if (KPIName == "KPI")
                         {
-                            d.Rows[0]["PrimaryKPI"].ToString();
+                            currentMetric = d.Rows[0]["PrimaryKPI"].ToString();
                         }
                         //Get the physical path to the file.
-                        ExcelWorksheet ws = pck.Workbook.Worksheets.Add(currentKPI);
-                        validSheetCount++;
-                        ws.Cells["A1"].LoadFromDataTable(d, true);
+                        ExcelWorksheet ws = pck.Workbook.Worksheets.Add(currentKPI + " - " + currentMetric);
+                        validSheetCount++;                        
+                        lastRow = 1;
+                        ws.Cells[lastRow + 1, 1].LoadFromDataTable(d, true);
                         ws.Cells[2, 12, recordCount + 1, 17].Style.Numberformat.Format = "dd-mmm-yyyy HH:mm:ss";
                         ws.Cells[2, 18, recordCount + 1, 18].Style.Numberformat.Format = "dd-mmm-yyyy";
                         ws.Cells[2, 19, recordCount + 1, 19].Style.Numberformat.Format = "HH:mm:ss";
                         ws.Cells[1, 1, recordCount, columnCount].AutoFitColumns(15);
 
                         pck.Save();
-                        var shape = ws.Drawings.AddShape("KPI", eShapeStyle.Rect);
-                        shape.SetPosition(50, 200);
-                        shape.SetSize(200, 100);
-                        shape.Text = FileName;
-
-
-
+                        lastRow += recordCount;
                         //Send the CSV file as a Download.
 
                         //Response.Buffer = true;
@@ -595,7 +596,6 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                         //Response.Charset = "";
                         //Response.ContentType = "application/text";
                         //Response.Output.Write(File.ReadAllText(FilePath));
-
                     }
                 }
                 if (validSheetCount > 0)
