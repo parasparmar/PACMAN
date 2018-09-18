@@ -211,7 +211,7 @@
                         </div>
                         <!-- /.widget-user-image -->
                         <h3 class="widget-user-username" id="mdEmpName"></h3>
-                        <h5 class="widget-user-desc" id="mdRepMgr"></h5>                        
+                        <h5 class="widget-user-desc" id="mdRepMgr"></h5>
                     </div>
                 </div>
                 <!-- Custom Tabs -->

@@ -6,7 +6,7 @@
 <asp:Content ID="three" ContentPlaceHolderID="headPlaceHolder" runat="server">
 
     <link href="Sitel/cdn/dropzonejs/dropzone.css" rel="stylesheet" />
-    <script src="Sitel/cdn/dropzonejs/dropzone.js"></script>
+
 </asp:Content>
 
 <asp:Content ID="Content4" ContentPlaceHolderID="pageheader" runat="Server">
@@ -54,7 +54,8 @@
 
 <%--Comment--%>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
-    <div id="DropBox" class="box box-primary box-solid">
+
+    <div id="DropBox" class="box box-primary box-solid needsclick">
         <div class="box-header with-border needsclick">
             <h4 class="box-title needsclick">Drag & Drop Excel Files to this DropBox.</h4>
             <div class="box-tools pull-right needsclick">
@@ -62,152 +63,70 @@
             </div>
         </div>
         <div class="box-body needsclick">
-            <div class="table table-striped files needsclick" id="previews">
-                
+            <div class="dz-default dz-message needsclick">
+                Drop files here.                        
+            </div>
+            <div id="previews" class="dropzone-previews">
             </div>
         </div>
+        <div class="box-footer">
+            <button id="btnUpload" class="btn btn-flat btn-primary needsclick">Upload Selected Files</button>
+        </div>
     </div>
+
     <br />
-    <input id="btnUpload" type="button" value="Upload Selected Files" class="fileinput-button needsclick" />
+
 </asp:Content>
 
 
 
 
 <asp:Content ID="two" ContentPlaceHolderID="below_footer" runat="server">
-
+    <script src="Sitel/cdn/dropzonejs/dropzone.js"></script>
     <script type="text/javascript">
         var selectedFiles;
-
-        $(function () {
-
+        $(document).ready(function () {
+            Dropzone.autoDiscover = false;
             $("#DropBox").dropzone({
                 url: "UploadHelper.ashx",
                 maxFilesize: 10, // MB
+                maxFiles: 5,
+                addRemoveLinks: true,
                 accept: function (file, done) {
                     var filename = file.name
                     var contains = filename.indexOf(".xls");
                     if (contains < 0) {
-                        done("Naha, you don't.");
+                        done("Invalid File Format - Not Excel.");
                     }
                     else { done(); }
-                }
-            });
+                },
+                previewsContainer: "#previews",
+                autoProcessQueue: false,
+                init: function () {
+                    var submitButton = document.querySelector("#btnUpload");
+                    myDropzone = this; // closure
+                    submitButton.addEventListener("click", function () {
+                        myDropzone.processQueue(); // Tell Dropzone to process all queued files.
+                    });
+                    // You might want to show the submit button only when 
+                    // files are dropped here:
+                    this.on("addedfile", function () {
+                        // Show submit button here and/or inform user to click it.
+                    });
 
+                },
+                success: function (file, response) {                    
+                    var imgName = response;
+                    file.previewElement.classList.add("dz-success");
+                    console.log("Successfully uploaded :" + imgName);
+                },
+                error: function (file, response) {
+                    file.previewElement.classList.add("dz-error");
+                },
 
-            //var DropBox;
-            //DropBox = document.getElementById("DropBox");
-            //DropBox.addEventListener("dragenter", OnDragEnter, false);
-            //DropBox.addEventListener("dragover", OnDragOver, false);
-            //DropBox.addEventListener("drop", OnDrop, false);
-            $("#btnUpload").click(function () {
-                var data = new FormData();
-                for (var i = 0; i < selectedFiles.length; i++) {
-                    data.append(selectedFiles[i].name, selectedFiles[i]);
-                }
-                $.ajax({
-                    type: "POST",
-                    url: "UploadHelper.ashx",
-                    contentType: false,
-                    processData: false,
-                    data: data,
-                    success: function (result) {
-                        alert(result);
-                    },
-                    error: function () {
-                        alert("There was error uploading files!");
-                    }
-                });
+                
             });
         });
 
-        function OnDragEnter(e) {
-            e.stopPropagation();
-            e.preventDefault();
-        }
-
-        function OnDragOver(e) {
-            e.stopPropagation();
-            e.preventDefault();
-        }
-
-        function OnDrop(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            selectedFiles = e.dataTransfer.files;
-            var myFileList = "";
-            ////debugger;
-
-            for (var i = 0; i < selectedFiles.length; i++) {
-                if (i == 0) {
-                    myFileList = selectedFiles[i].name;
-                } else {
-                    myFileList = myFileList + '<br>' + selectedFiles[i].name;
-                }
-            }
-
-            $("#previews").html(myFileList);
-        }
     </script>
-   <%-- <script>
-        $(function () {
-            // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument        
-            var previewNode = document.querySelector("#template");
-            previewNode.id = "";
-            var previewTemplate = previewNode.parentNode.innerHTML;
-            previewNode.parentNode.removeChild(previewNode);
-
-            var myDropzone = new Dropzone(document.body, { // Make the whole body a dropzone
-                url: "UploadHelper.ashx", // Set the url
-                thumbnailWidth: 80,
-                thumbnailHeight: 80,
-                parallelUploads: 20,
-                previewTemplate: previewTemplate,
-                autoQueue: false, // Make sure the files aren't queued until manually added
-                previewsContainer: "#previews", // Define the container to display the previews
-                clickable: "#btnUpload" // Define the element that should be used as click trigger to select files.
-            });
-
-            myDropzone.on("addedfile", function (file) {
-                // Hookup the start button
-                file.previewElement.querySelector(".start").onclick = function () {
-                    myDropzone.enqueueFile(file);
-                };
-            });
-
-            // Update the total progress bar
-            myDropzone.on("totaluploadprogress", function (progress) {
-                document.querySelector("#total-progress .progress-bar").style.width = progress + "%";
-            });
-
-            myDropzone.on("sending", function (file) {
-                // Show the total progress bar when upload starts
-                document.querySelector("#total-progress").style.opacity = "1";
-                // And disable the start button
-                file.previewElement.querySelector(".start").setAttribute("disabled", "disabled");
-            });
-
-            // Hide the total progress bar when nothing's uploading anymore
-            myDropzone.on("queuecomplete", function (progress) {
-                document.querySelector("#total-progress").style.opacity = "0";
-            });
-
-            // Setup the buttons for all transfers
-            // The "add files" button doesn't need to be setup because the config
-            // `clickable` has already been specified.
-            document.querySelector("#actions .start").onclick = function () {
-                myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
-            };
-            document.querySelector("#actions .cancel").onclick = function () {
-                myDropzone.removeAllFiles(true);
-            };
-
-        });
-
-
-
-
-
-
-    </script>--%>
 </asp:Content>
