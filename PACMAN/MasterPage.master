@@ -415,17 +415,8 @@
                                     <li><a href="defaultRating.aspx"><i class="fa  fa-sign-in"></i>Default Rating</a></li>
                                     <li><a href="report.aspx"><i class="fa fa-calendar-check-o"></i>Report</a></li>
                                 </ul>
-                            </li>
-                            <li>
-                                <a href="ninebox.aspx">
-                                    <i class="fa fa-bar-chart"></i><span>Nine Box</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="inputpage.aspx">
-                                    <i class="fa fa-comment-o"></i><span>Kronos vs BO</span>
-                                </a>
-                            </li>
+                            </li>                            
+                           
                         </ul>
                     </section>
                     <!-- /.sidebar -->

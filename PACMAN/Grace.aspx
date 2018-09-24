@@ -183,16 +183,19 @@
         };
         function dtbl() {
             $('.GraceDataTable').DataTable({
-                "sPaginationType": "full_numbers",
-                "lengthMenu": [50, 75, 100],
+                //"sPaginationType": "full_numbers",
+                //"lengthMenu": [50, 75, 100],
+		"bLengthChange" : false,
                 "aaSortingFixed": [[0, 'asc']],
                 "bSort": false,
+                "destroy": true,
                 //dom: 'Bfrltip',
+		dom: 'Bfrlt',
                 "columnDefs": [{ "orderable": false, "targets": 0 }],
                 buttons: [
                     { extend: 'copyHtml5', text: 'Copy Data' },
                     { extend: 'excelHtml5', text: 'Export to Excel' },
-                    { extend: 'csvHtml5', text: 'Export to CSV' },
+                   // { extend: 'csvHtml5', text: 'Export to CSV' },
                     { extend: 'pdfHtml5', text: 'Export to PDF' },
                 ],
                 "columnDefs": [{

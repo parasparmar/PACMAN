@@ -6,7 +6,53 @@
 <asp:Content ID="three" ContentPlaceHolderID="headPlaceHolder" runat="server">
 
     <link href="Sitel/cdn/dropzonejs/dropzone.css" rel="stylesheet" />
+    <style type="text/css">
+        html, body {
+            height: 100%;
+        }
+        /* Mimic table appearance */
+        div.table {
+            display: table;
+        }
 
+            div.table .file-row {
+                display: table-row;
+            }
+
+                div.table .file-row > div {
+                    display: table-cell;
+                    vertical-align: top;
+                    border-top: 1px solid #ddd;
+                    padding: 8px;
+                }
+
+                div.table .file-row:nth-child(odd) {
+                    background: #f9f9f9;
+                }
+        /* The total progress gets shown by event listeners */
+        #total-progress {
+            opacity: 0;
+            transition: opacity 0.3s linear;
+        }
+        /* Hide the progress bar when finished */
+        #previews .file-row.dz-success .progress {
+            opacity: 0;
+            transition: opacity 0.3s linear;
+        }
+        /* Hide the delete button initially */
+        #previews .file-row .delete {
+            display: none;
+        }
+        /* Hide the start and cancel buttons and show the delete button */
+        #previews .file-row.dz-success .start,
+        #previews .file-row.dz-success .cancel {
+            display: none;
+        }
+
+        #previews .file-row.dz-success .delete {
+            display: block;
+        }
+    </style>
 </asp:Content>
 
 <asp:Content ID="Content4" ContentPlaceHolderID="pageheader" runat="Server">
@@ -25,108 +71,148 @@
         </div>
     </div>
     <!--pageheader-->
-    <style type="text/css">
-        .modal {
-            background: rgba(0,0,0,.7) !important;
-        }
-
-        .clscustomcenter {
-            width: 0%;
-            margin: 20% auto;
-            padding: 10px;
-            opacity: 1;
-            z-index: 1000;
-        }
-
-            .clscustomcenter img {
-                border-radius: 5px;
-            }
-
-            .clscustomcenter .clsloadtxt {
-                display: block;
-                padding-top: 12px;
-                color: #fff;
-                letter-spacing: 1px;
-            }
-    </style>
-
 </asp:Content>
 
-<%--Comment--%>
-<asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
 
+<asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
     <div id="DropBox" class="box box-primary box-solid needsclick">
         <div class="box-header with-border needsclick">
             <h4 class="box-title needsclick">Drag & Drop Excel Files to this DropBox.</h4>
-            <div class="box-tools pull-right needsclick">
-                <button class="btn btn-box-tool needsclick" type="button" data-widget="remove"><i class="fa fa-times"></i></button>
+            <div id="actions" class="box-tools pull-right needsclick">
+                <!-- The fileinput-button span is used to style the file input field as button -->
+                <span class="btn btn-info btn-box-tool fileinput-button">
+                    <i class="glyphicon glyphicon-plus"></i>
+                    <span>Add files...</span>
+                </span>
+                <button type="button" class="btn btn-success btn-box-tool start">
+                    <i class="glyphicon glyphicon-upload"></i>
+                    <span>Start upload</span>
+                </button>
+                <button type="reset" class="btn btn-warning btn-box-tool cancel">
+                    <i class="glyphicon glyphicon-ban-circle"></i>
+                    <span>Cancel upload</span>
+                </button>
+                <!-- The global file processing state -->
+                <span class="fileupload-process">
+                    <div id="total-progress" class="progress xs progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                        <div class="progress-bar progress-bar-success" style="width: 0%;" data-dz-uploadprogress></div>
+                    </div>
+                </span>
             </div>
         </div>
         <div class="box-body needsclick">
-            <div class="dz-default dz-message needsclick">
-                Drop files here.                        
+            <div class="table table-striped files" id="previews">
+                <div id="template" class="file-row">
+                    <!-- This is used as the file preview template -->
+                    <div>
+                        <span class="preview">
+                            <img data-dz-thumbnail /></span>
+                    </div>
+                    <div>
+                        <p class="name" data-dz-name></p>
+                        <strong class="error text-danger" data-dz-errormessage></strong>
+                    </div>
+                    <div>
+                        <p class="size" data-dz-size></p>
+                        <div class="progress xs progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                            <div class="progress-bar progress-bar-success" style="width: 0%;" data-dz-uploadprogress></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-primary start">
+                            <i class="glyphicon glyphicon-upload"></i>
+                            <span>Start</span>
+                        </button>
+                        <button data-dz-remove class="btn btn-sm  btn-warning cancel">
+                            <i class="glyphicon glyphicon-ban-circle"></i>
+                            <span>Cancel</span>
+                        </button>
+                        <button data-dz-remove class="btn btn-sm  btn-danger delete">
+                            <i class="glyphicon glyphicon-trash"></i>
+                            <span>Delete</span>
+                        </button>
+                    </div>
+                </div>
             </div>
-            <div id="previews" class="dropzone-previews">
-            </div>
+
         </div>
-        <div class="box-footer">
-            <button id="btnUpload" class="btn btn-flat btn-primary needsclick">Upload Selected Files</button>
-        </div>
+        <%--<button id="btnUpload" class="btn btn-flat btn-primary needsclick">Upload Selected Files</button>--%>
     </div>
-
-    <br />
-
 </asp:Content>
-
-
-
 
 <asp:Content ID="two" ContentPlaceHolderID="below_footer" runat="server">
     <script src="Sitel/cdn/dropzonejs/dropzone.js"></script>
     <script type="text/javascript">
+        
         var selectedFiles;
-        $(document).ready(function () {
-            Dropzone.autoDiscover = false;
-            $("#DropBox").dropzone({
-                url: "UploadHelper.ashx",
-                maxFilesize: 10, // MB
-                maxFiles: 5,
-                addRemoveLinks: true,
-                accept: function (file, done) {
-                    var filename = file.name
-                    var contains = filename.indexOf(".xls");
-                    if (contains < 0) {
-                        done("Invalid File Format - Not Excel.");
-                    }
-                    else { done(); }
-                },
-                previewsContainer: "#previews",
-                autoProcessQueue: false,
-                init: function () {
-                    var submitButton = document.querySelector("#btnUpload");
-                    myDropzone = this; // closure
-                    submitButton.addEventListener("click", function () {
-                        myDropzone.processQueue(); // Tell Dropzone to process all queued files.
-                    });
-                    // You might want to show the submit button only when 
-                    // files are dropped here:
-                    this.on("addedfile", function () {
-                        // Show submit button here and/or inform user to click it.
-                    });
+        Dropzone.autoDiscover = false;
+        // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
+        var previewNode = document.querySelector("#template");
+        previewNode.id = "";
+        var previewTemplate = previewNode.parentNode.innerHTML;
+        previewNode.parentNode.removeChild(previewNode);
 
-                },
-                success: function (file, response) {                    
-                    var imgName = response;
-                    file.previewElement.classList.add("dz-success");
-                    console.log("Successfully uploaded :" + imgName);
-                },
-                error: function (file, response) {
-                    file.previewElement.classList.add("dz-error");
-                },
-
-                
-            });
+        var myDropzone = new Dropzone(document.body, { // Make the whole body a dropzone
+            url: "UploadHelper.ashx", // Set the url
+            thumbnailWidth: 60,
+            thumbnailHeight: 60,
+            parallelUploads: 20,
+            uploadMultiple:true,
+            previewTemplate: previewTemplate,
+            autoQueue: false, // Make sure the files aren't queued until manually added
+            previewsContainer: "#previews", // Define the container to display the previews
+            clickable: ".fileinput-button", // Define the element that should be used as click trigger to select files.
+            accept: function (file, done) {
+                var contains = file.name.indexOf(".xls");
+                if (contains < 0) {
+                    done("Invalid File.(Excel)");
+                }
+                else { done(); }
+            }
         });
 
+        myDropzone.on("addedfile", function (file) {
+            // Hookup the start button
+            file.previewElement.querySelector(".start").onclick = function () {
+                myDropzone.enqueueFile(file);
+            };
+            if (file.type.match(/.xl*/)) {
+                // This is not an image, so Dropzone doesn't create a thumbnail.
+                // Set a default thumbnail:
+                myDropzone.emit("thumbnail", file, "Sitel/img/excel.png");
+            } else {
+                myDropzone.emit("thumbnail", file, "Sitel/img/not-allowed.png");
+            }
+        });
+
+        // Update the total progress bar
+        myDropzone.on("totaluploadprogress", function (progress) {
+            document.querySelector("#total-progress .progress-bar").style.width = progress + "%";
+        });
+
+        myDropzone.on("sending", function (file) {           
+            // Show the total progress bar when upload starts
+            document.querySelector("#total-progress").style.opacity = "1";
+            // And disable the start button
+            file.previewElement.querySelector(".start").setAttribute("disabled", "disabled");
+        });
+
+        // Hide the total progress bar when nothing's uploading anymore
+        myDropzone.on("queuecomplete", function (progress) {
+            document.querySelector("#total-progress").style.opacity = "0";
+
+        });
+
+        // Setup the buttons for all transfers
+        // The "add files" button doesn't need to be setup because the config
+        // `clickable` has already been specified.
+        document.querySelector("#actions .start").onclick = function () {
+            myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
+
+        };
+
+        document.querySelector("#actions .cancel").onclick = function () {
+            myDropzone.removeAllFiles(true);
+        };
     </script>
 </asp:Content>
