@@ -119,6 +119,13 @@
                         </div>
                     </div>
                     <div>
+                        <select id="ddlTask" class="form-control select2" data-placeholder="Please Select the Task for this particular Uploads">                    
+                            <option id="" value=""></option>
+                            <option id="" value=""></option>
+                            <option id="" value=""></option>
+                            <option id="" value=""></option>
+                            <option id="" value=""></option>
+                        </select>
                         <button class="btn btn-sm btn-primary start">
                             <i class="glyphicon glyphicon-upload"></i>
                             <span>Start</span>
@@ -143,7 +150,7 @@
 <asp:Content ID="two" ContentPlaceHolderID="below_footer" runat="server">
     <script src="Sitel/cdn/dropzonejs/dropzone.js"></script>
     <script type="text/javascript">
-        
+
         var selectedFiles;
         Dropzone.autoDiscover = false;
         // Get the template HTML and remove it from the doumenthe template HTML and remove it from the doument
@@ -157,7 +164,7 @@
             thumbnailWidth: 60,
             thumbnailHeight: 60,
             parallelUploads: 20,
-            uploadMultiple:true,
+            uploadMultiple: true,
             previewTemplate: previewTemplate,
             autoQueue: false, // Make sure the files aren't queued until manually added
             previewsContainer: "#previews", // Define the container to display the previews
@@ -190,7 +197,7 @@
             document.querySelector("#total-progress .progress-bar").style.width = progress + "%";
         });
 
-        myDropzone.on("sending", function (file) {           
+        myDropzone.on("sending", function (file) {
             // Show the total progress bar when upload starts
             document.querySelector("#total-progress").style.opacity = "1";
             // And disable the start button
