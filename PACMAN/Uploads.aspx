@@ -97,42 +97,48 @@
         </div>
         <div class="box-body needsclick">
             <div class="table table-striped files" id="previews">
-                <div id="template" class="file-row">
+                <div id="template" class="file-row row">
                     <!-- This is used as the file preview template -->
                     <div>
-                        <span class="preview"><img data-dz-thumbnail /></span>
+                        <span class="preview">
+                            <img data-dz-thumbnail />
+                        </span>
                     </div>
                     <div>
-                        <p class="name" data-dz-name></p>
-                        <strong class="error text-danger" data-dz-errormessage></strong>
-                    </div>
-                    <div>
-                        <p class="size" data-dz-size></p>
-                        <div class="progress xs progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-                            <div class="progress-bar progress-bar-success" style="width: 0%;" data-dz-uploadprogress></div>
+                        <span class="name pull-left" data-dz-name></span>
+                        <span class="size pull-right" data-dz-size></span>
+                        <div>
+                            <select id="ddlTask" class="form-control select2" data-placeholder="Please Select the Task for this particular Uploads">
+                                <option id="" value=""></option>
+                            </select>
                         </div>
+                        <strong class="error text-danger" data-dz-errormessage></strong>
+                        <span class="progress xs progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                            <span class="progress-bar progress-bar-success" style="width: 0%;" data-dz-uploadprogress></span>
+                        </span>
+
+                    </div>
+                    <div class="clearfix">
+                        <label></label>
                     </div>
                     <div>
-                        <select id="ddlTask" class="form-control select2" data-placeholder="Please Select the Task for this particular Uploads">
-                            <option id="" value=""></option>                            
-                        </select>
-                        <%--<button class="btn btn-sm btn-primary start">
+                        <button class="btn btn-sm btn-flat btn-primary start">
                             <i class="glyphicon glyphicon-upload"></i>
                             <span>Start</span>
-                        </button>--%>
-                        <button data-dz-remove class="btn btn-sm  btn-warning cancel">
+                        </button>
+                        <button data-dz-remove class="btn btn-sm btn-flat btn-warning cancel">
                             <i class="glyphicon glyphicon-ban-circle"></i>
                             <span>Cancel</span>
                         </button>
-                        <%--<button data-dz-remove class="btn btn-sm  btn-danger delete">
+                        <button data-dz-remove class="btn btn-sm btn-flat btn-danger delete">
                             <i class="glyphicon glyphicon-trash"></i>
                             <span>Delete</span>
-                        </button>--%>
+                        </button>
                     </div>
+
                 </div>
             </div>
         </div>
-        <%--<button id="btnUpload" class="btn btn-flat btn-primary needsclick">Upload Selected Files</button>--%>
     </div>
 </asp:Content>
 <asp:Content ID="two" ContentPlaceHolderID="below_footer" runat="server">
@@ -148,10 +154,10 @@
         previewNode.parentNode.removeChild(previewNode);
 
         var myDropzone = new Dropzone(document.body, { // Make the whole body a dropzone
-            url: "UploadHelper.ashx", // Set the url
+            url: "UploadHelper.ashx", // Set the url            
             thumbnailWidth: 60,
             thumbnailHeight: 60,
-            parallelUploads: 20,
+            parallelUploads: 10,
             uploadMultiple: true,
             previewTemplate: previewTemplate,
             autoQueue: false, // Make sure the files aren't queued until manually added
@@ -160,7 +166,8 @@
             accept: function (file, done) {
                 var contains = file.name.indexOf(".xls");
                 if (contains < 0) {
-                    done("Invalid File.(Excel)");
+                    done("Invalid File. Please provide Excel Files only.");
+                    $('.dz-input').hide();
                 }
                 else { done(); }
             }
@@ -179,6 +186,10 @@
                 myDropzone.emit("thumbnail", file, "Sitel/img/not-allowed.png");
             }
         });
+        myDropzone.on("removedfile", function (file) {
+
+        });
+
 
         // Update the total progress bar
         myDropzone.on("totaluploadprogress", function (progress) {

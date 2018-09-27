@@ -50,7 +50,7 @@ public partial class index : System.Web.UI.Page
                 if (dt != null && dt.Rows.Count > 0)
                 {
                     Session["dtEmp"] = dt;
-                    Response.Redirect("pacman.aspx", false);
+                    Response.Redirect("Uploads.aspx", false);
                 }
                 else
                 {

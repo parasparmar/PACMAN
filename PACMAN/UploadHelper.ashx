@@ -21,8 +21,8 @@ public class UploadHelper : IHttpHandler
             {
                 HttpPostedFile file = files[key];
                 string fileName = Path.GetFileName(file.FileName);
-
-                fileName = context.Server.MapPath("~/Sitel/uploads/" + fileName);
+                
+                 fileName = context.Server.MapPath("~/Sitel/uploads/" + fileName);
                 file.SaveAs(fileName);
             }
         }
