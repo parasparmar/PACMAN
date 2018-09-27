@@ -255,7 +255,7 @@ public partial class pacman : System.Web.UI.Page
                                         Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
                                         FinalRating += KPIRating * KPIWtg;
                                         //  ltlWeightedScore.Text = FinalRating.ToString();
-                                        ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
+                                        ltlFinalRating.Text = Math.Round(FinalRating, 1).ToString();
                                     }
                                     else
                                     { ltlFinalRating.Text = "0"; }
@@ -293,7 +293,7 @@ public partial class pacman : System.Web.UI.Page
                                         Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
                                         FinalRating += KPIRating * KPIWtg;
                                         //ltlWeightedScore.Text = FinalRating.ToString();
-                                        ltlFinalRating.Text = Math.Round(FinalRating, 2).ToString();
+                                        ltlFinalRating.Text = Math.Round(FinalRating, 1).ToString();
                                     }
                                     else
                                     { ltlFinalRating.Text = "0"; }

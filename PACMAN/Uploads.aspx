@@ -1,8 +1,6 @@
 ﻿<%@ Page Title="" Language="C#" MasterPageFile="~/MasterPage.master" AutoEventWireup="true" CodeFile="Uploads.aspx.cs" Inherits="Uploads" %>
 
 <%@ MasterType VirtualPath="~/MasterPage.master" %>
-
-
 <asp:Content ID="three" ContentPlaceHolderID="headPlaceHolder" runat="server">
 
     <link href="Sitel/cdn/dropzonejs/dropzone.css" rel="stylesheet" />
@@ -54,7 +52,6 @@
         }
     </style>
 </asp:Content>
-
 <asp:Content ID="Content4" ContentPlaceHolderID="pageheader" runat="Server">
     <ol class="breadcrumb">
         <li><a href="index.aspx"><i class="iconfa-home"></i>Home</a></li>
@@ -72,8 +69,6 @@
     </div>
     <!--pageheader-->
 </asp:Content>
-
-
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
     <div id="DropBox" class="box box-primary box-solid needsclick">
         <div class="box-header with-border needsclick">
@@ -105,8 +100,7 @@
                 <div id="template" class="file-row">
                     <!-- This is used as the file preview template -->
                     <div>
-                        <span class="preview">
-                            <img data-dz-thumbnail /></span>
+                        <span class="preview"><img data-dz-thumbnail /></span>
                     </div>
                     <div>
                         <p class="name" data-dz-name></p>
@@ -119,34 +113,28 @@
                         </div>
                     </div>
                     <div>
-                        <select id="ddlTask" class="form-control select2" data-placeholder="Please Select the Task for this particular Uploads">                    
-                            <option id="" value=""></option>
-                            <option id="" value=""></option>
-                            <option id="" value=""></option>
-                            <option id="" value=""></option>
-                            <option id="" value=""></option>
+                        <select id="ddlTask" class="form-control select2" data-placeholder="Please Select the Task for this particular Uploads">
+                            <option id="" value=""></option>                            
                         </select>
-                        <button class="btn btn-sm btn-primary start">
+                        <%--<button class="btn btn-sm btn-primary start">
                             <i class="glyphicon glyphicon-upload"></i>
                             <span>Start</span>
-                        </button>
+                        </button>--%>
                         <button data-dz-remove class="btn btn-sm  btn-warning cancel">
                             <i class="glyphicon glyphicon-ban-circle"></i>
                             <span>Cancel</span>
                         </button>
-                        <button data-dz-remove class="btn btn-sm  btn-danger delete">
+                        <%--<button data-dz-remove class="btn btn-sm  btn-danger delete">
                             <i class="glyphicon glyphicon-trash"></i>
                             <span>Delete</span>
-                        </button>
+                        </button>--%>
                     </div>
                 </div>
             </div>
-
         </div>
         <%--<button id="btnUpload" class="btn btn-flat btn-primary needsclick">Upload Selected Files</button>--%>
     </div>
 </asp:Content>
-
 <asp:Content ID="two" ContentPlaceHolderID="below_footer" runat="server">
     <script src="Sitel/cdn/dropzonejs/dropzone.js"></script>
     <script type="text/javascript">
@@ -207,15 +195,12 @@
         // Hide the total progress bar when nothing's uploading anymore
         myDropzone.on("queuecomplete", function (progress) {
             document.querySelector("#total-progress").style.opacity = "0";
-
         });
-
         // Setup the buttons for all transfers
         // The "add files" button doesn't need to be setup because the config
         // `clickable` has already been specified.
         document.querySelector("#actions .start").onclick = function () {
             myDropzone.enqueueFiles(myDropzone.getFilesWithStatus(Dropzone.ADDED));
-
         };
 
         document.querySelector("#actions .cancel").onclick = function () {

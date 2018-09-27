@@ -62,7 +62,7 @@
                     <li class="pull-left header"><i class="fa fa-inbox"></i>Grace</li>
                     <%--</ul>--%>
                     <div class="tab-content">
-                        <div class="chart tab-pane active" id="grace-table" style="position: relative; min-height:300px">
+                        <div class="chart tab-pane active" id="grace-table" style="position: relative; min-height: 300px">
                             <asp:GridView ID="gvEmpList" runat="server" CssClass="GraceDataTable table table-condensed table-responsive 
                     datatable display compact hover stripe"
                                 AutoGenerateColumns="false"
@@ -94,6 +94,7 @@
                                     <asp:BoundField DataField="IsDefault" HeaderText="IsDefault" />
                                     <asp:BoundField DataField="DefaultRatingComments" HeaderText="Default Comments" />
                                     <asp:BoundField DataField="Status" HeaderText="Status" />
+                                    <asp:BoundField DataField="Payout" HeaderText="Payout" />
                                 </Columns>
                                 <EmptyDataTemplate>
                                     <h5>No Report generated.</h5>
@@ -101,7 +102,7 @@
                             </asp:GridView>
                         </div>
                         <!-- Morris chart - Sales -->
-                        <div class="chart tab-pane" id="grace-pivot" style="position: relative; min-height:300px">
+                        <div class="chart tab-pane" id="grace-pivot" style="position: relative; min-height: 300px">
                         </div>
                     </div>
             </div>
@@ -114,7 +115,7 @@
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
     <script src="Sitel/cdn/pivotjs/jquery-ui.min.js"></script>
     <link href="Sitel/cdn/pivotjs/pivot.min.css" rel="stylesheet" />
-    <script src="Sitel/cdn/pivotjs/pivot.js"></script>    
+    <script src="Sitel/cdn/pivotjs/pivot.js"></script>
     <script src="Sitel/cdn/pivotjs/plotly-basic-latest.min.js"></script>
     <script src="Sitel/cdn/pivotjs/plotly_renderers.js"></script>
 
@@ -183,28 +184,21 @@
         };
         function dtbl() {
             $('.GraceDataTable').DataTable({
-                //"sPaginationType": "full_numbers",
-                //"lengthMenu": [50, 75, 100],
-		"bLengthChange" : false,
+                "sPaginationType": "full_numbers",
+                "lengthMenu": [50, 75, 100],
+                "bLengthChange": false,
                 "aaSortingFixed": [[0, 'asc']],
                 "bSort": false,
                 "destroy": true,
-                //dom: 'Bfrltip',
-		dom: 'Bfrlt',
+
+                dom: 'Bfrlt',
                 "columnDefs": [{ "orderable": false, "targets": 0 }],
                 buttons: [
                     { extend: 'copyHtml5', text: 'Copy Data' },
                     { extend: 'excelHtml5', text: 'Export to Excel' },
-                   // { extend: 'csvHtml5', text: 'Export to CSV' },
+                    // { extend: 'csvHtml5', text: 'Export to CSV' },
                     { extend: 'pdfHtml5', text: 'Export to PDF' },
                 ],
-                "columnDefs": [{
-                    "targets": [8], //Comma separated values
-                    "visible": false,
-                    "searchable": false
-                }
-                ],
-
             });
         }
         function getOverallData() {
@@ -230,7 +224,7 @@
 
 
             function OnSuccessDrawChart(mps) {
-                
+
                 var derivers = $.pivotUtilities.derivers;
                 var renderers = $.extend($.pivotUtilities.renderers, $.pivotUtilities.plotly_renderers);
 
@@ -239,7 +233,7 @@
                     cols: ["FinalRating"], rows: ["Role"],
                     rendererName: "Table",
                     rowOrder: "value_a_to_z",
- 
+
                 });
 
 

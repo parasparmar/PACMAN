@@ -11,7 +11,7 @@ using System.IO;
 
 public class UploadHelper : IHttpHandler
 {
-
+    
     public void ProcessRequest(HttpContext context)
     {
         if (context.Request.Files.Count > 0)
