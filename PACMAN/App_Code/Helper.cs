@@ -10,7 +10,8 @@ using CD;
 using System.Collections.Specialized;
 using System.Text.RegularExpressions;
 
-public class Helper
+
+public class Helper : IPartitionResolver
 {
     public Helper() { }
     private SqlConnection cn { get; set; }
@@ -22,6 +23,15 @@ public class Helper
         xString = xEDCryptor.DeCrypt(xString);
         return xString;
     }
+
+    public void Initialize() { }
+
+    // The key is a SID (session identifier)
+    public String ResolvePartition(Object key)
+    {
+        return getConnectionString();
+    }
+
     public SqlConnection open_db()
     {
 

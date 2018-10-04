@@ -278,7 +278,6 @@
         }
 
         $("#btnFetch").click(function () {
-            //debugger;
             $('#progress').show();
             var repObj = {
                 xMonth: $("#ddlMonth option:selected").val(),
@@ -296,7 +295,7 @@
                 contentType: "application/json;charset=utf-8",
                 //dataType: "json",
                 success: function (result) {
-                    //debugger;
+
                     BindDataTable(result.d);
                 },
                 error: function (errormessage) {
