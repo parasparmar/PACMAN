@@ -158,6 +158,7 @@ public partial class pacman : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@ActionedBy", MyEmpID);
         my.ExecuteDMLCommand(ref cmd, strSQL, "S");
         //clearRP();
+        enableButtons();
     }
     private void fillRP(int ForEmpID)
     {
@@ -181,8 +182,8 @@ public partial class pacman : System.Web.UI.Page
         }
         else
         {
-            gvOverAll.DataSource = null;
-            gvOverAll.DataBind();
+            rptOverAll.DataSource = null;
+            rptOverAll.DataBind();
             lblOverAll.Text = "Pacman cycle".ToString();
         }
 
@@ -247,14 +248,14 @@ public partial class pacman : System.Web.UI.Page
                                         Rating = r["Rating"].ToString();
                                     }
                                     Literal ltlfinalScore = e.Item.FindControlRecursive("ltlKPIScore") as Literal;
-                                    //Literal ltlWeightedScore = e.Item.FindControlRecursive("ltlWeightedScore") as Literal;
+                                    Literal ltlWeightedScore = e.Item.FindControlRecursive("ltlWeightedScore") as Literal;
                                     ltlfinalScore.Text = Rating.ToString();
                                     if (!string.IsNullOrEmpty(Rating))
                                     {
                                         Decimal KPIRating = Convert.ToDecimal(Rating);
                                         Decimal KPIWtg = Convert.ToDecimal(dr["KPIWtg"].ToString());
                                         FinalRating += KPIRating * KPIWtg;
-                                        //  ltlWeightedScore.Text = FinalRating.ToString();
+                                        ltlWeightedScore.Text = FinalRating.ToString();
                                         ltlFinalRating.Text = Math.Round(FinalRating, 1).ToString();
                                     }
                                     else
@@ -345,6 +346,7 @@ public partial class pacman : System.Web.UI.Page
     private void populateGVOverall()
     {
         PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+
         string strSQL = "PMS.ShowEmpPacmanDetails";
         SqlConnection cn = new SqlConnection(my.getConnectionString());
         cn.Open();
@@ -356,12 +358,39 @@ public partial class pacman : System.Web.UI.Page
         SqlDataAdapter da = new SqlDataAdapter(cmd);
         DataSet ds = new DataSet();
         da.Fill(ds);
-        DataTable dtOverall = ds.Tables[0];
-        DataTable dtPhase = ds.Tables[1];
-        gvOverAll.DataSource = dtOverall;
-        gvOverAll.DataBind();
+        if (ds != null)
+        {
+            if (ds.Tables[0] != null)
+            {
+                DataColumn Col = ds.Tables[0].Columns.Add("Row");
+                Col.SetOrdinal(0);
+                ds.Tables[0].Rows[0]["Row"] = "Column";
+                DataTable dtOverall = PageExtensionMethods.GenerateTransposedTable(ds.Tables[0]);
+                DataTable dtPhase = ds.Tables[1];
+                //gvOverAll.DataSource = dtOverall;
+                //gvOverAll.DataBind();
+                rptOverAll.DataSource = dtOverall;
+                rptOverAll.DataBind();
 
-        lblOverAll.Text = dtPhase.Rows[0][0].ToString();
+                cmd.Parameters.Clear();
+                cmd.CommandText = "WFMP.getEmployeeData";
+                string myID = my.getFirstResult("select ntname from WFMP.tblMaster where employee_id = " + ForEmpID);
+                cmd.Parameters.AddWithValue("@NT_ID", myID);
+
+                DataTable reporteeData = my.GetDataTableViaProcedure(ref cmd);
+                Literal userName = rptOverAll.FindControlRecursive("ltlUserName") as Literal;
+                userName.Text = reporteeData.Rows[0]["FullName"].ToString();
+                Image userImage = rptOverAll.FindControlRecursive("imgReportee") as Image;
+                userImage.ImageUrl = "/Sitel/user_images/" + reporteeData.Rows[0]["UserImage"].ToString();
+                tbManualComments.Text = my.getFirstResult("select top 1 repmgrcomments from [pms].[eligibility] where periodid = " + PeriodID + " and empcode=" + ForEmpID);
+                tbManualComments.CssClass = "form-control";
+                tbManualComments.ReadOnly = true;
+                if (dtPhase != null && dtPhase.Rows.Count > 0)
+                {
+                    lblOverAll.Text = dtPhase != null ? dtPhase.Rows[0][0].ToString() : string.Empty;
+                }
+            }
+        }
     }
     protected void btnKPI_Click(object sender, EventArgs e)
     {
@@ -421,7 +450,7 @@ public partial class pacman : System.Web.UI.Page
                         }
                         //Get the physical path to the file.
                         ExcelWorksheet ws = pck.Workbook.Worksheets.Add(currentKPI + " - " + currentMetric);
-                        validSheetCount++;                        
+                        validSheetCount++;
                         lastRow = 1;
                         ws.Cells[lastRow + 1, 1].LoadFromDataTable(d, true);
                         ws.Cells[2, 12, recordCount + 1, 17].Style.Numberformat.Format = "dd-mmm-yyyy HH:mm:ss";
@@ -456,5 +485,7 @@ public partial class pacman : System.Web.UI.Page
 
         }
     }
+
+
 }
 

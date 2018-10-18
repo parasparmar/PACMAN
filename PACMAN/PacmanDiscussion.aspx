@@ -113,48 +113,67 @@
         </div>
     </div>
 
-    <asp:Panel ID="pnlOverall" CssClass="box" runat="server" Visible="true">
-        <div class="box-body">
-            <div class="form-group">
-                <div class="col-lg-12">
-                    <div class="form-group">
-                        <label>
-                            <asp:Literal ID="ltlOverAll" runat="server" Text="Pacman Cycle"></asp:Literal></label>
-                        <asp:GridView ID="gvOverAll" runat="server"
-                            CssClass="table table-condensed table-bordered table-responsive PageSpecificDataTable"
-                            AutoGenerateColumns="true"
-                            OnPreRender="gv_PreRender">
-                        </asp:GridView>
+    <asp:Panel ID="pnlOverall" runat="server" Visible="true">
+        <div id="leftSection" class="col-md-4">
+            <asp:Repeater ID="rptOverAll" runat="server">
+                <HeaderTemplate>
+                    <!-- Widget: user widget style 1 -->
+                    <div class="box box-widget widget-user-2">
+                        <!-- Add the bg color to the header using any of the bg-* classes -->
+                        <div class="widget-user-header bg-primary">
+                            <div class="widget-user-image">
+                                <asp:Image ID="imgReportee" CssClass="img-circle" ImageUrl="~/Sitel/user_images/unknownUser.jpg" runat="server" AlternateText="Avatar" />
+                            </div>
+                            <!-- /.widget-user-image -->
+                            <h3 class="widget-user-username">
+                                <asp:Literal ID="ltlUserName" runat="server" Text="My Name"></asp:Literal></h3>
+                            <%--<h5 class="widget-user-desc"><asp:Literal ID="ltlUserRole" runat="server" Text="My Role this Month"></asp:Literal></h5>--%>
+                        </div>
+                        <div class="box-footer no-padding">
+                            <ul class="nav nav-stacked">
+                </HeaderTemplate>
+                <ItemTemplate>
+                    <li>
+                        <a>
+                            <asp:Literal ID="ltlHeader" runat="server" Text='<%# Eval("Row")%>'></asp:Literal>
+                            <span class="pull-right badge">
+                                <asp:Literal ID="ltlValue" runat="server" Text='<%# Eval("Column")%>'></asp:Literal>
+                            </span>
+                        </a>
+                    </li>
+                </ItemTemplate>
+                <FooterTemplate>
+                    </ul>
+                                </div>                            
+                            <!-- /.widget-user -->
                     </div>
-                </div>
-            </div>
+                </FooterTemplate>
+            </asp:Repeater>
         </div>
-    </asp:Panel>
-    <%--     <div class="col-md-2">
+        <div id="rightSection" class="col-md-8">
             <!-- Widget: user widget style 1 -->
             <div class="box box-widget widget-user-2">
                 <!-- Add the bg color to the header using any of the bg-* classes -->
-                <div class="widget-user-header bg-navy">
-                    <div class="widget-user-image">
-                        <asp:Image ID="imgbtnUserImage" CssClass="img-circle" AlternateText="User Avatar" runat="server" />
-                    </div>
+                <div class="widget-user-header bg-gray">
+                    <div class="widget-user-image"></div>
                     <!-- /.widget-user-image -->
-                    <h3 class="widget-user-username">
-                        <asp:Label ID="lblName" runat="server"></asp:Label></h3>
-                    <h5 class="widget-user-desc">
-                        <asp:Label ID="lblRole" runat="server"></asp:Label></h5>
+                    <h3 class="widget-user-username">Manager's Comments for the cycle.
+                    </h3>
+                    <h5 class="widget-user-desc"></h5>
                 </div>
                 <div class="box-footer no-padding">
-                    <ul class="nav nav-stacked">
-                        <li><a href="#">&nbsp &nbsp Rep. Mgr. Score <span class="pull-right badge bg-blue">2.5</span></a></li>
-                        <li><a href="#">&nbsp + Grace <span class="pull-right badge bg-yellow">0.6</span></a></li>
-                        <li><a href="#">&nbsp = Final Score <span class="pull-right badge bg-green">3.10</span></a></li>
-                        <li><a href="#">&nbsp ~ Final Rating <span class="pull-right badge bg-green">3</span></a></li>
-                    </ul>
+                    <asp:TextBox ID="tbManualComments" CssClass="form-control bg-info" Rows="4"
+                        TextMode="MultiLine" Wrap="True" ReadOnly="true" BorderStyle="None"
+                        BorderWidth="0" Font-Names="Tahoma" Height="100px"
+                        Style="overflow: hidden;" runat="server"></asp:TextBox>
+
+                    <asp:Label ID="lblOverAll" runat="server" CssClass="text text-primary text-uppercase" Text="Pacman Cycle"></asp:Label>
                 </div>
             </div>
             <!-- /.widget-user -->
-        </div>--%>
+        </div>
+    </asp:Panel>
+    
 
 
     <!-- Main row -->
@@ -200,14 +219,14 @@
                                                         <div class="row">
                                                             <div class="col-md-3">
                                                                 <h4 class="box-title">
-                                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">KPI Name :
+                                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">
                                                                         <asp:Label ID="ltlKPIName" Text='<%#Eval("Metric") %>' runat="server"></asp:Label>
                                                                     </a>
                                                                 </h4>
                                                             </div>
                                                             <div class="col-md-3">
                                                                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">
-                                                                    <h4 class="box-title">Weightage %:
+                                                                    <h4 class="box-title">Wtg %:
                                                                     <asp:Label ID="ltlKPIWeightage" Text='<%#Convert.ToDecimal(Eval("KPIWtg"))*100 %>' runat="server"></asp:Label>
                                                                     </h4>
                                                                 </a>

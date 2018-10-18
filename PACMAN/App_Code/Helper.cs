@@ -18,8 +18,8 @@ public class Helper : IPartitionResolver
     public string getConnectionString()
     {
         EDCryptor xEDCryptor = new EDCryptor();
-        string xString = ConfigurationManager.ConnectionStrings["constr"].ToString();
-        //string xString = ConfigurationManager.ConnectionStrings["constrProd"].ToString();
+        //string xString = ConfigurationManager.ConnectionStrings["constr"].ToString();
+        string xString = ConfigurationManager.ConnectionStrings["constrProd"].ToString();
         xString = xEDCryptor.DeCrypt(xString);
         return xString;
     }

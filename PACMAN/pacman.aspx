@@ -48,91 +48,7 @@
 
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
-    <%--<div class="row">
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-green">
-                <div class="inner">
-                    <h3>3.59</h3>
-                    <p>service level</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-yellow">
-                <div class="inner">
-                    <h3>2.48<sup style="font-size: 20px"></sup></h3>
 
-                    <p>btp</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-green">
-                <div class="inner">
-                    <h3>3.6</h3>
-
-                    <p>coaching</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-aqua">
-                <div class="inner">
-                    <h3>5.0</h3>
-
-                    <p>escalations</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-aqua">
-                <div class="inner">
-                    <h3>5.0</h3>
-
-                    <p>attendance</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-        <div class="col-lg-2 col-xs-4">
-            <!-- small box -->
-            <div class="small-box bg-green">
-                <div class="inner">
-                    <h3>3.0</h3>
-
-                    <p>rta optimization</p>
-                </div>
-                <div class="icon">
-                </div>
-                <a href="#" class="small-box-footer">more info <i class="fa fa-arrow-circle-right"></i></a>
-            </div>
-        </div>
-        <!-- ./col -->
-    </div>--%>
     <!-- Small boxes (Stat box) -->
     <!-- /.row -->
     <div class="box">
@@ -156,24 +72,66 @@
     </div>
     <!-- Review Selection Row -->
 
-    <asp:Panel ID="pnlOverall" CssClass="box" runat="server" Visible="true">
-        <div class="box-body">
-            <div class="form-group">
-                <div class="col-lg-12">
-                    <div class="form-group">                        
-                            <asp:Label ID="lblOverAll" runat="server" Text="Pacman Cycle"></asp:Label>
-                        <asp:GridView ID="gvOverAll" runat="server"
-                            CssClass="table table-condensed table-bordered table-responsive PageSpecificDataTable"
-                            AutoGenerateColumns="true"
-                            OnPreRender="gv_PreRender">
-                        </asp:GridView>
+    <asp:Panel ID="pnlOverall" CssClass="row" runat="server" Visible="true">
+        <div id="leftSection" class="col-md-4">
+            <asp:Repeater ID="rptOverAll" runat="server">
+                <HeaderTemplate>
+                    <!-- Widget: user widget style 1 -->
+                    <div class="box box-widget widget-user-2">
+                        <!-- Add the bg color to the header using any of the bg-* classes -->
+                        <div class="widget-user-header bg-primary">
+                            <div class="widget-user-image">
+                                <asp:Image ID="imgReportee" CssClass="img-circle" ImageUrl="~/Sitel/user_images/unknownUser.jpg" runat="server" AlternateText="Avatar" />
+                            </div>
+                            <!-- /.widget-user-image -->
+                            <h3 class="widget-user-username">
+                                <asp:Literal ID="ltlUserName" runat="server" Text="My Name"></asp:Literal></h3>
+                            <%--<h5 class="widget-user-desc"><asp:Literal ID="ltlUserRole" runat="server" Text="My Role this Month"></asp:Literal></h5>--%>
+                        </div>
+                        <div class="box-footer no-padding">
+                            <ul class="nav nav-stacked">
+                </HeaderTemplate>
+                <ItemTemplate>
+                    <li>
+                        <a>
+                            <asp:Literal ID="ltlHeader" runat="server" Text='<%# Eval("Row")%>'></asp:Literal>
+                            <span class="pull-right badge">
+                                <asp:Literal ID="ltlValue" runat="server" Text='<%# Eval("Column")%>'></asp:Literal>
+                            </span>
+                        </a>
+                    </li>
+                </ItemTemplate>
+                <FooterTemplate>
+                    </ul>
+                                </div>                            
+                            <!-- /.widget-user -->
                     </div>
+                </FooterTemplate>
+            </asp:Repeater>
+        </div>
+        <div id="rightSection" class="col-md-8">
+            <!-- Widget: user widget style 1 -->
+            <div class="box box-widget widget-user-2">
+                <!-- Add the bg color to the header using any of the bg-* classes -->
+                <div class="widget-user-header bg-gray">
+                    <div class="widget-user-image"></div>
+                    <!-- /.widget-user-image -->
+                    <h3 class="widget-user-username">Manager's Comments for the cycle.
+                    </h3>
+                    <h5 class="widget-user-desc"></h5>
+                </div>
+                <div class="box-footer no-padding">
+                    <asp:TextBox ID="tbManualComments" CssClass="form-control bg-info" Rows="4"
+                        TextMode="MultiLine" Wrap="True" ReadOnly="true" BorderStyle="None"
+                        BorderWidth="0" Font-Names="Tahoma" Height="100px"
+                        Style="overflow: hidden;" runat="server"></asp:TextBox>
+
+                    <asp:Label ID="lblOverAll" runat="server" CssClass="text text-primary text-uppercase" Text="Pacman Cycle"></asp:Label>
                 </div>
             </div>
+            <!-- /.widget-user -->
         </div>
     </asp:Panel>
-
-
     <div class="row">
         <!-- Left col -->
         <section class="col-lg-12 connectedSortable">
@@ -195,7 +153,8 @@
                             <div class="col-md-12">
                                 <div class="box box-solid">
                                     <div class="box-header with-border">
-                                        <h3 class="box-title">Overall Score : <asp:Literal ID="ltlFinalRating" Text="0" runat="server"></asp:Literal>
+                                        <h3 class="box-title">Overall Score :
+                                            <asp:Literal ID="ltlFinalRating" Text="0" runat="server"></asp:Literal>
                                         </h3>
                                     </div>
                                     <!-- /.box-header -->
@@ -212,14 +171,14 @@
                                                         <div class="row">
                                                             <div class="col-md-3">
                                                                 <h4 class="box-title">
-                                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">KPI Name :
+                                                                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">
                                                                         <asp:Literal ID="ltlKPIName" Text='<%#Eval("Metric") %>' runat="server"></asp:Literal>
                                                                     </a>
                                                                 </h4>
                                                             </div>
                                                             <div class="col-md-3">
                                                                 <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">
-                                                                    <h4 class="box-title">Weightage %:
+                                                                    <h4 class="box-title">Wtg %:
                                                                     <asp:Literal ID="ltlKPIWeightage" Text='<%#Convert.ToDecimal(Eval("KPIWtg"))*100 %>' runat="server"></asp:Literal>
                                                                     </h4>
                                                                 </a>
@@ -232,11 +191,11 @@
                                                                 </a>
                                                             </div>
                                                             <div class="col-md-2">
-                                                                <%--<a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">
-                                                                    <h4 class="box-title">Wtd Score :
+                                                                <a data-toggle="collapse" data-parent="#accordion" href="#collapse<%# Eval("KPIID") %>">
+                                                                    <h4 class="box-title" style="color: white">Wtd Score :
                                                                     <asp:Literal ID="ltlWeightedScore" Text="0" runat="server"></asp:Literal>
                                                                     </h4>
-                                                                </a>--%>
+                                                                </a>
                                                             </div>
                                                             <div class="col-md-1">
                                                                 <asp:LinkButton ID="btnKPI" CssClass="btn btn-primary btn-flat pull-right"
@@ -274,7 +233,7 @@
                                                                         <asp:Label ID="label1" runat="server">Please enter comments</asp:Label>
                                                                         <asp:TextBox ID="txtManualComments" runat="server" CssClass="form-control select" TextMode="MultiLine" Rows="2"></asp:TextBox>
                                                                     </div>
-                                                                   
+
                                                                 </div>
                                                             </asp:Panel>
                                                             <!--Manual KPI Panel-->
@@ -302,7 +261,6 @@
             </div>
             <!-- /.nav-tabs-custom -->
             <asp:Panel ID="pnlSubmission" CssClass="row" runat="server" Visible="false">
-
                 <div class="col-md-6">
                     <div class="box">
                         <div class="box-body">
@@ -316,7 +274,6 @@
                         </div>
                     </div>
                 </div>
-
             </asp:Panel>
         </section>
         <!-- /.Left col -->
@@ -325,10 +282,5 @@
     <!-- /.row (main row) -->
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
-
-    <!-- Bootstrap WYSIHTML5 -->
-    <script src="plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.all.min.js"></script>
-
-
 </asp:Content>
 

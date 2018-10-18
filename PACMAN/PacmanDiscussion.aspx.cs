@@ -493,23 +493,51 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     private void populateGVOverall()
     {
         PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
+
         string strSQL = "PMS.ShowEmpPacmanDetails";
         SqlConnection cn = new SqlConnection(my.getConnectionString());
         cn.Open();
         SqlCommand cmd = new SqlCommand(strSQL, cn);
 
         cmd.CommandType = CommandType.StoredProcedure;
-        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
+        cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
         cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
         SqlDataAdapter da = new SqlDataAdapter(cmd);
         DataSet ds = new DataSet();
         da.Fill(ds);
-        DataTable dtOverall = ds.Tables[0];
-        DataTable dtPhase = ds.Tables[1];
-        gvOverAll.DataSource = dtOverall;
-        gvOverAll.DataBind();
-        ltlOverAll.Text = dtPhase.Rows[0][0].ToString();
-        //fillpnlOverall();
+        if (ds != null)
+        {
+            if (ds.Tables[0] != null)
+            {
+                DataColumn Col = ds.Tables[0].Columns.Add("Row");
+                Col.SetOrdinal(0);
+                ds.Tables[0].Rows[0]["Row"] = "Column";
+                DataTable dtOverall = PageExtensionMethods.GenerateTransposedTable(ds.Tables[0]);
+                DataTable dtPhase = ds.Tables[1];
+                //gvOverAll.DataSource = dtOverall;
+                //gvOverAll.DataBind();
+                rptOverAll.DataSource = dtOverall;
+                rptOverAll.DataBind();
+
+                cmd.Parameters.Clear();
+                cmd.CommandText = "WFMP.getEmployeeData";
+                string myID = my.getFirstResult("select ntname from WFMP.tblMaster where employee_id = " + ForEmpID);
+                cmd.Parameters.AddWithValue("@NT_ID", myID);
+
+                DataTable reporteeData = my.GetDataTableViaProcedure(ref cmd);
+                Literal userName = rptOverAll.FindControlRecursive("ltlUserName") as Literal;
+                userName.Text = reporteeData.Rows[0]["FullName"].ToString();
+                Image userImage = rptOverAll.FindControlRecursive("imgReportee") as Image;
+                userImage.ImageUrl = "/Sitel/user_images/" + reporteeData.Rows[0]["UserImage"].ToString();
+                tbManualComments.Text = my.getFirstResult("select top 1 repmgrcomments from [pms].[eligibility] where periodid = " + PeriodID + " and empcode=" + ForEmpID);
+                tbManualComments.CssClass = "form-control";
+                tbManualComments.ReadOnly = true;
+                if (dtPhase != null && dtPhase.Rows.Count>0)
+                {
+                    lblOverAll.Text = dtPhase != null ? dtPhase.Rows[0][0].ToString() : string.Empty;
+                }
+            }
+        }
     }
     private void fillpnlOverall()
     {

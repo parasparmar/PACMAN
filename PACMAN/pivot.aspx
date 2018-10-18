@@ -20,6 +20,7 @@
 </asp:Content>
 <asp:Content ID="Content5" ContentPlaceHolderID="The_Body" runat="Server">
     <div class="box-body">
+        
         <button id="btnGetOverallData" type="button" class="btn btn-primary" onclick="getOverallData()">Refresh Data</button>
         <!-- PivotJS chart-->
         <div class="chart tab-pane active" id="grace-pivot" style="position: relative; min-height: 300px">
@@ -27,20 +28,36 @@
     </div>
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
-    <!-- jQuery 3 -->    
+    <!-- jQuery 3 -->
     <script src="Sitel/cdn/pivotjs/jquery-ui.min.js"></script>
-    <link href="Sitel/cdn/pivotjs/pivot.css" rel="stylesheet" />
+    <link href="Sitel/cdn/pivotjs/pivot-sitel.css" rel="stylesheet" />
     <script src="Sitel/cdn/pivotjs/pivot.min.js"></script>
     <script src="Sitel/cdn/pivotjs/plotly-basic-latest.min.js"></script>
     <script src="Sitel/cdn/pivotjs/plotly_renderers.js"></script>
 
     <script>
         $(function () {
+            
             getOverallData();
-        });
 
+        });
+        function applyCSS() {
+            // These classes are the dropdowns that select 
+            // 1) .pvtRenderer = the type of pivot rendered
+            // 2) .pvtAggregator = the aggregation applied... sum, count etc..
+            $(".pvtAggregator, .pvtRenderer, pvtAttrDropdown").addClass("select2");            
+            $(".select2").select2();
+
+            //Apply button classes to the dragabble pivot fields.
+            $(".pvtAttr").addClass("btn btn-primary btn-sm btn-flat");
+
+            $(".pvtTable").addClass(" table table-responsive table-bordered");
+            $(".pvtTable").DataTable();
+            
+
+        }
         function getOverallData() {
-            var PeriodId = 9;
+            var PeriodId = 8;
             $.ajax({
                 type: "POST",
                 url: "pivot.aspx/GetChartData",
@@ -48,7 +65,7 @@
                 contentType: "application/json; charset=utf-8",
                 dataType: "json",
                 success: function (response) {
-                    //alert("Success : " + response.status);
+                   // alert("Success : " + response.status);
                     OnSuccessDrawChart(response.d);
                 },
                 failure: function (response) {
@@ -60,22 +77,21 @@
             });
 
 
-            function OnSuccessDrawChart(mps) {
+        }
+        function OnSuccessDrawChart(mps) {
 
-                var derivers = $.pivotUtilities.derivers;
-                var renderers = $.extend($.pivotUtilities.renderers, $.pivotUtilities.plotly_renderers);
+            var derivers = $.pivotUtilities.derivers;
+            var renderers = $.extend($.pivotUtilities.renderers, $.pivotUtilities.plotly_renderers);
 
-                $("#grace-pivot").pivotUI(mps, {
-                    renderers: renderers,
-                    cols: ["FinalRating"], rows: ["Role"],
-                    rendererName: "Table",
-                    rowOrder: "value_a_to_z",
+            $("#grace-pivot").pivotUI(mps, {
+                renderers: renderers,
+                cols: ["FinalRating"], rows: ["Role"],
+                rendererName: "Table",
+                rowOrder: "value_a_to_z",
 
-                });
+            });
 
-
-                ////$("#grace-pivot").pivotUI(mps, { renderers: renderers });
-            }
+            applyCSS();            
         }
         function getDetailedData() {
             $.ajax({
