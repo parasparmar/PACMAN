@@ -113,7 +113,7 @@
         </div>
     </div>
 
-    <asp:Panel ID="pnlOverall" runat="server" Visible="true">
+    <asp:Panel ID="pnlOverall" runat="server" Visible="false">
         <div id="leftSection" class="col-md-4">
             <asp:Repeater ID="rptOverAll" runat="server">
                 <HeaderTemplate>
@@ -127,7 +127,7 @@
                             <!-- /.widget-user-image -->
                             <h3 class="widget-user-username">
                                 <asp:Literal ID="ltlUserName" runat="server" Text="My Name"></asp:Literal></h3>
-                            <%--<h5 class="widget-user-desc"><asp:Literal ID="ltlUserRole" runat="server" Text="My Role this Month"></asp:Literal></h5>--%>
+                            <h5 class="widget-user-desc"></h5>
                         </div>
                         <div class="box-footer no-padding">
                             <ul class="nav nav-stacked">
@@ -155,10 +155,11 @@
             <div class="box box-widget widget-user-2">
                 <!-- Add the bg color to the header using any of the bg-* classes -->
                 <div class="widget-user-header bg-gray">
-                    <div class="widget-user-image"></div>
+                    <div class="widget-user-image">
+                        <asp:Image ID="imgReportingMgr" CssClass="img-circle" ImageUrl="~/Sitel/user_images/unknownPerson.jpg" runat="server" AlternateText="Avatar" />
+                    </div>
                     <!-- /.widget-user-image -->
-                    <h3 class="widget-user-username">Manager's Comments for the cycle.
-                    </h3>
+                    <h3 class="widget-user-username">My Comments for the cycle</h3>
                     <h5 class="widget-user-desc"></h5>
                 </div>
                 <div class="box-footer no-padding">
@@ -167,13 +168,13 @@
                         BorderWidth="0" Font-Names="Tahoma" Height="100px"
                         Style="overflow: hidden;" runat="server"></asp:TextBox>
 
-                    <asp:Label ID="lblOverAll" runat="server" CssClass="text text-primary text-uppercase" Text="Pacman Cycle"></asp:Label>
+                    <asp:Label ID="lblOverAll" runat="server" CssClass="text text-primary text-uppercase form-control" Text=""></asp:Label>
                 </div>
             </div>
             <!-- /.widget-user -->
         </div>
     </asp:Panel>
-    
+
 
 
     <!-- Main row -->

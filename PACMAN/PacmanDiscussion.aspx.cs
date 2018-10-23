@@ -1,19 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Web;
-using System.Web.UI;
-using System.Web.UI.WebControls;
-using System.Data.SqlClient;
-using System.Data.Sql;
-using System.Reflection;
-using System.IO;
-using CsvHelper;
-using System.Web.UI.HtmlControls;
-using System.Web.Services;
+﻿using CsvHelper;
 using OfficeOpenXml;
 using OfficeOpenXml.Style;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Sql;
+using System.Data.SqlClient;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Web;
+using System.Web.Services;
+using System.Web.UI;
+using System.Web.UI.HtmlControls;
+using System.Web.UI.WebControls;
 public partial class PacmanDiscussion : System.Web.UI.Page
 {
     DataTable dtEmp;
@@ -131,13 +131,16 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         ddlSPI.SelectedIndex = 0;
         clearRP();
         PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue);
-        string strSQL = "SELECT [FromDate],[ToDate] FROM [PMS].[PeriodMst] where [PeriodID] =" + PeriodID;
-        DataTable dt = my.GetData(strSQL);
-        StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
-        EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
-
-        fillddlStage();
-        populateHeaders();
+        if (PeriodID > 0)
+        {
+            string strSQL = "SELECT [FromDate],[ToDate] FROM [PMS].[PeriodMst] where [PeriodID] =" + PeriodID;
+            DataTable dt = my.GetData(strSQL);
+            StartDate = Convert.ToDateTime(dt.Rows[0]["FromDate"].ToString());
+            EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
+            populateHeaders();
+            fillRP(ForEmpID);
+            enableButtons();
+        }
     }
     private void enableButtons()
     {
@@ -289,7 +292,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     {
         //PMS.FillKPI 880343,5
         rp.Visible = true;
-        int PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue.ToString());
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue.ToString());
         fillStartAndEndDates();
         strSQL = "PMS.FillKPI";
         SqlCommand cmd = new SqlCommand(strSQL);
@@ -298,10 +301,18 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
 
         DtProcName = my.GetData(ref cmd);
-        rp.DataSource = DtProcName;
-        rp.DataBind();
-        filltbFeedback();
-        populateGVOverall();
+        if (DtProcName != null && DtProcName.Rows.Count > 0)
+        {
+            pnlOverall.Visible = true;
+            rp.DataSource = DtProcName;
+            rp.DataBind();
+            filltbFeedback();
+            populateGVOverall();
+        }
+        else
+        {
+            pnlOverall.Visible = false;
+        }
     }
     private void filltbFeedback()
     {
@@ -459,6 +470,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
     }
     private void clearRP()
     {
+        pnlOverall.Visible = false;
         rp.Visible = false;
         ltlFinalRating.Text = "0";
         ltlEmployeeBanner.Text = string.Empty;
@@ -500,7 +512,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
         SqlCommand cmd = new SqlCommand(strSQL, cn);
 
         cmd.CommandType = CommandType.StoredProcedure;
-        cmd.Parameters.AddWithValue("@EmpCode", MyEmpID);
+        cmd.Parameters.AddWithValue("@EmpCode", ForEmpID);
         cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
         SqlDataAdapter da = new SqlDataAdapter(cmd);
         DataSet ds = new DataSet();
@@ -523,16 +535,20 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 cmd.CommandText = "WFMP.getEmployeeData";
                 string myID = my.getFirstResult("select ntname from WFMP.tblMaster where employee_id = " + ForEmpID);
                 cmd.Parameters.AddWithValue("@NT_ID", myID);
-
+                
                 DataTable reporteeData = my.GetDataTableViaProcedure(ref cmd);
                 Literal userName = rptOverAll.FindControlRecursive("ltlUserName") as Literal;
                 userName.Text = reporteeData.Rows[0]["FullName"].ToString();
                 Image userImage = rptOverAll.FindControlRecursive("imgReportee") as Image;
                 userImage.ImageUrl = "/Sitel/user_images/" + reporteeData.Rows[0]["UserImage"].ToString();
+
+                string repMgrImg = my.getFirstResult("Select UserImage from WFMP.tblProfile where employee_id = " + reporteeData.Rows[0]["RepMgrCode"].ToInt32());
+                imgReportingMgr.ImageUrl = "/Sitel/user_images/" + repMgrImg;
+
                 tbManualComments.Text = my.getFirstResult("select top 1 repmgrcomments from [pms].[eligibility] where periodid = " + PeriodID + " and empcode=" + ForEmpID);
-                tbManualComments.CssClass = "form-control";
+                
                 tbManualComments.ReadOnly = true;
-                if (dtPhase != null && dtPhase.Rows.Count>0)
+                if (dtPhase != null && dtPhase.Rows.Count > 0)
                 {
                     lblOverAll.Text = dtPhase != null ? dtPhase.Rows[0][0].ToString() : string.Empty;
                 }
@@ -607,7 +623,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                         }
                         //Get the physical path to the file.
                         ExcelWorksheet ws = pck.Workbook.Worksheets.Add(currentKPI + " - " + currentMetric);
-                        validSheetCount++;                        
+                        validSheetCount++;
                         lastRow = 1;
                         ws.Cells[lastRow + 1, 1].LoadFromDataTable(d, true);
                         ws.Cells[2, 12, recordCount + 1, 17].Style.Numberformat.Format = "dd-mmm-yyyy HH:mm:ss";
@@ -638,14 +654,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
 
         }
     }
-
-
-
-    //    TO DO
-    //1	Find Reportees
-    //2	Find KPIs Per Reportee
-    //3	Create Sets of Employees per KPI
-    //3	Run KPI Specific Procedures for employee sets
+    
 
 }
 

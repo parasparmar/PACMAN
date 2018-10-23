@@ -1,17 +1,17 @@
-﻿using System;
+﻿using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Sql;
+using System.Data.SqlClient;
+using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
-using System.Data.SqlClient;
-using System.Data.Sql;
-using System.Reflection;
-using System.Linq.Expressions;
-using System.IO;
-using OfficeOpenXml;
-using OfficeOpenXml.Style;
 public partial class pacman : System.Web.UI.Page
 {
     DataTable dtEmp;
@@ -118,12 +118,14 @@ public partial class pacman : System.Web.UI.Page
         DataTable dtReportee = my.GetData(ref cmd);
         if (dtReportee != null)
         {
+
             string Role = string.Empty;
             Role = dtReportee.Rows[0]["Role"].ToString();
             ltlEmployeeBanner.Text = ddlReviewPeriod.SelectedItem.Text.ToString() + "( " + MyEmpID + " ) | Role : " + Role;
         }
         else
         {
+
             ltlEmployeeBanner.Text = string.Empty;
         }
     }
@@ -162,9 +164,9 @@ public partial class pacman : System.Web.UI.Page
     }
     private void fillRP(int ForEmpID)
     {
-        //PMS.FillKPI 880343,5
+        
         rp.Visible = true;
-        int PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue.ToString());
+        PeriodID = Convert.ToInt32(ddlReviewPeriod.SelectedValue.ToString());
         fillStartAndEndDates();
         strSQL = "PMS.FillKPI";
         SqlCommand cmd = new SqlCommand(strSQL);
@@ -173,18 +175,27 @@ public partial class pacman : System.Web.UI.Page
         cmd.Parameters.AddWithValue("@PeriodID", PeriodID);
 
         DtProcName = my.GetData(ref cmd);
-        rp.DataSource = DtProcName;
-        rp.DataBind();
-        int Phase = DtProcName.Rows[0]["Phase"].ToInt32();
-        if (Phase >= 2)
+
+        if (DtProcName != null && DtProcName.Rows.Count > 0)
         {
-            populateGVOverall();
+            pnlOverall.Visible = true;
+            rp.DataSource = DtProcName;
+            rp.DataBind();
+            int Phase = DtProcName.Rows[0]["Phase"].ToInt32();
+            if (Phase >= 2)
+            {
+                populateGVOverall();
+            }
+            else
+            {
+                rptOverAll.DataSource = null;
+                rptOverAll.DataBind();
+                lblOverAll.Text = "Pacman cycle".ToString();
+            }
         }
         else
         {
-            rptOverAll.DataSource = null;
-            rptOverAll.DataBind();
-            lblOverAll.Text = "Pacman cycle".ToString();
+            pnlOverall.Visible = false;
         }
 
     }
@@ -314,6 +325,7 @@ public partial class pacman : System.Web.UI.Page
     }
     private void clearRP()
     {
+        pnlOverall.Visible = false;
         rp.Visible = false;
         ltlFinalRating.Text = "0";
         ltlEmployeeBanner.Text = string.Empty;
@@ -382,8 +394,12 @@ public partial class pacman : System.Web.UI.Page
                 userName.Text = reporteeData.Rows[0]["FullName"].ToString();
                 Image userImage = rptOverAll.FindControlRecursive("imgReportee") as Image;
                 userImage.ImageUrl = "/Sitel/user_images/" + reporteeData.Rows[0]["UserImage"].ToString();
+                
+                string repMgrImg = my.getFirstResult("Select UserImage from WFMP.tblProfile where employee_id = " + reporteeData.Rows[0]["RepMgrCode"].ToInt32());
+                imgReportingMgr.ImageUrl = "/Sitel/user_images/" + repMgrImg;
+
                 tbManualComments.Text = my.getFirstResult("select top 1 repmgrcomments from [pms].[eligibility] where periodid = " + PeriodID + " and empcode=" + ForEmpID);
-                tbManualComments.CssClass = "form-control";
+                
                 tbManualComments.ReadOnly = true;
                 if (dtPhase != null && dtPhase.Rows.Count > 0)
                 {
