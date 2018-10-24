@@ -540,10 +540,10 @@ public partial class PacmanDiscussion : System.Web.UI.Page
                 Literal userName = rptOverAll.FindControlRecursive("ltlUserName") as Literal;
                 userName.Text = reporteeData.Rows[0]["FullName"].ToString();
                 Image userImage = rptOverAll.FindControlRecursive("imgReportee") as Image;
-                userImage.ImageUrl = "/Sitel/user_images/" + reporteeData.Rows[0]["UserImage"].ToString();
+                userImage.ImageUrl = "http://iaccess.nac.sitel-world.net/TA/Sitel/user_images/" + reporteeData.Rows[0]["UserImage"].ToString();
 
                 string repMgrImg = my.getFirstResult("Select UserImage from WFMP.tblProfile where employee_id = " + reporteeData.Rows[0]["RepMgrCode"].ToInt32());
-                imgReportingMgr.ImageUrl = "/Sitel/user_images/" + repMgrImg;
+                imgReportingMgr.ImageUrl = "http://iaccess.nac.sitel-world.net/TA/Sitel/user_images/" + repMgrImg;
 
                 tbManualComments.Text = my.getFirstResult("select top 1 repmgrcomments from [pms].[eligibility] where periodid = " + PeriodID + " and empcode=" + ForEmpID);
                 

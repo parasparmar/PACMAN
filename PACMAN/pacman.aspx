@@ -43,6 +43,18 @@
         .border-between > [class*='col-']:first-child:before {
             display: none;
         }
+        /* Inline style div.widget-user-header */
+        div.widget-user-header {
+            padding-top: 10px !important;
+            padding-bottom: 40px !important;
+        }
+
+        /* AdminLTE.css (3063, 42) */
+        .widget-user-2 .widget-user-image > img {
+            width: 65px !important;
+            height: 65px !important;
+            float: left;
+        }
     </style>
 
 
@@ -84,11 +96,14 @@
                                 <asp:Image ID="imgReportee" CssClass="img-circle" ImageUrl="~/Sitel/user_images/unknownPerson.jpg" runat="server" AlternateText="Avatar" />
                             </div>
                             <!-- /.widget-user-image -->
-                            <h3 class="widget-user-username">
-                                <asp:Literal ID="ltlUserName" runat="server" Text="My Name"></asp:Literal></h3>
-                            <h5 class="widget-user-desc"></h5>
+                            <h1 class="widget-user-desc"></h1>
+                            <h1 class="widget-user-desc"></h1>
+                            <h4 class="widget-user-username" style="font-size: large">
+                                <asp:Literal ID="ltlUserName" runat="server" Text="My Name"></asp:Literal>
+                            </h4>
+
                         </div>
-                        <div class="box-footer no-padding">
+                        <div id="leftBox" class="box-footer no-padding">
                             <ul class="nav nav-stacked">
                 </HeaderTemplate>
                 <ItemTemplate>
@@ -113,20 +128,28 @@
             <!-- Widget: user widget style 1 -->
             <div class="box box-widget widget-user-2">
                 <!-- Add the bg color to the header using any of the bg-* classes -->
-                <div class="widget-user-header bg-gray">
+                <div class="widget-user-header bg-gray" id="rightWidgetUserHeader">
                     <div class="widget-user-image">
                         <asp:Image ID="imgReportingMgr" CssClass="img-circle" ImageUrl="~/Sitel/user_images/unknownPerson.jpg" runat="server" AlternateText="Avatar" />
                     </div>
                     <!-- /.widget-user-image -->
-                    <h3 class="widget-user-username">Reporting Manager's Comments for the Cycle.</h3>
-                    <h5 class="widget-user-desc"></h5>
+                    <h1 class="widget-user-desc"></h1>
+                    <h1 class="widget-user-desc"></h1>
+                    <h4 class="widget-user-username" style="font-size: large">Reporting Manager's Comments for the Cycle.</h4>
+
                 </div>
                 <div class="box-footer no-padding">
-                    <asp:TextBox ID="tbManualComments" CssClass="form-control bg-info" Rows="4"
-                        TextMode="MultiLine" Wrap="True" ReadOnly="true" BorderStyle="None"
-                        BorderWidth="0" Font-Names="Tahoma" Height="100px"
-                        Style="overflow: hidden;" runat="server"></asp:TextBox>
-                    <asp:Label ID="lblOverAll" runat="server" CssClass="text text-primary text-uppercase form-control" Text=""></asp:Label>
+                    <ul class="nav nav-stacked">
+
+                        <asp:TextBox ID="tbManualComments" CssClass="form-control bg-info"
+                            TextMode="MultiLine" Wrap="True" ReadOnly="true" BorderStyle="None"
+                            BorderWidth="0" Font-Names="Tahoma"
+                            Style="overflow: auto;" runat="server"></asp:TextBox>
+
+                        <li id="rightFooter">
+                            <asp:Label ID="lblOverAll" runat="server" CssClass="text text-primary text-uppercase form-control" Text=""></asp:Label>
+                        </li>
+                    </ul>
                 </div>
             </div>
             <!-- /.widget-user -->
@@ -139,8 +162,8 @@
             <div class="nav-tabs-custom">
                 <!-- Tabs within a box -->
                 <ul class="nav nav-tabs pull-right">
-                    <li class="active"><a href="#monthly-scorecard" data-toggle="tab">Overall Scorecard</a></li>
-                    <li class="pull-left header"><i class="fa fa-inbox"></i>
+                    <li class="active" style="font-size: 16px"><a href="#monthly-scorecard" data-toggle="tab">Overall Scorecard</a></li>
+                    <li class="pull-left header" style="font-size: 16px"><i class="fa fa-inbox"></i>
                         <asp:Literal ID="ltlEmployeeBanner" runat="server"></asp:Literal>
                     </li>
                 </ul>
@@ -282,5 +305,19 @@
     <!-- /.row (main row) -->
 </asp:Content>
 <asp:Content ID="Content6" ContentPlaceHolderID="below_footer" runat="Server">
+    <script>
+        //  tbManualComments.height = rptOverAll.height - rightWidgetUserHeader - rightFooter.height
+        $(function () {
+           
+            if ($("#pnlOverall") !== null) {
+                var tbManualCommentsPadding = $("#tbManualComments").innerHeight() - $("#tbManualComments").height();
+                var leftBox = $("#leftBox").height();
+                var rightFooter = $("#rightFooter").height();
+
+                var desiredHeight = leftBox - rightFooter - tbManualCommentsPadding;
+                $("#tbManualComments").height(desiredHeight);
+            }
+        });
+    </script>
 </asp:Content>
 
