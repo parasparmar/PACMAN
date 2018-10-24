@@ -212,7 +212,7 @@
                 </ul>
                 <div class="tab-content no-padding">
                     <!-- Morris chart - Sales -->
-                    <div class="box-body tab-pane active" id="monthly-scorecard" style="position: relative; height: 300px;">
+                    <div class="box-body tab-pane active" id="monthly-scorecard" style="position: relative; min-height: 300px;">
                         <!-- START ACCORDION & CAROUSEL-->
                         <%--<h2 class="page-header"></h2>--%>
 

@@ -144,7 +144,7 @@
                         <asp:TextBox ID="tbManualComments" CssClass="form-control bg-info"
                             TextMode="MultiLine" Wrap="True" ReadOnly="true" BorderStyle="None"
                             BorderWidth="0" Font-Names="Tahoma"
-                            Style="overflow: auto;" runat="server"></asp:TextBox>
+                            Style="overflow: hidden;" runat="server"></asp:TextBox>
 
                         <li id="rightFooter">
                             <asp:Label ID="lblOverAll" runat="server" CssClass="text text-primary text-uppercase form-control" Text=""></asp:Label>
@@ -169,7 +169,7 @@
                 </ul>
                 <div class="tab-content no-padding">
                     <!-- Morris chart - Sales -->
-                    <div class="box-body tab-pane active" id="monthly-scorecard" style="position: relative; height: 300px;">
+                    <div class="box-body tab-pane active" id="monthly-scorecard" style="position: relative; min-height: 300px;">
                         <!-- START ACCORDION & CAROUSEL-->
                         <%--<h2 class="page-header"></h2>--%>
                         <div class="row" id="one" runat="server">
