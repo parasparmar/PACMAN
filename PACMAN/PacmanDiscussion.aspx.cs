@@ -139,6 +139,7 @@ public partial class PacmanDiscussion : System.Web.UI.Page
             EndDate = Convert.ToDateTime(dt.Rows[0]["ToDate"].ToString());
             populateHeaders();
             fillRP(ForEmpID);
+            fillddlReportee();
             enableButtons();
         }
     }

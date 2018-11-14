@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 using System.Data;
 using System.Data.SqlClient;
 using System.Web.UI;
@@ -18,8 +19,8 @@ public class Helper : IPartitionResolver
     public string getConnectionString()
     {
         EDCryptor xEDCryptor = new EDCryptor();
-        string xString = ConfigurationManager.ConnectionStrings["constr"].ToString();
-        //string xString = ConfigurationManager.ConnectionStrings["constrProd"].ToString();
+        //string xString = ConfigurationManager.ConnectionStrings["constr"].ToString();
+        string xString = ConfigurationManager.ConnectionStrings["constrProd"].ToString();
         xString = xEDCryptor.DeCrypt(xString);
         return xString;
     }
@@ -129,6 +130,24 @@ public class Helper : IPartitionResolver
         close_conn();
         return dt;
     }
+
+    public string DataTableToJSONWithJSONNet(DataTable table)
+    {
+        string JSONString = string.Empty;
+        JSONString = JsonConvert.SerializeObject(table);
+
+        //JsonSerializerSettings json = new JsonSerializerSettings
+        //{
+        //    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+        //};
+        //JavaScriptSerializer serializer = new JavaScriptSerializer();
+        //serializer.MaxJsonLength = Int32.MaxValue;
+        //var serializer = new JavaScriptSerializer { MaxJsonLength = Int32.MaxValue, RecursionLimit = 100 };
+
+        //return new JSONResult { Data = JSONString, MaxJsonLength = Int32.MaxValue };
+        return JSONString;
+    }
+
     public DataSet return_dataset(string sql)
     {
         open_db();
