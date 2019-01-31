@@ -397,10 +397,23 @@
                                     <i class="fa fa-line-chart"></i><span>Escalations & Initiatives</span>
                                 </a>
                             </li>
-                            <li>
+                            <%--<li>
                                 <a href="ExceptionTracker.aspx">
                                     <i class="fa fa-exclamation-circle"></i><span>Exception Tracker</span>
                                 </a>
+                            </li>--%>
+                            <li class="treeview">
+                                <a href="#">
+                                    <i class="fa fa-exclamation-circle"></i>
+                                    <span>Exceptions</span>
+                                    <span class="pull-right-container">
+                                        <i class="fa fa-angle-left pull-right"></i>
+                                    </span>
+                                </a>
+                                <ul class="treeview-menu">
+                                    <li><a href="/ExceptionTracker.aspx"><i class="fa fa-exclamation-circle"></i>Exception Tracker</a></li>
+                                    <li><a href="/ExceptionApproval.aspx"><i class="fa fa-toggle-on"></i>Approve/Deny Exception</a></li>
+                                </ul>
                             </li>
                             <li class="treeview">
                                 <a href="#">
